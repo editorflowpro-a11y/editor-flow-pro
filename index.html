@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<link rel="icon" type="image/png" href="https://i.imgur.com/JvSPKKb.png"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="Editor Flow Pro — Sistema de gestão profissional para editores de vídeo freelancer."/>
+<title>Editor Flow Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #050914;
+  --bg2: #0a101d;
+  --card-blue: #162c6d;
+  --card-deep: #0a101d;
+  --accent: #4a6dff;
+  --accent-light: #6b8aff;
+  --accent-glow: rgba(74,109,255,.4);
+  --text: #ffffff;
+  --text2: #a1a1aa;
+  --text3: #71717a;
+  --text-dim: #52525b;
+  --border: rgba(255,255,255,.08);
+  --border2: rgba(255,255,255,.04);
+  --green: #10b981;
+  --amber: #f59e0b;
+  --red: #ef4444;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── FILM GRAIN OVERLAY ─── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+  opacity: .04; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+/* ─── BACKGROUND GRID ─── */
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-size: 60px 60px;
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,.04) 1px, transparent 1px);
+  mask-image: radial-gradient(ellipse 80% 60% at center top, black 0%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at center top, black 0%, transparent 80%);
+}
+
+/* ─── NAV ─── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px;
+  background: rgba(5,9,20,.7);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border2);
+}
+.nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.nav-logo img { height: 30px; width: auto; }
+.nav-center {
+  display: flex; gap: 32px;
+  position: absolute; left: 50%; transform: translateX(-50%);
+}
+.nav-center a {
+  font-size: 13px; font-weight: 500; color: var(--text2);
+  text-decoration: none; transition: color .2s;
+}
+.nav-center a:hover { color: var(--text); }
+.nav-right { display: flex; align-items: center; gap: 14px; }
+.nav-login {
+  font-size: 13px; font-weight: 500; color: var(--text2);
+  text-decoration: none; transition: color .2s;
+}
+.nav-login:hover { color: var(--text); }
+.nav-cta {
+  background: linear-gradient(180deg, #FFFFFF 0%, #E2E8F0 100%);
+  color: #0F172A;
+  padding: 9px 20px; border-radius: 100px;
+  font-size: 13px; font-weight: 700;
+  text-decoration: none;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,.05),
+    0 2px 4px rgba(0,0,0,.2),
+    0 12px 24px -4px rgba(0,0,0,.4),
+    inset 0 1px 1px rgba(255,255,255,1);
+  transition: all .25s cubic-bezier(.25,1,.5,1);
+}
+.nav-cta:hover { transform: translateY(-2px); box-shadow: 0 0 0 1px rgba(0,0,0,.05), 0 6px 12px rgba(0,0,0,.3), 0 20px 32px -6px rgba(0,0,0,.5), inset 0 1px 1px rgba(255,255,255,1); }
+
+/* ─── HERO ─── */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 100px 24px 80px;
+  text-align: center;
+  z-index: 1;
+}
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  padding: 8px 18px; border-radius: 100px;
+  font-size: 12px; font-weight: 500; letter-spacing: .3px;
+  color: var(--text2);
+  backdrop-filter: blur(10px);
+  margin-bottom: 36px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.04), 0 8px 24px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.1);
+  animation: fadeUp 1s ease .2s both;
+}
+.eyebrow-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green), 0 0 16px var(--green);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+@keyframes blurUp {
+  from{opacity:0;transform:translateY(40px) scale(.95);filter:blur(20px)}
+  to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
+}
+
+.hero h1 {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(48px, 8vw, 104px);
+  font-weight: 800;
+  line-height: .98;
+  letter-spacing: -3px;
+  margin-bottom: 28px;
+  max-width: 920px;
+}
+.hero h1 .matte {
+  color: var(--text);
+  text-shadow:
+    0 10px 30px rgba(255,255,255,.1),
+    0 2px 4px rgba(255,255,255,.05);
+  display: block;
+  animation: blurUp 1.4s cubic-bezier(.16,1,.3,1) .3s both;
+}
+.hero h1 .silver {
+  background: linear-gradient(180deg, #FFFFFF 0%, #71717A 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 12px 24px rgba(255,255,255,.08)) drop-shadow(0 4px 8px rgba(255,255,255,.05));
+  display: block;
+  font-weight: 900;
+  letter-spacing: -3.5px;
+  animation: blurUp 1.4s cubic-bezier(.16,1,.3,1) .6s both;
+}
+.hero h1 .italic {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400; font-style: italic;
+  color: var(--text2);
+  letter-spacing: -2px;
+}
+
+.hero-desc {
+  font-size: clamp(15px, 1.4vw, 18px);
+  color: var(--text2); font-weight: 300;
+  line-height: 1.7; max-width: 540px;
+  margin-bottom: 44px;
+  animation: fadeUp 1s ease .9s both;
+}
+.hero-desc strong { color: var(--text); font-weight: 500; }
+
+.hero-actions {
+  display: flex; gap: 14px; justify-content: center;
+  flex-wrap: wrap; margin-bottom: 28px;
+  animation: fadeUp 1s ease 1.1s both;
+}
+.btn-light {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F1F5F9 100%);
+  color: #0F172A;
+  padding: 16px 32px; border-radius: 100px;
+  font-size: 15px; font-weight: 700;
+  text-decoration: none;
+  display: inline-flex; align-items: center; gap: 8px;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,.05),
+    0 2px 4px rgba(0,0,0,.1),
+    0 12px 24px -4px rgba(0,0,0,.3),
+    inset 0 1px 1px rgba(255,255,255,1),
+    inset 0 -3px 6px rgba(0,0,0,.06);
+  transition: all .4s cubic-bezier(.25,1,.5,1);
+}
+.btn-light:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,.05),
+    0 6px 12px -2px rgba(0,0,0,.15),
+    0 20px 32px -6px rgba(0,0,0,.4),
+    inset 0 1px 1px rgba(255,255,255,1),
+    inset 0 -3px 6px rgba(0,0,0,.06);
+}
+.btn-dark {
+  background: linear-gradient(180deg, #27272A 0%, #18181B 100%);
+  color: #fff;
+  padding: 16px 32px; border-radius: 100px;
+  font-size: 15px; font-weight: 700;
+  text-decoration: none;
+  display: inline-flex; align-items: center; gap: 8px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.1),
+    0 2px 4px rgba(0,0,0,.6),
+    0 12px 24px -4px rgba(0,0,0,.9),
+    inset 0 1px 1px rgba(255,255,255,.15),
+    inset 0 -3px 6px rgba(0,0,0,.8);
+  transition: all .4s cubic-bezier(.25,1,.5,1);
+}
+.btn-dark:hover {
+  transform: translateY(-3px);
+  background: linear-gradient(180deg, #3F3F46 0%, #27272A 100%);
+}
+
+.hero-trust {
+  display: flex; gap: 24px; justify-content: center;
+  flex-wrap: wrap; font-size: 12px; color: var(--text3);
+  animation: fadeUp 1s ease 1.3s both;
+}
+.hero-trust span { display: flex; align-items: center; gap: 6px; }
+.hero-trust svg { color: var(--green); }
+
+/* ─── HERO BACKGROUND GLOW ─── */
+.hero-glow {
+  position: absolute; bottom: -200px; left: 50%;
+  transform: translateX(-50%);
+  width: 800px; height: 600px;
+  background: radial-gradient(ellipse 60% 60% at center, rgba(74,109,255,.25) 0%, transparent 70%);
+  pointer-events: none; z-index: -1;
+  animation: fadeIn 2s ease .5s both;
+}
+
+/* ─── DEEP CARD SECTION (Cinematic) ─── */
+.deep-section {
+  padding: 80px 24px;
+  position: relative; z-index: 1;
+}
+.deep-card {
+  max-width: 1280px; margin: 0 auto;
+  border-radius: 32px;
+  background: linear-gradient(145deg, var(--card-blue) 0%, var(--card-deep) 100%);
+  position: relative; overflow: hidden;
+  padding: 60px 48px;
+  box-shadow:
+    0 40px 100px -20px rgba(0,0,0,.9),
+    0 20px 40px -20px rgba(0,0,0,.8),
+    inset 0 1px 2px rgba(255,255,255,.2),
+    inset 0 -2px 4px rgba(0,0,0,.8);
+  border: 1px solid rgba(255,255,255,.04);
+}
+.deep-card-sheen {
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 1;
+  background: radial-gradient(800px circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,.06) 0%, transparent 40%);
+  mix-blend-mode: screen;
+  transition: opacity .3s ease;
+}
+.deep-card-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 40px; align-items: center; min-height: 540px;
+  position: relative; z-index: 2;
+}
+
+.dc-left h3 {
+  font-size: clamp(28px, 3vw, 38px);
+  font-weight: 800; letter-spacing: -1.2px;
+  line-height: 1.1; margin-bottom: 16px;
+  color: var(--text);
+}
+.dc-left p {
+  font-size: 15px; line-height: 1.7;
+  color: rgba(161,170,200,.7); font-weight: 300;
+}
+.dc-left p strong { color: var(--text); font-weight: 600; }
+
+/* MOCKUP CENTRAL */
+.dc-center {
+  display: flex; align-items: center; justify-content: center;
+  perspective: 1000px;
+}
+.app-mockup {
+  width: 100%; max-width: 380px;
+  background: #050914;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.06);
+  overflow: hidden;
+  box-shadow:
+    0 50px 100px -20px rgba(0,0,0,.9),
+    0 20px 40px -10px rgba(0,0,0,.8),
+    inset 0 0 0 2px #1a1a20;
+  transform-style: preserve-3d;
+  transition: transform .8s cubic-bezier(.25,1,.5,1);
+}
+.mockup-bar {
+  background: #0a0f1a;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  display: flex; align-items: center; gap: 8px;
+}
+.mockup-dot { width: 9px; height: 9px; border-radius: 50%; }
+.mockup-dot:nth-child(1) { background: #ff5f57; }
+.mockup-dot:nth-child(2) { background: #febc2e; }
+.mockup-dot:nth-child(3) { background: #28c840; }
+.mockup-url {
+  flex: 1; text-align: center;
+  font-size: 10px; color: var(--text-dim);
+  background: rgba(255,255,255,.03);
+  padding: 3px 10px; border-radius: 4px;
+  margin: 0 8px;
+}
+.mockup-content { padding: 18px; }
+.mockup-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.mockup-title {
+  font-size: 16px; font-weight: 800;
+  letter-spacing: -.5px; color: var(--text);
+}
+.mockup-date {
+  font-size: 9px; color: var(--text-dim);
+  margin-top: 1px;
+}
+.mockup-stats {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 6px; margin-bottom: 14px;
+}
+.mockup-stat {
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.04);
+  border-radius: 8px; padding: 9px 11px;
+}
+.mockup-stat-l { font-size: 8px; color: var(--text-dim); margin-bottom: 3px; text-transform: uppercase; letter-spacing: .5px; }
+.mockup-stat-v { font-size: 18px; font-weight: 800; letter-spacing: -.5px; }
+.mockup-chart {
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.04);
+  border-radius: 8px; padding: 12px;
+  margin-bottom: 14px;
+}
+.mockup-chart-title {
+  font-size: 9px; color: var(--text2);
+  margin-bottom: 10px; font-weight: 600;
+}
+.mockup-bars {
+  display: flex; align-items: flex-end;
+  gap: 5px; height: 60px;
+}
+.mockup-bar-item {
+  flex: 1; background: linear-gradient(180deg, var(--accent) 0%, rgba(74,109,255,.3) 100%);
+  border-radius: 3px 3px 0 0;
+  box-shadow: 0 0 12px rgba(74,109,255,.3);
+}
+.mockup-item-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 11px;
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.04);
+  border-radius: 8px; margin-bottom: 5px;
+}
+.mockup-av {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #6b8aff);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 800; color: #fff;
+}
+.mockup-item-name { font-size: 10px; font-weight: 600; }
+.mockup-item-meta { font-size: 8px; color: var(--text-dim); margin-top: 1px; }
+.mockup-item-val { font-size: 11px; font-weight: 700; color: var(--green); margin-left: auto; }
+
+/* FLOATING BADGES */
+.float-badge {
+  position: absolute;
+  background: linear-gradient(135deg, rgba(255,255,255,.08) 0%, rgba(255,255,255,.01) 100%);
+  backdrop-filter: blur(24px);
+  border-radius: 14px;
+  padding: 12px 16px;
+  display: flex; align-items: center; gap: 12px;
+  z-index: 5;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.1),
+    0 25px 50px -12px rgba(0,0,0,.8),
+    inset 0 1px 1px rgba(255,255,255,.2),
+    inset 0 -1px 1px rgba(0,0,0,.5);
+}
+.float-badge-icon {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), rgba(74,109,255,.2));
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid rgba(255,255,255,.1);
+  color: #fff;
+}
+.float-badge-title { font-size: 12px; font-weight: 700; color: var(--text); }
+.float-badge-sub { font-size: 10px; color: rgba(255,255,255,.5); margin-top: 1px; }
+.fb-tl { top: 40px; left: -20px; animation: float 6s ease-in-out infinite; }
+.fb-br { bottom: 50px; right: -20px; animation: float 6s ease-in-out infinite 3s; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+.dc-right { text-align: right; }
+.dc-brand {
+  font-size: clamp(56px, 8vw, 120px);
+  font-weight: 900; line-height: .9;
+  letter-spacing: -4px;
+  background: linear-gradient(180deg, #FFFFFF 0%, #A1A1AA 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 12px 24px rgba(0,0,0,.6));
+}
+
+/* ─── STATS ─── */
+.stats {
+  padding: 80px 24px 60px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,.01);
+  position: relative; z-index: 1;
+}
+.stats-grid {
+  max-width: 1100px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 0;
+}
+.stat-item {
+  padding: 0 28px;
+  border-right: 1px solid var(--border);
+  text-align: center;
+}
+.stat-item:last-child { border-right: none; }
+.stat-n {
+  font-size: clamp(40px, 5vw, 56px);
+  font-weight: 800; letter-spacing: -2px; line-height: 1;
+  background: linear-gradient(180deg, #FFFFFF 0%, #A1A1AA 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+.stat-l { font-size: 12px; color: var(--text3); letter-spacing: .3px; text-transform: uppercase; font-weight: 500; }
+
+/* ─── SECTION HEADER ─── */
+.section { padding: 100px 24px; position: relative; z-index: 1; }
+.section-inner { max-width: 1280px; margin: 0 auto; }
+.section-eyebrow {
+  display: inline-block;
+  font-size: 11px; font-weight: 700; letter-spacing: 2.5px;
+  text-transform: uppercase; color: var(--accent-light);
+  margin-bottom: 14px;
+}
+.section-title {
+  font-size: clamp(36px, 5vw, 64px);
+  font-weight: 800; letter-spacing: -2.5px; line-height: 1;
+  margin-bottom: 16px;
+}
+.section-title .silver {
+  background: linear-gradient(180deg, #FFFFFF 0%, #71717A 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.section-title .italic {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400; font-style: italic;
+  color: var(--text2);
+}
+.section-sub {
+  font-size: 16px; color: var(--text2); line-height: 1.7;
+  font-weight: 300; max-width: 540px;
+}
+
+/* ─── PROBLEM / SOLUTION ─── */
+.ps-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 24px; margin-top: 60px;
+}
+.ps-col {
+  background: rgba(255,255,255,.015);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 40px 36px;
+  position: relative; overflow: hidden;
+}
+.ps-col-label {
+  display: inline-block;
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; margin-bottom: 20px;
+  padding: 5px 12px; border-radius: 100px;
+}
+.ps-col-label.bad { background: rgba(239,68,68,.1); color: var(--red); border: 1px solid rgba(239,68,68,.2); }
+.ps-col-label.good { background: rgba(16,185,129,.1); color: var(--green); border: 1px solid rgba(16,185,129,.2); }
+.ps-col-title {
+  font-size: 28px; font-weight: 800;
+  letter-spacing: -1px; line-height: 1.1;
+  margin-bottom: 28px;
+}
+.ps-list { display: flex; flex-direction: column; gap: 14px; }
+.ps-item {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 14px;
+  background: rgba(255,255,255,.02);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+}
+.ps-item-icon { flex-shrink: 0; margin-top: 2px; }
+.ps-item-title { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+.ps-item-text { font-size: 13px; color: var(--text2); line-height: 1.6; font-weight: 300; }
+
+/* ─── FEATURES ─── */
+.features-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 18px; margin-top: 60px;
+}
+.feat {
+  background: linear-gradient(145deg, rgba(255,255,255,.025) 0%, rgba(255,255,255,.005) 100%);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px 28px;
+  transition: all .35s cubic-bezier(.25,1,.5,1);
+  position: relative; overflow: hidden;
+}
+.feat::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(74,109,255,.08) 0%, transparent 50%);
+  opacity: 0; transition: opacity .3s;
+  pointer-events: none;
+}
+.feat:hover { transform: translateY(-4px); border-color: rgba(74,109,255,.2); }
+.feat:hover::before { opacity: 1; }
+.feat-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(74,109,255,.15) 0%, rgba(74,109,255,.03) 100%);
+  border: 1px solid rgba(74,109,255,.2);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 20px;
+  color: var(--accent-light);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+}
+.feat-title { font-size: 18px; font-weight: 700; letter-spacing: -.5px; margin-bottom: 10px; }
+.feat-desc { font-size: 13px; color: var(--text2); line-height: 1.7; font-weight: 300; }
+
+/* ─── PRICING ─── */
+.pricing-section { background: rgba(255,255,255,.01); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.plans-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 18px; margin-top: 60px;
+}
+.plan {
+  background: linear-gradient(145deg, rgba(255,255,255,.025) 0%, rgba(255,255,255,.005) 100%);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 36px 32px;
+  display: flex; flex-direction: column;
+  position: relative;
+  transition: all .4s cubic-bezier(.25,1,.5,1);
+}
+.plan:hover { transform: translateY(-6px); border-color: rgba(255,255,255,.15); }
+.plan.featured {
+  background: linear-gradient(145deg, var(--card-blue) 0%, var(--card-deep) 100%);
+  border-color: rgba(74,109,255,.3);
+  box-shadow:
+    0 0 0 1px rgba(74,109,255,.2),
+    0 20px 60px -10px rgba(74,109,255,.3),
+    inset 0 1px 0 rgba(255,255,255,.1);
+}
+.plan-badge {
+  position: absolute; top: -12px; left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, #FFFFFF 0%, #E2E8F0 100%);
+  color: #0F172A;
+  padding: 5px 14px; border-radius: 100px;
+  font-size: 10px; font-weight: 800; letter-spacing: 1px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 12px rgba(0,0,0,.4);
+}
+.plan-name {
+  font-size: 12px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text3);
+  margin-bottom: 18px;
+}
+.plan-price {
+  font-size: 56px; font-weight: 900;
+  letter-spacing: -2.5px; line-height: 1;
+  background: linear-gradient(180deg, #FFFFFF 0%, #A1A1AA 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 4px;
+}
+.plan-price .currency { font-size: 22px; vertical-align: top; margin-top: 8px; display: inline-block; }
+.plan-price .cents {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic; font-weight: 400;
+  font-size: 30px; color: var(--text3);
+  -webkit-text-fill-color: var(--text3);
+}
+.plan-period { font-size: 13px; color: var(--text3); font-weight: 400; margin-bottom: 6px; }
+.plan-equiv {
+  font-size: 12px; font-weight: 600; color: var(--green);
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-bottom: 28px;
+}
+.plan-divider {
+  height: 1px; background: var(--border);
+  margin: 20px 0 24px;
+}
+.plan-features {
+  display: flex; flex-direction: column; gap: 12px;
+  flex: 1; margin-bottom: 28px;
+}
+.plan-feat {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 13px; color: var(--text2); line-height: 1.5; font-weight: 300;
+}
+.plan-feat svg { color: var(--green); flex-shrink: 0; margin-top: 2px; }
+.plan-feat .lim { color: var(--text); font-weight: 600; }
+.plan-feat.off { color: var(--text-dim); }
+.plan-feat.off svg { color: var(--text-dim); }
+.plan-cta.free {
+  background: rgba(255,255,255,.06); color: #fff;
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.08);
+}
+.plan-cta.free:hover { transform: translateY(-2px); background: rgba(255,255,255,.1); }
+.plan-cta {
+  display: block; padding: 14px; border-radius: 100px;
+  font-size: 14px; font-weight: 700;
+  text-decoration: none; text-align: center;
+  transition: all .3s cubic-bezier(.25,1,.5,1);
+}
+.plan-cta.light {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F1F5F9 100%);
+  color: #0F172A;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.05), 0 12px 24px -4px rgba(0,0,0,.3), inset 0 1px 1px rgba(255,255,255,1);
+}
+.plan-cta.light:hover { transform: translateY(-2px); }
+.plan-cta.dark {
+  background: linear-gradient(180deg, #27272A 0%, #18181B 100%);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.1);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.05), 0 8px 16px rgba(0,0,0,.4), inset 0 1px 1px rgba(255,255,255,.1);
+}
+.plan-cta.dark:hover { transform: translateY(-2px); background: linear-gradient(180deg, #3F3F46 0%, #27272A 100%); }
+
+.pricing-footer-note {
+  text-align: center; margin-top: 36px;
+  font-size: 13px; color: var(--text3); font-weight: 300;
+}
+
+/* ─── TESTIMONIALS ─── */
+.test-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 18px; margin-top: 60px;
+}
+.test-card {
+  background: linear-gradient(145deg, rgba(255,255,255,.025) 0%, rgba(255,255,255,.005) 100%);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px 28px;
+}
+.test-stars { display: flex; gap: 2px; margin-bottom: 20px; color: #f59e0b; }
+.test-quote {
+  font-family: 'Instrument Serif', serif;
+  font-size: 19px; font-weight: 400; font-style: italic;
+  line-height: 1.55; color: var(--text);
+  margin-bottom: 28px;
+}
+.test-author { display: flex; align-items: center; gap: 12px; }
+.test-av {
+  width: 38px; height: 38px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800; color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,.4);
+}
+.test-name { font-size: 13px; font-weight: 700; }
+.test-role { font-size: 11px; color: var(--text3); margin-top: 1px; }
+
+/* ─── GUARANTEE ─── */
+.guarantee {
+  margin: 0 auto; max-width: 760px;
+  padding: 48px 40px;
+  background: linear-gradient(145deg, rgba(16,185,129,.06) 0%, rgba(16,185,129,.01) 100%);
+  border: 1px solid rgba(16,185,129,.15);
+  border-radius: 24px;
+  display: flex; align-items: center; gap: 32px;
+}
+.guarantee-icon {
+  flex-shrink: 0;
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: rgba(16,185,129,.1);
+  border: 1px solid rgba(16,185,129,.3);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--green);
+}
+.guarantee-title { font-size: 22px; font-weight: 800; letter-spacing: -.5px; margin-bottom: 8px; }
+.guarantee-text { font-size: 14px; color: var(--text2); line-height: 1.7; font-weight: 300; }
+
+/* ─── FAQ ─── */
+.faq-list { max-width: 760px; margin: 60px auto 0; }
+.faq-item {
+  background: rgba(255,255,255,.015);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  transition: all .3s;
+}
+.faq-item:hover { border-color: rgba(255,255,255,.12); }
+.faq-q {
+  padding: 20px 24px; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  font-size: 15px; font-weight: 500; color: var(--text);
+  user-select: none; transition: color .2s;
+}
+.faq-chevron {
+  flex-shrink: 0;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: rgba(255,255,255,.05);
+  display: flex; align-items: center; justify-content: center;
+  transition: all .3s;
+}
+.faq-item.open .faq-chevron { transform: rotate(180deg); background: var(--accent); color: #fff; }
+.faq-body { max-height: 0; overflow: hidden; transition: max-height .35s ease; }
+.faq-body-inner {
+  padding: 0 24px 22px;
+  font-size: 14px; color: var(--text2); line-height: 1.8; font-weight: 300;
+}
+
+/* ─── SUPPORT ─── */
+.support-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 16px; max-width: 880px; margin: 56px auto 0;
+}
+.support-card {
+  background: linear-gradient(145deg, rgba(255,255,255,.025) 0%, rgba(255,255,255,.005) 100%);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px 28px;
+  text-decoration: none; display: block;
+  transition: all .35s cubic-bezier(.25,1,.5,1);
+}
+.support-card:hover { transform: translateY(-4px); border-color: rgba(74,109,255,.2); }
+.support-card-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(74,109,255,.15) 0%, rgba(74,109,255,.03) 100%);
+  border: 1px solid rgba(74,109,255,.2);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 18px;
+  color: var(--accent-light);
+}
+.support-card-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 6px; letter-spacing: -.3px; }
+.support-card-desc { font-size: 12px; color: var(--text3); line-height: 1.6; font-weight: 300; }
+
+/* ─── CTA FINAL ─── */
+.cta-final-section {
+  padding: 120px 24px;
+  text-align: center;
+  position: relative;
+}
+.cta-final-glow {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 700px; height: 400px;
+  background: radial-gradient(ellipse, rgba(74,109,255,.2) 0%, transparent 70%);
+  pointer-events: none; z-index: -1;
+}
+.cta-final-title {
+  font-size: clamp(40px, 6vw, 80px);
+  font-weight: 900; letter-spacing: -3px;
+  line-height: 1; margin-bottom: 20px;
+}
+.cta-final-title .silver {
+  background: linear-gradient(180deg, #FFFFFF 0%, #71717A 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.cta-final-title .italic {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400; font-style: italic;
+  color: var(--text2);
+}
+.cta-final-sub {
+  font-size: 16px; color: var(--text2);
+  margin-bottom: 40px; font-weight: 300;
+}
+.cta-final-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+/* ─── FOOTER ─── */
+footer {
+  padding: 32px 40px;
+  border-top: 1px solid var(--border);
+  background: rgba(0,0,0,.4);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 16px;
+}
+footer img { height: 24px; filter: brightness(.8); }
+.footer-links { display: flex; gap: 22px; flex-wrap: wrap; }
+.footer-links a { font-size: 12px; color: var(--text3); text-decoration: none; transition: color .2s; }
+.footer-links a:hover { color: var(--text); }
+.footer-copy { font-size: 11px; color: var(--text-dim); letter-spacing: .3px; }
+
+/* ─── REVEAL ON SCROLL ─── */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity .8s cubic-bezier(.25,1,.5,1), transform .8s cubic-bezier(.25,1,.5,1);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 1000px) {
+  .nav-center { display: none; }
+  nav { padding: 0 20px; }
+  .deep-card-grid { grid-template-columns: 1fr; gap: 32px; }
+  .dc-right { text-align: center; }
+  .ps-grid { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: 1fr; }
+  .plans-grid { grid-template-columns: 1fr; max-width: 440px; margin-left: auto; margin-right: auto; }
+  .test-grid { grid-template-columns: 1fr; }
+  .support-grid { grid-template-columns: 1fr; max-width: 440px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 32px 0; }
+  .stat-item:nth-child(2) { border-right: none; }
+  .deep-card { padding: 40px 24px; }
+  .guarantee { flex-direction: column; gap: 20px; text-align: center; padding: 36px 28px; }
+}
+@media (max-width: 600px) {
+  .hero { padding: 100px 16px 60px; }
+  .btn-light, .btn-dark { width: 100%; justify-content: center; }
+  .hero-actions { width: 100%; }
+  .section { padding: 72px 16px; }
+  footer { flex-direction: column; text-align: center; padding: 24px 20px; }
+  .footer-links { justify-content: center; }
+}
+/* ─── NUMBER FLOW ANIMADO ─── */
+.num-flow {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* ─── LIQUID GRADIENT BUTTON ─── */
+.liquid-btn {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 14px;
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  text-align: center;
+  color: #fff;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid rgba(255,255,255,.12);
+  background: #010128;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.06),
+    0 8px 32px rgba(74,109,255,.4),
+    inset 0 1px 1px rgba(255,255,255,.15);
+  transition: transform .4s cubic-bezier(.25,1,.5,1), box-shadow .4s;
+}
+.liquid-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.1),
+    0 14px 40px rgba(74,109,255,.55),
+    inset 0 1px 1px rgba(255,255,255,.2);
+}
+.liquid-btn .liquid-bg {
+  position: absolute;
+  inset: -50%;
+  z-index: -1;
+  border-radius: 100px;
+  background:
+    radial-gradient(circle at 20% 30%, #4743EF 0%, transparent 40%),
+    radial-gradient(circle at 80% 20%, #1E10C5 0%, transparent 45%),
+    radial-gradient(circle at 60% 80%, #0B06FC 0%, transparent 50%),
+    radial-gradient(circle at 30% 70%, #9089E2 0%, transparent 35%),
+    #010128;
+  filter: blur(8px);
+  animation: liquidMove 8s ease-in-out infinite;
+}
+.liquid-btn:hover .liquid-bg {
+  animation: liquidMoveFast 3s ease-in-out infinite;
+}
+@keyframes liquidMove {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(90deg) scale(1.1); }
+  50% { transform: rotate(180deg) scale(.95); }
+  75% { transform: rotate(270deg) scale(1.05); }
+}
+@keyframes liquidMoveFast {
+  0%, 100% { transform: rotate(0deg) scale(1.1); }
+  50% { transform: rotate(180deg) scale(1.2); }
+}
+.liquid-btn .liquid-content {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-shadow: 0 1px 2px rgba(0,0,0,.4);
+}
+
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-logo"><img src="https://i.imgur.com/5mQrC4V.png" alt="Editor Flow Pro"/></a>
+  <div class="nav-center">
+    <a href="#funcionalidades">Funcionalidades</a>
+    <a href="#planos">Planos</a>
+    <a href="#faq">FAQ</a>
+    <a href="#suporte">Suporte</a>
+  </div>
+  <div class="nav-right">
+    <a href="/login.html" class="nav-login">Entrar</a>
+    <a href="#planos" class="nav-cta">
+      Começar
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+
+  <div class="hero-eyebrow">
+    <div class="eyebrow-dot"></div>
+    Sistema de gestão para editores de vídeo
+  </div>
+
+  <h1>
+    <span class="matte">Você edita bem.</span>
+    <span class="silver">Agora gerencie</span>
+    <span class="italic">igual um pro.</span>
+  </h1>
+
+  <p class="hero-desc">
+    Projetos, clientes, prazos e faturamento — <strong>tudo num único lugar.</strong>
+    Construído especificamente para a realidade do editor de vídeo freelancer brasileiro.
+  </p>
+
+  <div class="hero-actions">
+    <a href="#planos" class="btn-light">
+      Começar agora
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+    <a href="#funcionalidades" class="btn-dark">
+      Ver funcionalidades
+    </a>
+  </div>
+
+  <div class="hero-trust">
+    <span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      7 dias de garantia
+    </span>
+    <span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Cancele quando quiser
+    </span>
+    <span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Sem contrato
+    </span>
+  </div>
+</section>
+
+<!-- DEEP CARD CINEMATIC -->
+<section class="deep-section">
+  <div class="deep-card reveal" id="deepCard">
+    <div class="deep-card-sheen"></div>
+    <div class="deep-card-grid">
+
+      <!-- LEFT -->
+      <div class="dc-left">
+        <h3>Gestão profissional, finalmente acessível.</h3>
+        <p><strong>Editor Flow Pro</strong> dá ao editor freelancer o controle que faltava: projetos organizados, clientes mapeados, e o lucro real calculado automaticamente. Sem planilha, sem WhatsApp, sem perder dinheiro.</p>
+      </div>
+
+      <!-- CENTER MOCKUP -->
+      <div class="dc-center">
+        <div style="position:relative;width:100%;display:flex;justify-content:center">
+          <div class="app-mockup">
+            <div class="mockup-bar">
+              <span class="mockup-dot"></span>
+              <span class="mockup-dot"></span>
+              <span class="mockup-dot"></span>
+              <span class="mockup-url">editorflow.pro/app</span>
+            </div>
+            <div class="mockup-content">
+              <div class="mockup-row" style="justify-content:space-between;margin-bottom:18px">
+                <div>
+                  <div class="mockup-title">DASHBOARD</div>
+                  <div class="mockup-date">terça, 2 de junho</div>
+                </div>
+                <div class="mockup-av">M</div>
+              </div>
+              <div class="mockup-stats">
+                <div class="mockup-stat">
+                  <div class="mockup-stat-l">Projetos</div>
+                  <div class="mockup-stat-v" style="color:var(--text)">41</div>
+                </div>
+                <div class="mockup-stat">
+                  <div class="mockup-stat-l">Faturado</div>
+                  <div class="mockup-stat-v" style="color:var(--green)">R$6.5k</div>
+                </div>
+              </div>
+              <div class="mockup-chart">
+                <div class="mockup-chart-title">Faturamento Mensal</div>
+                <div class="mockup-bars">
+                  <div class="mockup-bar-item" style="height:40%"></div>
+                  <div class="mockup-bar-item" style="height:70%"></div>
+                  <div class="mockup-bar-item" style="height:55%"></div>
+                  <div class="mockup-bar-item" style="height:90%"></div>
+                  <div class="mockup-bar-item" style="height:30%"></div>
+                  <div class="mockup-bar-item" style="height:65%"></div>
+                </div>
+              </div>
+              <div class="mockup-item-row">
+                <div class="mockup-av">LS</div>
+                <div>
+                  <div class="mockup-item-name">Larissa Santos</div>
+                  <div class="mockup-item-meta">YouTube · 13/06</div>
+                </div>
+                <div class="mockup-item-val">R$1.660</div>
+              </div>
+              <div class="mockup-item-row">
+                <div class="mockup-av" style="background:linear-gradient(135deg,#f59e0b,#fbbf24)">FD</div>
+                <div>
+                  <div class="mockup-item-name">Felipe Diniz</div>
+                  <div class="mockup-item-meta">VSL · 28/06</div>
+                </div>
+                <div class="mockup-item-val">R$1.500</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Floating Badges -->
+          <div class="float-badge fb-tl">
+            <div class="float-badge-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            </div>
+            <div>
+              <div class="float-badge-title">+R$2.1k este mês</div>
+              <div class="float-badge-sub">Faturamento subiu 23%</div>
+            </div>
+          </div>
+
+          <div class="float-badge fb-br">
+            <div class="float-badge-icon" style="background:linear-gradient(135deg,#10b981,rgba(16,185,129,.2))">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div>
+              <div class="float-badge-title">3 entregas hoje</div>
+              <div class="float-badge-sub">Todas no prazo</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="dc-right">
+        <div class="dc-brand">EDITOR<br>FLOW</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="stats-grid">
+    <div class="stat-item">
+      <div class="stat-n">41+</div>
+      <div class="stat-l">Projetos gerenciados</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-n">R$6.5k</div>
+      <div class="stat-l">Faturamento rastreado</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-n">13+</div>
+      <div class="stat-l">Clientes ativos</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-n">22+</div>
+      <div class="stat-l">Gastos registrados</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM / SOLUTION -->
+<section class="section" id="funcionalidades">
+  <div class="section-inner">
+    <div style="text-align:center;margin-bottom:0">
+      <div class="section-eyebrow">O problema vs A solução</div>
+      <h2 class="section-title"><span class="silver">Por que tantos editores</span><br><span class="italic">perdem dinheiro?</span></h2>
+    </div>
+
+    <div class="ps-grid">
+      <div class="ps-col reveal">
+        <span class="ps-col-label bad">Sem gestão</span>
+        <h3 class="ps-col-title">Você perde dinheiro<br>todo mês</h3>
+        <div class="ps-list">
+          <div class="ps-item">
+            <div class="ps-item-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            </div>
+            <div>
+              <div class="ps-item-title">Esquece de cobrar</div>
+              <div class="ps-item-text">Receita que você já trabalhou para ganhar fica perdida</div>
+            </div>
+          </div>
+          <div class="ps-item">
+            <div class="ps-item-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            </div>
+            <div>
+              <div class="ps-item-title">Lucro desconhecido</div>
+              <div class="ps-item-text">Confunde faturamento bruto com o que sobrou de verdade</div>
+            </div>
+          </div>
+          <div class="ps-item">
+            <div class="ps-item-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            </div>
+            <div>
+              <div class="ps-item-title">Projetos espalhados</div>
+              <div class="ps-item-text">WhatsApp, planilha e bloco de notas — nada centralizado</div>
+            </div>
+          </div>
+          <div class="ps-item">
+            <div class="ps-item-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            </div>
+            <div>
+              <div class="ps-item-title">Prazo perdido</div>
+              <div class="ps-item-text">Entregas atrasam, clientes ficam insatisfeitos</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ps-col reveal">
+        <span class="ps-col-label good">Com Editor Flow Pro</span>
+        <h3 class="ps-col-title">Você gerencia<br>como profissional</h3>
+        <div class="ps-list">
+          <div class="ps-item">
+            <div class="ps-item-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div>
+              <div class="ps-item-title">Tudo centralizado</div>
+              <div class="ps-item-text">Todos os projetos com status, prazo e valor — nenhum escapa</div>
+            </div>
+          </div>
+          <div class="ps-item">
+            <div class="ps-item-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div>
+              <div class="ps-item-title">Lucro real calculado</div>
+              <div class="ps-item-text">Desconta gastos automaticamente — vê o que sobrou</div>
+            </div>
+          </div>
+          <div class="ps-item">
+            <div class="ps-item-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div>
+              <div class="ps-item-title">CRM completo</div>
+              <div class="ps-item-text">Cada cliente com histórico, faturamento e ranking</div>
+            </div>
+          </div>
+          <div class="ps-item">
+            <div class="ps-item-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div>
+              <div class="ps-item-title">Calendário visual</div>
+              <div class="ps-item-text">Todos os prazos numa visão mensal clara</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section">
+  <div class="section-inner">
+    <div style="text-align:center">
+      <div class="section-eyebrow">Funcionalidades</div>
+      <h2 class="section-title"><span class="silver">Tudo que você precisa.</span><br><span class="italic">Nada que você não.</span></h2>
+      <p class="section-sub" style="margin:14px auto 0">Um sistema construído especificamente para editores de vídeo freelancer. Sem funcionalidades inúteis.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feat reveal">
+        <div class="feat-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </div>
+        <div class="feat-title">Dashboard</div>
+        <div class="feat-desc">Visão geral instantânea de projetos, faturamento, ranking de clientes e atividade recente. O que importa na primeira tela.</div>
+      </div>
+      <div class="feat reveal">
+        <div class="feat-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="feat-title">Projetos</div>
+        <div class="feat-desc">Organize por status, prioridade e prazo. Kanban visual por cliente com drag & drop. Filtre por atrasados e pendentes.</div>
+      </div>
+      <div class="feat reveal">
+        <div class="feat-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="feat-title">Calendário</div>
+        <div class="feat-desc">Visualize todos os prazos num calendário mensal com código de cores por status. Clique no dia para ver projetos.</div>
+      </div>
+      <div class="feat reveal">
+        <div class="feat-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="feat-title">Clientes</div>
+        <div class="feat-desc">Cadastre clientes com email, telefone e histórico completo. Kanban por cliente, faturamento total e ranking.</div>
+      </div>
+      <div class="feat reveal">
+        <div class="feat-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div class="feat-title">Gastos</div>
+        <div class="feat-desc">Registre software, equipamento, infraestrutura e marketing. Gráficos por categoria e evolução mensal dos custos.</div>
+      </div>
+      <div class="feat reveal">
+        <div class="feat-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        </div>
+        <div class="feat-title">Financeiro</div>
+        <div class="feat-desc">Faturado, recebido, a receber, gastos e lucro líquido real. Filtros por 7 dias, mês, trimestre e ano.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section pricing-section" id="planos">
+  <div class="section-inner">
+    <div style="text-align:center">
+      <div class="section-eyebrow">Planos</div>
+      <h2 class="section-title"><span class="silver">Escolha como</span><br><span class="italic">começar</span></h2>
+      <p class="section-sub" style="margin:14px auto 0">Comece grátis e evolua quando precisar de mais clientes, projetos e recursos</p>
+    </div>
+
+    <div class="plans-grid">
+
+      <!-- BASIC -->
+      <div class="plan reveal">
+        <div class="plan-name">Basic</div>
+        <div class="plan-price">Grátis</div>
+        <div class="plan-period">Para sempre · sem cartão</div>
+        <div class="plan-equiv">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Ideal para começar
+        </div>
+        <div class="plan-divider"></div>
+        <div class="plan-features">
+          <div class="plan-feat">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><span class="lim">5</span> mensagens de IA por dia</span>
+          </div>
+          <div class="plan-feat">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Até <span class="lim">3</span> clientes
+          </div>
+          <div class="plan-feat">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Até <span class="lim">10</span> projetos por cliente
+          </div>
+          <div class="plan-feat">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Dashboard, projetos e financeiro
+          </div>
+          <div class="plan-feat off">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Bio personalizada
+          </div>
+          <div class="plan-feat off">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Preview do Drive + comentários
+          </div>
+        </div>
+        <a href="/login.html" class="plan-cta free">Começar grátis</a>
+      </div>
+
+      <!-- PRO FEATURED -->
+      <div class="plan featured reveal">
+        <div class="plan-badge">Mais popular</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">
+          <span class="currency">R$</span><span class="num-flow" data-target="19">0</span><span class="cents">,90</span>
+        </div>
+        <div class="plan-period">por mês · cancele quando quiser</div>
+        <div class="plan-equiv">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Para quem já vive de edição
+        </div>
+        <div class="plan-divider"></div>
+        <div class="plan-features">
+          <div class="plan-feat">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><span class="lim">25</span> mensagens de IA por dia</span>
+          </div>
+          <div class="plan-feat">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Até <span class="lim">10</span> clientes
+          </div>
+          <div class="plan-feat">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span class="lim">30</span> projetos por cliente
+          </div>
+          <div class="plan-feat">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Bio personalizada (link na bio)
+          </div>
+          <div class="plan-feat">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Preview do Drive + comentários
+          </div>
+          <div class="plan-feat">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Tudo do plano Basic
+          </div>
+        </div>
+        <a href="https://app.abacatepay.com/pay/bill_Hp5xeTW6FKzHT5PUxEmhDedx" class="plan-cta liquid-btn" target="_blank" rel="noopener">
+          <span class="liquid-bg"></span>
+          <span class="liquid-content">Assinar Pro</span>
+        </a>
+      </div>
+
+      <!-- PREMIUM -->
+      <div class="plan reveal">
+        <div class="plan-name">Premium</div>
+        <div class="plan-price">
+          <span class="currency">R$</span><span class="num-flow" data-target="39">0</span><span class="cents">,90</span>
+        </div>
+        <div class="plan-period">por mês · cancele quando quiser</div>
+        <div class="plan-equiv">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          Sem limites · agência completa
+        </div>
+        <div class="plan-divider"></div>
+        <div class="plan-features">
+          <div class="plan-feat">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><span class="lim">50</span> mensagens de IA por dia</span>
+          </div>
+          <div class="plan-feat">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Clientes <span class="lim">ilimitados</span>
+          </div>
+          <div class="plan-feat">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Projetos <span class="lim">ilimitados</span>
+          </div>
+          <div class="plan-feat">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Rank de clientes
+          </div>
+          <div class="plan-feat">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Ver leads captados na bio
+          </div>
+          <div class="plan-feat">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Tudo do plano Pro
+          </div>
+        </div>
+        <a href="https://app.abacatepay.com/pay/bill_eJbLAmhaCqUHqFwUDpFQmtUx" class="plan-cta dark" target="_blank" rel="noopener">Assinar Premium</a>
+      </div>
+
+    </div>
+
+    <p class="pricing-footer-note">Comece no Basic, grátis e sem cartão. Planos pagos com 7 dias de garantia — se não gostar, devolvemos tudo.</p>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section">
+  <div class="section-inner">
+    <div style="text-align:center">
+      <div class="section-eyebrow">Depoimentos</div>
+      <h2 class="section-title"><span class="italic">"Mudou como eu</span><br><span class="silver">gerencio minha carreira"</span></h2>
+    </div>
+
+    <div class="test-grid">
+      <div class="test-card reveal">
+        <div class="test-stars">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="test-quote">"Finalmente sei exatamente quanto faturei. O ranking de clientes me mostrou que estava cobrando errado de alguns — ajustei e aumentei minha receita sem pegar mais projeto."</p>
+        <div class="test-author">
+          <div class="test-av" style="background:linear-gradient(135deg,#4a6dff,#6b8aff)">GS</div>
+          <div><div class="test-name">Gabriel S.</div><div class="test-role">Editor · YouTube e VSL</div></div>
+        </div>
+      </div>
+      <div class="test-card reveal">
+        <div class="test-stars">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="test-quote">"Antes controlava tudo no papel. Hoje abro o kanban do cliente e em segundos sei o que entregou, o que está pendente e o que ainda vai cobrar. Outro nível."</p>
+        <div class="test-author">
+          <div class="test-av" style="background:linear-gradient(135deg,#ef4444,#f87171)">BS</div>
+          <div><div class="test-name">Bruna S.</div><div class="test-role">Editora · Reels e anúncios</div></div>
+        </div>
+      </div>
+      <div class="test-card reveal">
+        <div class="test-stars">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="test-quote">"O financeiro me mostrou que meu lucro real era bem diferente do que eu achava. Gastava com softwares e não descontava. Agora tudo fica calculado automaticamente."</p>
+        <div class="test-author">
+          <div class="test-av" style="background:linear-gradient(135deg,#f59e0b,#fbbf24)">FR</div>
+          <div><div class="test-name">Fernando R.</div><div class="test-role">Editor freelancer · 7 clientes</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GUARANTEE -->
+<section class="section">
+  <div class="guarantee reveal">
+    <div class="guarantee-icon">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    </div>
+    <div>
+      <h3 class="guarantee-title">7 dias de garantia total</h3>
+      <p class="guarantee-text">Se por qualquer motivo você não gostar do Editor Flow Pro nos primeiros 7 dias, devolvemos 100% do valor. Sem perguntas, sem burocracia. Você não tem nada a perder.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq">
+  <div class="section-inner">
+    <div style="text-align:center">
+      <div class="section-eyebrow">Dúvidas</div>
+      <h2 class="section-title"><span class="silver">Perguntas</span> <span class="italic">frequentes</span></h2>
+    </div>
+
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Como funciona o acesso após o pagamento?
+          <div class="faq-chevron">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="faq-body"><div class="faq-body-inner">Após o pagamento, você recebe automaticamente um email com o link de acesso. Entre com seu email em editorflow.pro/login.html. Não precisa instalar nada — funciona direto no navegador em qualquer dispositivo.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Preciso pagar para começar?
+          <div class="faq-chevron">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="faq-body"><div class="faq-body-inner">Não. O plano Basic é grátis para sempre e não pede cartão. Você só assina o Pro (R$19,90/mês) ou Premium (R$39,90/mês) quando quiser mais clientes, projetos e recursos como bio personalizada e preview do Google Drive.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Posso cancelar quando quiser?
+          <div class="faq-chevron">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="faq-body"><div class="faq-body-inner">Sim, sem burocracia. Você cancela diretamente pela Kiwify a qualquer momento e o acesso é mantido até o final do período pago. Sem fidelidade, sem multa.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Tem limite de projetos ou clientes?
+          <div class="faq-chevron">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="faq-body"><div class="faq-body-inner">Depende do plano. O Basic vai até 3 clientes e 10 projetos por cliente; o Pro até 10 clientes e 30 projetos por cliente; e o Premium é totalmente ilimitado. Você pode trocar de plano quando quiser.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Meus dados ficam seguros?
+          <div class="faq-chevron">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="faq-body"><div class="faq-body-inner">Sim. Cada assinante tem um espaço completamente isolado — nenhum usuário acessa os dados de outro. Os dados ficam salvos na nuvem com criptografia e você acessa de qualquer dispositivo.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Funciona no celular?
+          <div class="faq-chevron">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="faq-body"><div class="faq-body-inner">Sim. O app é responsivo e funciona em celular, tablet e computador. Acesse pelo navegador sem precisar baixar nenhum aplicativo.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SUPPORT -->
+<section class="section" id="suporte">
+  <div class="section-inner">
+    <div style="text-align:center">
+      <div class="section-eyebrow">Suporte</div>
+      <h2 class="section-title"><span class="silver">Precisando</span> <span class="italic">de ajuda?</span></h2>
+      <p class="section-sub" style="margin:14px auto 0">Estamos disponíveis para resolver qualquer dúvida</p>
+    </div>
+
+    <div class="support-grid">
+      <a href="https://wa.me/5586999378829" target="_blank" class="support-card reveal">
+        <div class="support-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="support-card-title">WhatsApp</div>
+        <div class="support-card-desc">Atendimento em dias úteis · Resposta em até 2 horas</div>
+      </a>
+      <a href="mailto:editorflowpro@gmail.com" class="support-card reveal">
+        <div class="support-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <div class="support-card-title">Email</div>
+        <div class="support-card-desc">editorflowpro@gmail.com · Resposta em até 24 horas</div>
+      </a>
+      <a href="/login.html" class="support-card reveal">
+        <div class="support-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        </div>
+        <div class="support-card-title">Já é assinante?</div>
+        <div class="support-card-desc">Clique aqui para acessar o app</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final-section">
+  <div class="cta-final-glow"></div>
+  <h2 class="cta-final-title">
+    <span class="silver">Pronto para parar</span><br>
+    <span class="italic">de perder dinheiro?</span>
+  </h2>
+  <p class="cta-final-sub">Comece a organizar sua carreira hoje — de graça, sem cartão</p>
+  <div class="cta-final-actions">
+    <a href="/login.html" class="btn-dark">Começar grátis</a>
+    <a href="https://app.abacatepay.com/pay/bill_Hp5xeTW6FKzHT5PUxEmhDedx" class="btn-light" target="_blank" rel="noopener">
+      Assinar Pro — R$19,90/mês
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="/"><img src="https://i.imgur.com/MQX8YTJ.png" alt="Editor Flow Pro"/></a>
+  <div class="footer-links">
+    <a href="#funcionalidades">Funcionalidades</a>
+    <a href="#planos">Planos</a>
+    <a href="#faq">FAQ</a>
+    <a href="#suporte">Suporte</a>
+    <a href="/login.html">Entrar</a>
+    <a href="mailto:editorflowpro@gmail.com">editorflowpro@gmail.com</a>
+  </div>
+  <div class="footer-copy">© 2026 Editor Flow Pro</div>
+</footer>
+
+<script>
+function toggleFaq(el) {
+  const item = el.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+// NumberFlow animado — anima os preços de 0 até o valor target quando entram em vista
+const numIO = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const el = e.target;
+      const target = parseInt(el.dataset.target, 10);
+      const duration = 1400;
+      const start = performance.now();
+      function tick(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        // ease-out cubic
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = Math.floor(eased * target);
+        el.textContent = current;
+        if (progress < 1) {
+          requestAnimationFrame(tick);
+        } else {
+          el.textContent = target;
+        }
+      }
+      requestAnimationFrame(tick);
+      numIO.unobserve(el);
+    }
+  });
+}, { threshold: 0.4 });
+document.querySelectorAll('.num-flow').forEach(el => numIO.observe(el));
+
+const deepCard = document.getElementById('deepCard');
+if (deepCard) {
+  deepCard.addEventListener('mousemove', (e) => {
+    const rect = deepCard.getBoundingClientRect();
+    deepCard.style.setProperty('--mx', (e.clientX - rect.left) + 'px');
+    deepCard.style.setProperty('--my', (e.clientY - rect.top) + 'px');
+  });
+}
+
+const mockup = document.querySelector('.app-mockup');
+const deepSection = document.querySelector('.deep-section');
+if (mockup && deepSection) {
+  deepSection.addEventListener('mousemove', (e) => {
+    const rect = deepSection.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+    const y = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
+    mockup.style.transform = 'rotateY(' + (x * 6) + 'deg) rotateX(' + (-y * 6) + 'deg)';
+  });
+  deepSection.addEventListener('mouseleave', () => {
+    mockup.style.transform = 'rotateY(0) rotateX(0)';
+  });
+}
+
+document.querySelectorAll('.feat').forEach(card => {
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    card.style.setProperty('--mx', (e.clientX - rect.left) + 'px');
+    card.style.setProperty('--my', (e.clientY - rect.top) + 'px');
+  });
+});
+</script>
+</body>
+</html>
