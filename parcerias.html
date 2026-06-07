@@ -88,7 +88,7 @@ a{color:inherit;text-decoration:none}
 .pfilter button.active{background:linear-gradient(135deg,var(--accent),var(--purple));color:#fff;border-color:transparent}
 
 /* ── CAMPAIGN CARDS ── */
-.camp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:20px}
+.camp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(440px,100%),1fr));gap:22px}
 .camp{position:relative;border-radius:20px;overflow:hidden;background:var(--glass);border:1px solid var(--border);backdrop-filter:blur(10px);transition:transform .24s cubic-bezier(.25,1,.5,1),box-shadow .24s,border-color .24s}
 .camp:hover{transform:translateY(-5px);border-color:rgba(107,138,255,.4);box-shadow:0 24px 60px -24px rgba(74,109,255,.5)}
 .camp-bar{height:34px;display:flex;align-items:center;justify-content:center;position:relative}
@@ -102,7 +102,7 @@ a{color:inherit;text-decoration:none}
 .camp-badge{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:2;background:linear-gradient(135deg,var(--accent),var(--purple));color:#fff;font-size:9.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;padding:4px 12px;border-radius:100px;box-shadow:0 4px 12px rgba(74,109,255,.4)}
 .camp-body{padding:4px 20px 20px}
 .camp-title{font-size:17px;font-weight:700;letter-spacing:-.3px;margin-bottom:8px}
-.camp-desc{font-size:12.5px;color:var(--text2);line-height:1.55;font-weight:300;margin-bottom:18px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:58px}
+.camp-desc{font-size:13px;color:var(--text2);line-height:1.6;font-weight:300;margin-bottom:18px;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden;min-height:104px}
 .camp-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
 .camp-pay .pl{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:5px;margin-bottom:3px}
 .camp-pay .pv{font-size:26px;font-weight:800;letter-spacing:-1px;color:var(--green-light)}
@@ -137,6 +137,27 @@ a{color:inherit;text-decoration:none}
 .btn-aj:hover{background:rgba(245,166,35,.2)}
 .val-edit{width:90px;padding:7px 10px;border-radius:9px;border:1px solid var(--border2);background:rgba(255,255,255,.04);color:var(--text);font-family:inherit;font-size:13px;outline:none}
 .val-edit:focus{border-color:var(--accent)}
+
+/* ── PAGAMENTOS (admin) ── */
+.pay-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+.pay-sum .ps{background:var(--glass);border:1px solid var(--border);border-radius:16px;padding:16px 18px}
+.pay-sum .ps .l{font-size:10.5px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:7px}
+.pay-sum .ps .v{font-size:25px;font-weight:800;letter-spacing:-.5px}
+.pay-row{background:var(--glass);border:1px solid var(--border);border-radius:16px;padding:15px 18px;margin-bottom:11px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.pay-row.is-pago{opacity:.55}
+.pay-who{min-width:160px;flex:1}
+.pay-who b{font-size:14px;font-weight:700;display:block}
+.pay-who span{font-size:11.5px;color:var(--text3)}
+.pay-camp{font-size:12.5px;color:var(--text2);min-width:130px;flex:1}
+.pay-camp a{color:var(--accent-light);font-weight:600;font-size:11.5px}
+.pay-method{font-size:12px;min-width:150px;flex:1}
+.pay-method .pm-pix{color:#fff;font-weight:600}
+.pay-method .pm-bank{color:var(--text3);font-size:11px;display:block;margin-top:1px}
+.pay-val{font-size:19px;font-weight:800;color:var(--green-light);letter-spacing:-.5px;min-width:90px;text-align:right}
+.pay-toggle{padding:8px 14px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;border:1px solid;transition:all .18s;white-space:nowrap}
+.pay-toggle.to-pay{background:rgba(16,185,129,.12);color:var(--green-light);border-color:rgba(16,185,129,.3)}
+.pay-toggle.to-pay:hover{background:rgba(16,185,129,.22)}
+.pay-toggle.is-done{background:rgba(255,255,255,.05);color:var(--text3);border-color:var(--border2)}
 
 /* ── VIEWS ── */
 .view{display:none}.view.active{display:block;animation:fade .25s}
@@ -196,6 +217,14 @@ a{color:inherit;text-decoration:none}
 .det-material{display:inline-flex;align-items:center;gap:9px;background:rgba(74,109,255,.12);border:1px solid rgba(74,109,255,.3);color:var(--accent-light);border-radius:11px;padding:12px 18px;font-size:13px;font-weight:600;transition:all .2s}
 .det-material:hover{background:rgba(74,109,255,.2);transform:translateY(-1px)}
 .det-empty{color:var(--text3);font-style:italic;font-size:13px}
+
+/* ── VÍDEO YOUTUBE (como funciona) ── */
+.yt-wrap{position:relative;width:100%;aspect-ratio:16/9;border-radius:14px;overflow:hidden;border:1px solid var(--border2);background:#000;margin-bottom:20px}
+.yt-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.yt-admin{margin-top:18px;padding-top:16px;border-top:1px dashed var(--border2)}
+.yt-admin .lbl-adm{font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#fca5a5;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.yt-admin-row{display:flex;gap:9px}
+.yt-admin-row .fi{flex:1}
 
 /* ── GATE ── */
 .gate{position:fixed;inset:0;z-index:500;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px}
@@ -279,6 +308,10 @@ a{color:inherit;text-decoration:none}
         <div class="snav" data-view="parceiros" onclick="switchView('parceiros')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           Parceiros <span class="cnt" id="cnt-parc">0</span>
+        </div>
+        <div class="snav" data-view="pagamentos" onclick="switchView('pagamentos')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Pagamentos <span class="cnt" id="cnt-pag">0</span>
         </div>
       </div>
 
@@ -373,6 +406,20 @@ a{color:inherit;text-decoration:none}
           </div>
           <div id="parc-list"></div>
         </div>
+      </div>
+
+      <!-- ═══ PAGAMENTOS (admin) ═══ -->
+      <div class="view" id="v-pagamentos">
+        <div class="sec-head">
+          <div><h2>Pagamentos</h2><div class="sub">Parceiros com vídeos aprovados, valor e dados de pagamento</div></div>
+          <div class="pfilter" id="pagfilter">
+            <button class="active" data-pg="pendentes" onclick="setPag('pendentes',this)">A pagar</button>
+            <button data-pg="pagos" onclick="setPag('pagos',this)">Pagos</button>
+            <button data-pg="todos" onclick="setPag('todos',this)">Todos</button>
+          </div>
+        </div>
+        <div class="pay-sum" id="pay-sum"></div>
+        <div class="list" id="pag-list"></div>
       </div>
 
       <!-- ═══ PERFIL ═══ -->
@@ -490,14 +537,27 @@ a{color:inherit;text-decoration:none}
 
 <!-- MODAL: COMO FUNCIONA -->
 <div class="overlay" id="modal-how">
-  <div class="modal" style="width:500px">
+  <div class="modal" style="width:560px">
     <div class="modal-head"><h3>Como funciona</h3><button class="x" onclick="closeM('modal-how')">×</button></div>
     <div class="modal-body" style="line-height:1.7;font-size:14px;color:var(--text2)">
+      <!-- vídeo explicativo (definido pelo admin) -->
+      <div class="yt-wrap" id="how-video-wrap" style="display:none"><iframe id="how-video" src="" title="Como funciona" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>
+
       <p style="margin-bottom:14px"><b style="color:#fff">1. Escolha uma campanha</b><br>Veja os modelos de anúncio disponíveis e o valor de cada um.</p>
       <p style="margin-bottom:14px"><b style="color:#fff">2. Produza o vídeo</b><br>Baixe o material, siga o briefing e poste no YouTube/Instagram.</p>
       <p style="margin-bottom:14px"><b style="color:#fff">3. Envie o link</b><br>Clique em "Enviar agora" e cole o link do vídeo publicado.</p>
       <p style="margin-bottom:14px"><b style="color:#fff">4. Análise</b><br>Nossa equipe revisa. Se estiver tudo certo, é aprovado. Se não, você recebe um pedido de ajuste.</p>
       <p><b style="color:#fff">5. Receba</b><br>Aprovado, o valor entra nos seus ganhos e é pago via PIX cadastrado no seu perfil.</p>
+
+      <!-- ADMIN: anexar vídeo do YouTube -->
+      <div class="yt-admin" id="how-admin" style="display:none">
+        <div class="lbl-adm">🎬 Vídeo explicativo <span style="color:var(--text3);font-weight:600;text-transform:none;letter-spacing:0">(só admin vê este campo)</span></div>
+        <div class="yt-admin-row">
+          <input class="fi" id="how-video-input" placeholder="Cole o link do YouTube (ex: https://youtu.be/abc123)"/>
+          <button class="btn-glow" onclick="salvarVideoHow()">Salvar</button>
+        </div>
+        <p style="font-size:11.5px;color:var(--text3);margin-top:8px">Deixe vazio e salve para remover o vídeo.</p>
+      </div>
     </div>
   </div>
 </div>
@@ -511,7 +571,7 @@ const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 const brl=n=>'R$ '+(Number(n)||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
 
 let MEU_EMAIL='',IS_ADMIN=false;
-let modelos=[],envios=[],fPlat='todos';
+let modelos=[],envios=[],parceiros=[],fPlat='todos',fPag='pendentes';
 const PLAT_LBL={youtube:'YouTube',instagram:'Instagram',tiktok:'TikTok'};
 const ST_LBL={pendente:'Em análise',aprovado:'Aprovado',ajustes:'Ajustes solicitados'};
 
@@ -542,9 +602,43 @@ async function checarAcesso(){
   document.getElementById('u-name').textContent=(aut&&aut.nome)||MEU_EMAIL.split('@')[0];
   document.getElementById('u-av').textContent=((aut&&aut.nome)||MEU_EMAIL)[0].toUpperCase();
   if(aut){document.getElementById('p-nome').value=aut.nome||'';document.getElementById('p-insta').value=aut.instagram||'';document.getElementById('p-pix').value=aut.chave_pix||'';document.getElementById('p-banco').value=aut.banco||'';}
-  if(IS_ADMIN){document.getElementById('admin-nav').style.display='block';document.getElementById('admin-newcamp').style.display='block';}
+  if(IS_ADMIN){
+    document.getElementById('admin-nav').style.display='block';
+    document.getElementById('admin-newcamp').style.display='block';
+    document.getElementById('how-admin').style.display='block';
+  }
+  await carregarConfig();
   await carregarTudo();
   return true;
+}
+
+// ── CONFIG (vídeo "como funciona") ──
+function ytEmbed(url){
+  if(!url)return '';
+  let id='';
+  const u=url.trim();
+  let m=u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/|v\/))([A-Za-z0-9_-]{6,})/);
+  if(m)id=m[1];
+  else if(/^[A-Za-z0-9_-]{6,}$/.test(u))id=u; // só o id
+  return id?('https://www.youtube.com/embed/'+id):'';
+}
+async function carregarConfig(){
+  const {data}=await sb.from('parceria_config').select('valor').eq('chave','how_video').maybeSingle();
+  const url=data&&data.valor?data.valor:'';
+  const embed=ytEmbed(url);
+  const wrap=document.getElementById('how-video-wrap');
+  const iframe=document.getElementById('how-video');
+  if(embed){iframe.src=embed;wrap.style.display='block';}
+  else{iframe.src='';wrap.style.display='none';}
+  if(IS_ADMIN)document.getElementById('how-video-input').value=url;
+}
+async function salvarVideoHow(){
+  const url=document.getElementById('how-video-input').value.trim();
+  if(url&&!ytEmbed(url)){toast('Link do YouTube inválido.','var(--amber)');return;}
+  const {error}=await sb.from('parceria_config').upsert({chave:'how_video',valor:url||null,atualizado_em:new Date().toISOString()},{onConflict:'chave'});
+  if(error){toast('Erro: '+error.message,'var(--red)');return;}
+  await carregarConfig();
+  toast(url?'Vídeo salvo!':'Vídeo removido.','var(--green)');
 }
 
 // ── DADOS ──
@@ -557,7 +651,7 @@ async function carregarTudo(){
   envios=sRes.data||[];
   renderCampanhas();
   renderEnvios();
-  if(IS_ADMIN){renderAprovacoes();renderCampAdmin();carregarParceiros();}
+  if(IS_ADMIN){renderAprovacoes();renderCampAdmin();await carregarParceiros();renderPagamentos();}
   atualizarGanhos();
   atualizarContadores();
 }
@@ -801,7 +895,8 @@ async function excluirCampanha(){
 // ── PARCEIROS (admin) ──
 async function carregarParceiros(){
   const {data}=await sb.from('parceiros_autorizados').select('*').order('criado_em',{ascending:false});
-  document.getElementById('cnt-parc').textContent=(data||[]).length;
+  parceiros=data||[];
+  document.getElementById('cnt-parc').textContent=parceiros.length;
   const l=document.getElementById('parc-list');
   if(!data||!data.length){l.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px">Nenhum parceiro autorizado ainda.</div>';return;}
   l.innerHTML=data.map(p=>`<div class="email-item"><div class="info"><b>${esc(p.email)}</b><span>${esc(p.nome||'—')}${p.chave_pix?' · PIX: '+esc(p.chave_pix):''}</span></div><button class="btn-rm" onclick='rmParceiro(${JSON.stringify(p.id)},${JSON.stringify(p.email)})'>Remover</button></div>`).join('');
@@ -820,6 +915,55 @@ async function rmParceiro(id,email){
   const {error}=await sb.from('parceiros_autorizados').delete().eq('id',id);
   if(error){toast('Erro ao remover','var(--red)');return;}
   toast('Parceiro removido.','var(--red)');carregarParceiros();
+}
+
+// ── PAGAMENTOS (admin) ──
+function setPag(p,btn){fPag=p;document.querySelectorAll('#pagfilter button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderPagamentos();}
+function renderPagamentos(){
+  const aprovados=envios.filter(e=>e.status==='aprovado');
+  const aPagar=aprovados.filter(e=>!e.pago);
+  const pagos=aprovados.filter(e=>e.pago);
+
+  // resumo
+  const totPagar=aPagar.reduce((s,e)=>s+(Number(e.valor)||0),0);
+  const totPago=pagos.reduce((s,e)=>s+(Number(e.valor)||0),0);
+  const qtdParc=new Set(aPagar.map(e=>e.parceiro_email)).size;
+  const sum=document.getElementById('pay-sum');
+  if(sum)sum.innerHTML=`
+    <div class="ps"><div class="l">A pagar</div><div class="v" style="color:var(--green-light)">${brl(totPagar)}</div></div>
+    <div class="ps"><div class="l">Já pago</div><div class="v" style="color:var(--text2)">${brl(totPago)}</div></div>
+    <div class="ps"><div class="l">Parceiros a pagar</div><div class="v">${qtdParc}</div></div>`;
+
+  // contador no menu
+  const cp=document.getElementById('cnt-pag');if(cp)cp.textContent=aPagar.length;
+
+  let lista=fPag==='pendentes'?aPagar:fPag==='pagos'?pagos:aprovados;
+  lista=[...lista].sort((a,b)=>new Date(b.avaliado_em||b.enviado_em||0)-new Date(a.avaliado_em||a.enviado_em||0));
+
+  const l=document.getElementById('pag-list');
+  if(!lista.length){l.innerHTML='<div class="empty">'+(fPag==='pendentes'?'Nenhum pagamento pendente. 🎉':'Nada por aqui.')+'</div>';return;}
+  l.innerHTML=lista.map(e=>{
+    const m=modelos.find(x=>x.id===e.modelo_id)||{};
+    const p=parceiros.find(x=>x.email===e.parceiro_email)||{};
+    const pix=p.chave_pix?esc(p.chave_pix):'<span style="color:var(--amber)">PIX não cadastrado</span>';
+    const banco=p.banco?`<span class="pm-bank">${esc(p.banco)}</span>`:'';
+    const data=new Date(e.avaliado_em||e.enviado_em||Date.now()).toLocaleDateString('pt-BR');
+    return `<div class="pay-row ${e.pago?'is-pago':''}">
+      <div class="pay-who"><b>${esc(p.nome||e.parceiro_email.split('@')[0])}</b><span>${esc(e.parceiro_email)}</span></div>
+      <div class="pay-camp">${esc(m.titulo||'Campanha')}<br><a href="${esc(e.video_url)}" target="_blank" rel="noopener">Ver vídeo ↗</a> · ${data}</div>
+      <div class="pay-method"><span class="pm-pix">${pix}</span>${banco}</div>
+      <div class="pay-val">${brl(e.valor)}</div>
+      <button class="pay-toggle ${e.pago?'is-done':'to-pay'}" onclick='togglePago(${JSON.stringify(e.id)},${e.pago?'true':'false'})'>${e.pago?'✓ Pago':'Marcar pago'}</button>
+    </div>`;
+  }).join('');
+}
+async function togglePago(id,estaPago){
+  const novo=!estaPago;
+  const {error}=await sb.from('parceria_submissoes').update({pago:novo,pago_em:novo?new Date().toISOString():null}).eq('id',id);
+  if(error){toast('Erro: '+error.message,'var(--red)');return;}
+  const e=envios.find(x=>x.id===id);if(e){e.pago=novo;}
+  renderPagamentos();
+  toast(novo?'Marcado como pago!':'Marcado como pendente.',novo?'var(--green)':'var(--amber)');
 }
 
 // ── PERFIL ──

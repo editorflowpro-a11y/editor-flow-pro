@@ -615,8 +615,9 @@ function fecharView(e){if(e.target.id==='view-overlay')closeView();}
 
 function irParaEdicao(){
   if(!VIEW_ID)return;
+  const id=VIEW_ID;        // captura ANTES de fechar (closeView zera VIEW_ID)
   closeView();
-  editarRoteiro(VIEW_ID);
+  editarRoteiro(id);
 }
 
 // ══════════════════════════════════════════════════
