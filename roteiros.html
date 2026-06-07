@@ -60,7 +60,7 @@ nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-con
 
 /* TOOLBAR */
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:20px}
-.seg{display:flex;gap:3px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:100px;padding:4px}
+.seg{display:flex;gap:3px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:100px;padding:4px;flex-wrap:wrap}
 .seg button{padding:8px 15px;border-radius:100px;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--text2);border:none;background:none;font-family:inherit;transition:all .2s}
 .seg button.active{background:linear-gradient(135deg,var(--accent),var(--purple));color:#fff;box-shadow:0 6px 16px -6px var(--accent-glow)}
 .search{flex:1;min-width:180px;max-width:280px;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:11px;padding:10px 15px;color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:all .2s}
@@ -95,17 +95,16 @@ nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-con
 .b-tiktok{color:#e2e8f0;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18)}
 .b-linkedin{color:#7dd3fc;background:rgba(14,165,233,.1);border-color:rgba(14,165,233,.22)}
 .st{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;padding:3px 9px;border-radius:100px;border:1px solid}
-.st-ideia{color:var(--text2);background:rgba(255,255,255,.05);border-color:var(--border2)}
-.st-rascunho{color:#fcd34d;background:rgba(245,166,35,.1);border-color:rgba(245,166,35,.22)}
 .st-revisao{color:#c4b5fd;background:rgba(155,107,255,.12);border-color:rgba(155,107,255,.28)}
-.st-aprovado{color:#6ee7b7;background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.24)}
+.st-gravacao{color:#fcd34d;background:rgba(245,166,35,.1);border-color:rgba(245,166,35,.28)}
+.st-gravado{color:#6ee7b7;background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.28)}
 .st-publicado{color:#67e8f9;background:rgba(34,211,238,.1);border-color:rgba(34,211,238,.24)}
 
 .empty{grid-column:1/-1;text-align:center;padding:70px 20px;color:var(--text3)}
 .empty svg{opacity:.4;margin-bottom:14px}
 
-/* MODAL */
-.overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(2,4,10,.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px}
+/* ── MODAL EDIÇÃO ── */
+.overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(2,4,10,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px}
 .overlay.open{display:flex;animation:fadeIn .2s}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .modal{background:linear-gradient(160deg,rgba(20,28,48,.96),rgba(10,16,29,.98));border:1px solid var(--border2);border-radius:22px;width:640px;max-width:96vw;max-height:92vh;overflow-y:auto;position:relative;
@@ -113,13 +112,14 @@ nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-con
 @keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
 .modal-head{position:sticky;top:0;background:rgba(12,18,33,.92);backdrop-filter:blur(12px);padding:22px 26px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;z-index:2}
 .modal-head h3{font-size:18px;font-weight:700}
-.x{background:rgba(255,255,255,.06);border:1px solid var(--border2);color:var(--text2);width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.x{background:rgba(255,255,255,.06);border:1px solid var(--border2);color:var(--text2);width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
 .x:hover{color:var(--text);border-color:var(--red)}
 .modal-body{padding:24px 26px}
 .fg{margin-bottom:16px}
 .fl{display:block;font-size:11px;font-weight:600;letter-spacing:.5px;color:var(--text2);text-transform:uppercase;margin-bottom:7px}
 .fi,.fs,.ft{width:100%;padding:12px 15px;border-radius:11px;border:1px solid var(--border2);background:rgba(255,255,255,.03);color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:all .2s}
-.ft{resize:vertical;min-height:140px;line-height:1.6}
+.ft{resize:vertical;min-height:130px;line-height:1.6}
+.ft-sm{min-height:80px}
 .fi:focus,.fs:focus,.ft:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(74,109,255,.13)}
 .fs{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23a1a1aa' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
 .fs option{background:#0d1424}
@@ -130,6 +130,33 @@ nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-con
 .btn-save:hover{transform:translateY(-1px)}
 .btn-del{background:rgba(239,68,68,.1);color:#fca5a5;border:1px solid rgba(239,68,68,.25);border-radius:11px;padding:13px 18px;font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;transition:all .2s}
 .btn-del:hover{background:rgba(239,68,68,.2)}
+
+/* ── MODAL LEITURA ── */
+.view-modal{background:linear-gradient(160deg,rgba(18,24,44,.97),rgba(8,13,26,.99));border:1px solid var(--border2);border-radius:22px;width:760px;max-width:96vw;max-height:92vh;overflow-y:auto;position:relative;
+  box-shadow:0 40px 100px -30px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.07);animation:pop .25s cubic-bezier(.25,1,.5,1)}
+.view-head{position:sticky;top:0;background:rgba(10,15,30,.95);backdrop-filter:blur(14px);padding:22px 26px 18px;border-bottom:1px solid var(--border);z-index:2}
+.view-head-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.view-title{font-size:22px;font-weight:800;letter-spacing:-.5px;line-height:1.25;flex:1}
+.view-badges{display:flex;gap:7px;flex-wrap:wrap}
+.view-body{padding:26px 26px 10px}
+.view-section{margin-bottom:24px}
+.view-label{font-size:10.5px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--text3);margin-bottom:9px;display:flex;align-items:center;gap:7px}
+.view-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.view-text{font-size:14px;color:var(--text2);line-height:1.75;white-space:pre-wrap;word-break:break-word}
+.view-gancho{background:linear-gradient(135deg,rgba(74,109,255,.1),rgba(155,107,255,.07));border:1px solid rgba(107,138,255,.25);border-left:3px solid var(--accent);border-radius:12px;padding:16px 18px;font-size:15px;color:var(--text);font-weight:500;line-height:1.65;font-style:italic}
+.view-cta{background:linear-gradient(135deg,rgba(155,107,255,.1),rgba(74,109,255,.07));border:1px solid rgba(155,107,255,.25);border-left:3px solid var(--purple);border-radius:12px;padding:14px 18px;font-size:14px;color:var(--text);font-weight:600}
+.view-content{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:12px;padding:18px 20px;font-size:13.5px;line-height:1.8;white-space:pre-wrap;word-break:break-word;color:var(--text2);font-family:'Inter',sans-serif}
+.view-descricao{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:12px;padding:14px 18px;font-size:13.5px;line-height:1.75;white-space:pre-wrap;word-break:break-word;color:var(--text2)}
+.view-tags{display:flex;gap:6px;flex-wrap:wrap}
+.view-foot{display:flex;gap:10px;padding:14px 26px 24px;border-top:1px solid var(--border);position:sticky;bottom:0;background:rgba(10,15,30,.95);backdrop-filter:blur(12px);align-items:center}
+.view-meta{flex:1;font-size:12px;color:var(--text3)}
+.view-meta strong{color:var(--text2)}
+.btn-edit{background:linear-gradient(135deg,var(--accent),var(--purple));color:#fff;border:none;border-radius:11px;padding:12px 24px;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;
+  box-shadow:0 8px 24px -8px var(--accent-glow),inset 0 1px 0 rgba(255,255,255,.25);transition:transform .2s,box-shadow .2s}
+.btn-edit:hover{transform:translateY(-1px);box-shadow:0 12px 28px -8px var(--accent-glow)}
+.btn-close-view{background:rgba(255,255,255,.05);border:1px solid var(--border2);color:var(--text2);border-radius:11px;padding:12px 20px;font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;transition:all .2s}
+.btn-close-view:hover{border-color:var(--border2);background:rgba(255,255,255,.09);color:var(--text)}
+.empty-field{color:var(--text3);font-style:italic;font-size:13px}
 
 /* ADMIN PANEL */
 .admin-sec{margin-top:36px;background:var(--glass);border:1px solid var(--border);border-radius:18px;overflow:hidden;backdrop-filter:blur(10px)}
@@ -166,7 +193,13 @@ nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-con
 .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-@media(max-width:860px){.stats{grid-template-columns:1fr 1fr}.f2,.f3{grid-template-columns:1fr}.wrap{padding:24px 16px 60px}nav{padding:12px 16px}}
+@media(max-width:860px){
+  .stats{grid-template-columns:1fr 1fr}
+  .f2,.f3{grid-template-columns:1fr}
+  .wrap{padding:24px 16px 60px}
+  nav{padding:12px 16px}
+  .view-title{font-size:18px}
+}
 </style>
 </head>
 <body>
@@ -179,7 +212,7 @@ nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-con
   <div class="gate-card">
     <img src="https://i.imgur.com/MQX8YTJ.png" alt="Editor Flow Pro"/>
     <h2>Central de <span class="it">Roteiros</span></h2>
-    <p id="gate-sub">Acesso restrito à equipe. Entre com seu email autorizado.</p>
+    <p>Acesso restrito à equipe. Entre com seu email autorizado.</p>
     <div class="gate-msg" id="gate-msg"></div>
     <div id="gate-form">
       <div class="fg"><label class="fl">Email</label><input class="fi" id="g-email" type="email" placeholder="seu@email.com"/></div>
@@ -225,18 +258,18 @@ nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-con
     </button>
   </div>
 
-  <div class="seg" id="seg-status" style="margin-bottom:20px">
-    <button class="active" data-s="todos" onclick="setStatus('todos',this)">Status: todos</button>
-    <button data-s="ideia" onclick="setStatus('ideia',this)">Ideia</button>
-    <button data-s="rascunho" onclick="setStatus('rascunho',this)">Rascunho</button>
-    <button data-s="revisao" onclick="setStatus('revisao',this)">Em revisão</button>
-    <button data-s="aprovado" onclick="setStatus('aprovado',this)">Aprovado</button>
+  <!-- ABAS DE STATUS -->
+  <div class="seg" id="seg-status" style="margin-bottom:20px;border-radius:14px">
+    <button class="active" data-s="todos" onclick="setStatus('todos',this)">Todos</button>
+    <button data-s="revisao" onclick="setStatus('revisao',this)">Revisão</button>
+    <button data-s="gravacao" onclick="setStatus('gravacao',this)">Gravação</button>
+    <button data-s="gravado" onclick="setStatus('gravado',this)">Gravado</button>
     <button data-s="publicado" onclick="setStatus('publicado',this)">Publicado</button>
   </div>
 
   <div class="grid" id="grid"></div>
 
-  <!-- ADMIN: EQUIPE AUTORIZADA -->
+  <!-- ADMIN: EQUIPE AUTORIZADA — só visível para admin -->
   <div class="admin-sec" id="admin-sec" style="display:none">
     <div class="admin-head" onclick="toggleAdmin()">
       <h3>👥 Equipe Autorizada <span class="admin-tag">Admin</span></h3>
@@ -255,8 +288,70 @@ nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-con
 </div>
 </div>
 
-<!-- MODAL ROTEIRO -->
-<div class="overlay" id="modal">
+<!-- ═══════════════════════════════════════════
+     MODAL DE LEITURA (somente visualização)
+     ═══════════════════════════════════════════ -->
+<div class="overlay" id="view-overlay" onclick="fecharView(event)">
+  <div class="view-modal" id="view-modal">
+
+    <div class="view-head">
+      <div class="view-head-row">
+        <div class="view-title" id="v-titulo"></div>
+        <button class="x" onclick="closeView()">×</button>
+      </div>
+      <div class="view-badges" id="v-badges"></div>
+    </div>
+
+    <div class="view-body">
+
+      <!-- Gancho -->
+      <div class="view-section" id="vs-gancho">
+        <div class="view-label">🎣 Gancho</div>
+        <div class="view-gancho" id="v-gancho"></div>
+      </div>
+
+      <!-- Descrição do vídeo -->
+      <div class="view-section" id="vs-descricao">
+        <div class="view-label">📋 Descrição do Vídeo</div>
+        <div class="view-descricao" id="v-descricao"></div>
+      </div>
+
+      <!-- Roteiro completo -->
+      <div class="view-section" id="vs-conteudo">
+        <div class="view-label">🎬 Roteiro Completo</div>
+        <div class="view-content" id="v-conteudo"></div>
+      </div>
+
+      <!-- CTA -->
+      <div class="view-section" id="vs-cta">
+        <div class="view-label">📣 CTA</div>
+        <div class="view-cta" id="v-cta"></div>
+      </div>
+
+      <!-- Tags -->
+      <div class="view-section" id="vs-tags">
+        <div class="view-label">🏷️ Tags</div>
+        <div class="view-tags" id="v-tags"></div>
+      </div>
+
+    </div>
+
+    <div class="view-foot">
+      <div class="view-meta" id="v-meta"></div>
+      <button class="btn-close-view" onclick="closeView()">Fechar</button>
+      <button class="btn-edit" id="btn-ir-editar" onclick="irParaEdicao()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Editar
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL DE EDIÇÃO / CRIAÇÃO
+     ═══════════════════════════════════════════ -->
+<div class="overlay" id="modal" onclick="fecharEdit(event)">
   <div class="modal">
     <div class="modal-head">
       <h3 id="modal-title">Novo Roteiro</h3>
@@ -283,16 +378,16 @@ nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-con
         </div>
         <div class="fg"><label class="fl">Status</label>
           <select class="fs" id="r-status">
-            <option value="ideia">Ideia</option>
-            <option value="rascunho">Rascunho</option>
-            <option value="revisao">Em revisão</option>
-            <option value="aprovado">Aprovado</option>
+            <option value="revisao">Revisão</option>
+            <option value="gravacao">Gravação</option>
+            <option value="gravado">Gravado</option>
             <option value="publicado">Publicado</option>
           </select>
         </div>
       </div>
       <div class="fg"><label class="fl">Gancho (primeira frase / hook)</label><input class="fi" id="r-gancho" placeholder="A frase que segura o espectador nos 3 primeiros segundos"/></div>
-      <div class="fg"><label class="fl">Roteiro completo</label><textarea class="ft" id="r-conteudo" placeholder="Escreva o roteiro completo aqui — cena a cena, fala a fala..."></textarea></div>
+      <div class="fg"><label class="fl">Roteiro Completo</label><textarea class="ft" id="r-conteudo" placeholder="Escreva o roteiro completo aqui — cena a cena, fala a fala..."></textarea></div>
+      <div class="fg"><label class="fl">Descrição do Vídeo</label><textarea class="ft ft-sm" id="r-descricao" placeholder="Texto que vai na descrição do vídeo publicado (YouTube, Instagram, etc.)"></textarea></div>
       <div class="fg"><label class="fl">CTA (chamada para ação)</label><input class="fi" id="r-cta" placeholder="Ex: Testa grátis 30 dias em editorflow.pro"/></div>
       <div class="fg"><label class="fl">Tags (separadas por vírgula)</label><input class="fi" id="r-tags" placeholder="dor, conversão, depoimento"/></div>
     </div>
@@ -312,9 +407,11 @@ const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 
 let MEU_EMAIL='', IS_ADMIN=false;
 let todos=[], fFormato='todos', fStatus='todos';
+let VIEW_ID=null; // id do roteiro no modal de leitura
 
 const FORMATO_LBL={anuncio:'Anúncio',youtube:'YouTube',carrossel:'Carrossel'};
-const STATUS_LBL={ideia:'Ideia',rascunho:'Rascunho',revisao:'Em revisão',aprovado:'Aprovado',publicado:'Publicado'};
+const STATUS_LBL={revisao:'Em Revisão',gravacao:'Gravação',gravado:'Gravado',publicado:'Publicado'};
+const PLATAFORMA_LBL={instagram:'Instagram',youtube:'YouTube',tiktok:'TikTok',linkedin:'LinkedIn'};
 
 // ── GATE ──
 function gateMsg(t,tipo='error'){const e=document.getElementById('gate-msg');e.textContent=t;e.className='gate-msg '+tipo+' show';}
@@ -337,11 +434,9 @@ async function checarAcesso(){
   if(!session){return false;}
   MEU_EMAIL=session.user.email;
 
-  // admin?
   const {data:adm}=await sb.from('admins').select('email').eq('email',MEU_EMAIL).maybeSingle();
   IS_ADMIN=!!adm;
 
-  // autorizado?
   const {data:aut}=await sb.from('roteiros_autorizados').select('email').eq('email',MEU_EMAIL).maybeSingle();
 
   if(!IS_ADMIN && !aut){
@@ -350,11 +445,16 @@ async function checarAcesso(){
     return false;
   }
 
-  // libera
   document.getElementById('gate').style.display='none';
   document.getElementById('app').style.display='block';
   document.getElementById('user-email').textContent=MEU_EMAIL;
-  if(IS_ADMIN){document.getElementById('admin-sec').style.display='block';carregarEquipe();}
+
+  // seção de equipe — SOMENTE admin
+  if(IS_ADMIN){
+    document.getElementById('admin-sec').style.display='block';
+    carregarEquipe();
+  }
+
   await carregar();
   return true;
 }
@@ -369,13 +469,13 @@ async function carregar(){
 }
 
 function stats(){
-  const c={total:todos.length,ideia:0,rascunho:0,aprovado:0,publicado:0};
+  const c={total:todos.length,revisao:0,gravacao:0,gravado:0,publicado:0};
   todos.forEach(r=>{if(c[r.status]!=null)c[r.status]++;});
   document.getElementById('stats').innerHTML=`
     <div class="stat"><div class="stat-l">Total</div><div class="stat-v">${c.total}</div></div>
-    <div class="stat"><div class="stat-l">Ideias</div><div class="stat-v" style="color:var(--text2)">${c.ideia}</div></div>
-    <div class="stat"><div class="stat-l">Rascunhos</div><div class="stat-v" style="color:var(--amber)">${c.rascunho}</div></div>
-    <div class="stat"><div class="stat-l">Aprovados</div><div class="stat-v" style="color:var(--green)">${c.aprovado}</div></div>
+    <div class="stat"><div class="stat-l">Revisão</div><div class="stat-v" style="color:#c4b5fd">${c.revisao}</div></div>
+    <div class="stat"><div class="stat-l">Gravação</div><div class="stat-v" style="color:#fcd34d">${c.gravacao}</div></div>
+    <div class="stat"><div class="stat-l">Gravados</div><div class="stat-v" style="color:var(--green)">${c.gravado}</div></div>
     <div class="stat"><div class="stat-l">Publicados</div><div class="stat-v" style="color:var(--cyan)">${c.publicado}</div></div>`;
 }
 
@@ -397,11 +497,11 @@ function render(){
   grid.innerHTML=lista.map(r=>{
     const tags=(r.tags||'').split(',').map(t=>t.trim()).filter(Boolean).slice(0,3);
     const data=new Date(r.atualizado_em||r.criado_em||Date.now()).toLocaleDateString('pt-BR');
-    return `<div class="card" onclick='editar(${JSON.stringify(r.id)})'>
+    return `<div class="card" onclick='verRoteiro(${JSON.stringify(r.id)})'>
       <div class="card-top">
-        <span class="badge b-${r.formato}">${FORMATO_LBL[r.formato]||r.formato}</span>
-        <span class="badge b-${r.plataforma}">${esc(r.plataforma||'')}</span>
-        <span class="st st-${r.status}">${STATUS_LBL[r.status]||r.status}</span>
+        <span class="badge b-${r.formato}">${esc(FORMATO_LBL[r.formato]||r.formato)}</span>
+        <span class="badge b-${r.plataforma}">${esc(PLATAFORMA_LBL[r.plataforma]||r.plataforma)}</span>
+        <span class="st st-${r.status}">${esc(STATUS_LBL[r.status]||r.status)}</span>
       </div>
       <div class="card-title">${esc(r.titulo)}</div>
       <div class="card-prev">${esc(r.gancho||r.conteudo||'Sem conteúdo ainda.')}</div>
@@ -411,15 +511,92 @@ function render(){
   }).join('');
 }
 
-// ── CRUD ──
+// ══════════════════════════════════════════════════
+// MODAL DE LEITURA (somente visualização)
+// ══════════════════════════════════════════════════
+
+function verRoteiro(id){
+  const r=todos.find(x=>x.id===id);if(!r)return;
+  VIEW_ID=id;
+
+  // título
+  document.getElementById('v-titulo').textContent=r.titulo||'Sem título';
+
+  // badges
+  document.getElementById('v-badges').innerHTML=`
+    <span class="badge b-${r.formato}">${esc(FORMATO_LBL[r.formato]||r.formato)}</span>
+    <span class="badge b-${r.plataforma}">${esc(PLATAFORMA_LBL[r.plataforma]||r.plataforma)}</span>
+    <span class="st st-${r.status}">${esc(STATUS_LBL[r.status]||r.status)}</span>`;
+
+  // gancho
+  const vsGancho=document.getElementById('vs-gancho');
+  if(r.gancho){
+    document.getElementById('v-gancho').textContent=r.gancho;
+    vsGancho.style.display='block';
+  } else { vsGancho.style.display='none'; }
+
+  // descrição
+  const vsDesc=document.getElementById('vs-descricao');
+  if(r.descricao){
+    document.getElementById('v-descricao').textContent=r.descricao;
+    vsDesc.style.display='block';
+  } else { vsDesc.style.display='none'; }
+
+  // roteiro completo
+  const vsConteudo=document.getElementById('vs-conteudo');
+  if(r.conteudo){
+    document.getElementById('v-conteudo').textContent=r.conteudo;
+    vsConteudo.style.display='block';
+  } else { vsConteudo.style.display='none'; }
+
+  // cta
+  const vsCta=document.getElementById('vs-cta');
+  if(r.cta){
+    document.getElementById('v-cta').textContent=r.cta;
+    vsCta.style.display='block';
+  } else { vsCta.style.display='none'; }
+
+  // tags
+  const vsTags=document.getElementById('vs-tags');
+  const tags=(r.tags||'').split(',').map(t=>t.trim()).filter(Boolean);
+  if(tags.length){
+    document.getElementById('v-tags').innerHTML=tags.map(t=>`<span class="tag" style="font-size:12px;padding:4px 12px">${esc(t)}</span>`).join('');
+    vsTags.style.display='block';
+  } else { vsTags.style.display='none'; }
+
+  // meta
+  const data=new Date(r.atualizado_em||r.criado_em||Date.now()).toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'});
+  document.getElementById('v-meta').innerHTML=`<strong>${esc((r.autor_email||'').split('@')[0]||'—')}</strong> · ${data}`;
+
+  document.getElementById('view-overlay').classList.add('open');
+}
+
+function closeView(){
+  document.getElementById('view-overlay').classList.remove('open');
+  VIEW_ID=null;
+}
+
+function fecharView(e){if(e.target.id==='view-overlay')closeView();}
+
+function irParaEdicao(){
+  if(!VIEW_ID)return;
+  closeView();
+  editarRoteiro(VIEW_ID);
+}
+
+// ══════════════════════════════════════════════════
+// MODAL DE EDIÇÃO / CRIAÇÃO
+// ══════════════════════════════════════════════════
+
 function novoRoteiro(){
   document.getElementById('r-id').value='';
   document.getElementById('r-titulo').value='';
   document.getElementById('r-formato').value='anuncio';
   document.getElementById('r-plataforma').value='instagram';
-  document.getElementById('r-status').value='ideia';
+  document.getElementById('r-status').value='revisao';
   document.getElementById('r-gancho').value='';
   document.getElementById('r-conteudo').value='';
+  document.getElementById('r-descricao').value='';
   document.getElementById('r-cta').value='';
   document.getElementById('r-tags').value='';
   document.getElementById('modal-title').textContent='Novo Roteiro';
@@ -428,15 +605,16 @@ function novoRoteiro(){
   document.getElementById('modal').classList.add('open');
 }
 
-function editar(id){
+function editarRoteiro(id){
   const r=todos.find(x=>x.id===id);if(!r)return;
   document.getElementById('r-id').value=r.id;
   document.getElementById('r-titulo').value=r.titulo||'';
   document.getElementById('r-formato').value=r.formato||'anuncio';
   document.getElementById('r-plataforma').value=r.plataforma||'instagram';
-  document.getElementById('r-status').value=r.status||'ideia';
+  document.getElementById('r-status').value=r.status||'revisao';
   document.getElementById('r-gancho').value=r.gancho||'';
   document.getElementById('r-conteudo').value=r.conteudo||'';
+  document.getElementById('r-descricao').value=r.descricao||'';
   document.getElementById('r-cta').value=r.cta||'';
   document.getElementById('r-tags').value=r.tags||'';
   document.getElementById('modal-title').textContent='Editar Roteiro';
@@ -446,6 +624,7 @@ function editar(id){
 }
 
 function closeModal(){document.getElementById('modal').classList.remove('open');}
+function fecharEdit(e){if(e.target.id==='modal')closeModal();}
 
 async function salvar(){
   const titulo=document.getElementById('r-titulo').value.trim();
@@ -458,17 +637,25 @@ async function salvar(){
     status:document.getElementById('r-status').value,
     gancho:document.getElementById('r-gancho').value||null,
     conteudo:document.getElementById('r-conteudo').value||null,
+    descricao:document.getElementById('r-descricao').value||null,
     cta:document.getElementById('r-cta').value||null,
     tags:document.getElementById('r-tags').value||null,
     atualizado_em:new Date().toISOString()
   };
   const btn=document.getElementById('btn-save');btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';
   let error;
-  if(id){({error}=await sb.from('roteiros').update(rec).eq('id',id));}
-  else{rec.autor_email=MEU_EMAIL;rec.criado_em=new Date().toISOString();({error}=await sb.from('roteiros').insert(rec));}
+  if(id){
+    ({error}=await sb.from('roteiros').update(rec).eq('id',id));
+  } else {
+    rec.autor_email=MEU_EMAIL;
+    rec.criado_em=new Date().toISOString();
+    ({error}=await sb.from('roteiros').insert(rec));
+  }
   btn.disabled=false;btn.textContent=id?'Salvar Alterações':'Criar Roteiro';
   if(error){toast('Erro: '+error.message,'var(--red)');return;}
-  closeModal();await carregar();toast(id?'Roteiro atualizado!':'Roteiro criado!','var(--green)');
+  closeModal();
+  await carregar();
+  toast(id?'Roteiro atualizado!':'Roteiro criado!','var(--green)');
 }
 
 async function excluir(){
@@ -513,10 +700,9 @@ async function logout(){await sb.auth.signOut();location.reload();}
 function toast(msg,cor='var(--green)'){
   const t=document.createElement('div');t.className='toast';
   t.innerHTML=`<span class="dot" style="background:${cor}"></span>${esc(msg)}`;
-  document.body.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transform='translateY(14px)';t.style.transition='.3s';setTimeout(()=>t.remove(),300);},2800);
+  document.body.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateY(14px)';t.style.transition='.3s';setTimeout(()=>t.remove(),300);},2800);
 }
-
-document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal();});
 
 // ── START ──
 checarAcesso().then(ok=>{if(!ok){/* gate fica visível */}});
