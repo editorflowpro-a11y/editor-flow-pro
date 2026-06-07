@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<link rel="icon" type="image/png" href="https://i.imgur.com/JvSPKKb.png"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Projeto — Editor Flow Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#050914;--bg2:#0a101d;--surface:#0a101d;--accent:#4a6dff;--accent-light:#6b8aff;--accent-glow:rgba(74,109,255,.4);--accent2:#10b981;--amber:#f59e0b;--red:#ef4444;--text:#fff;--muted:#a1a1aa;--muted2:#52525b;--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.16)}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;position:relative;overflow-x:hidden}
+.bg-glow{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(circle 520px at 50% -8%,color-mix(in srgb,var(--accent) 26%,transparent) 0%,transparent 70%)}
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;background-size:54px 54px;background-image:linear-gradient(to right,rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.035) 1px,transparent 1px);-webkit-mask-image:radial-gradient(ellipse 80% 55% at center top,#000,transparent 75%);mask-image:radial-gradient(ellipse 80% 55% at center top,#000,transparent 75%)}
+
+/* ─── Layout ─── */
+.wrap{position:relative;z-index:1;max-width:1260px;margin:0 auto;padding:40px 24px 60px}
+.proj-layout{display:grid;grid-template-columns:2fr 1.1fr;gap:20px;align-items:start}
+@media(max-width:900px){.proj-layout{grid-template-columns:1fr}}
+
+/* ─── Liquid Glass Cards ─── */
+.glass-card{background:rgba(255,255,255,.03);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:24px;box-shadow:0 8px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06)}
+
+/* ─── Header info ─── */
+.ic{display:inline-block;vertical-align:-2px;flex-shrink:0}
+.av{width:50px;height:50px;border-radius:50%;background:rgba(74,109,255,.2);color:var(--accent-light);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0;background-size:cover;background-position:center}
+.p-name{font-size:22px;font-weight:800;letter-spacing:-.3px;line-height:1.15}
+.p-client{font-size:13px;color:var(--muted);margin-top:3px}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.badge{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;text-transform:uppercase}
+.mini{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:18px}
+.mini .rm{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:13px;text-align:center}
+.mini .rm-v{font-family:'Instrument Serif',serif;font-size:21px;line-height:1}
+.mini .rm-l{font-size:9px;color:var(--muted);margin-top:5px;text-transform:uppercase;letter-spacing:.5px}
+.sec-title{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--accent-light);margin:20px 0 10px;display:flex;align-items:center;gap:7px}
+.pv-frame{position:relative;width:100%;aspect-ratio:16/9;border-radius:14px;overflow:hidden;border:1px solid var(--border);background:#000}
+.pv-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.pv-empty{aspect-ratio:16/9;border:1px dashed var(--border2);border-radius:14px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:13px;padding:20px}
+
+/* ─── Comments ─── */
+.cmt-list{display:flex;flex-direction:column;gap:8px;max-height:420px;overflow-y:auto;padding-right:4px}
+.cmt-list::-webkit-scrollbar{width:4px}.cmt-list::-webkit-scrollbar-track{background:transparent}.cmt-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.cmt-item{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);backdrop-filter:blur(4px);transition:background .15s,border-color .15s,transform .1s}
+.cmt-item.seekable{cursor:pointer}
+.cmt-item.seekable:hover{background:rgba(74,109,255,.1);border-color:rgba(74,109,255,.3);transform:translateY(-1px)}
+.cmt-chip{background:rgba(74,109,255,.15);color:var(--accent-light);border:1px solid rgba(74,109,255,.25);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;flex-shrink:0;cursor:pointer;white-space:nowrap}
+.cmt-item.done .cmt-chip{background:rgba(16,185,129,.15);color:#6ee7b7;border-color:rgba(16,185,129,.3)}
+.cmt-item.done .cmt-txt{opacity:.6;text-decoration:line-through}
+.cmt-body{flex:1;min-width:0}
+.cmt-txt{font-size:13px;line-height:1.45}
+.cmt-meta{font-size:10px;color:var(--muted2);margin-top:3px}
+.cmt-actions{display:flex;gap:6px;margin-top:5px}
+.cmt-btn{background:none;border:none;color:var(--muted2);font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;padding:2px 6px;border-radius:5px;transition:all .15s}
+.cmt-btn:hover{color:var(--text);background:rgba(255,255,255,.06)}
+.cmt-btn.del:hover{color:#fca5a5;background:rgba(239,68,68,.1)}
+.cmt-edit-area{width:100%;padding:6px 9px;border-radius:8px;border:1px solid var(--border2);background:rgba(255,255,255,.04);color:#fff;font-size:12px;font-family:'Inter',sans-serif;resize:none;margin-top:5px}
+.cmt-edit-area:focus{outline:none;border-color:var(--accent)}
+
+/* ─── Comment form ─── */
+.cmt-form{margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+.cmt-form-row{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start}
+.cf-i{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border2);background:rgba(255,255,255,.04);color:#fff;font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
+.cf-i:focus{border-color:var(--accent)}
+.cf-i::placeholder{color:var(--muted2)}
+.cf-time{width:90px;flex-shrink:0;text-align:center}
+.cf-btn{padding:10px 18px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-weight:700;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;transition:transform .15s;white-space:nowrap;flex-shrink:0}
+.cf-btn:hover:not(:disabled){transform:translateY(-1px)}
+.cf-btn:disabled{opacity:.6;cursor:not-allowed}
+.cf-msg{font-size:12px;margin-top:6px;display:none}
+.cf-msg.ok{display:block;color:#6ee7b7}
+.cf-msg.err{display:block;color:#fca5a5}
+.empty{padding:24px;text-align:center;font-size:12px;color:var(--muted)}
+.cmt-hint{font-size:11px;color:var(--muted2);margin-bottom:10px}
+
+/* ─── States ─── */
+.state{min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;color:var(--muted)}
+.state .big{font-family:'Instrument Serif',serif;font-style:italic;font-size:30px;color:#fff}
+.foot{margin-top:26px;text-align:center;font-size:11px;color:var(--muted2)}
+.foot a{color:var(--muted);text-decoration:none;font-weight:600}
+@media(max-width:480px){.wrap{padding:28px 14px 50px}.glass-card{padding:18px}.p-name{font-size:19px}.mini .rm-v{font-size:18px}}
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+<div class="bg-grid"></div>
+<div class="wrap" id="root">
+  <div class="state"><div class="big">Carregando…</div></div>
+</div>
+<script>
+const SB_URL='https://svcglbkbwjovxswlpkrh.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN2Y2dsYmtid2pvdnhzd2xwa3JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMjE5NjYsImV4cCI6MjA5NTU5Nzk2Nn0.QcBFJWS3kk-WMKvSEQXTiSWpYUE_Rw2Mvz8WoC075gs';
+const sb=supabase.createClient(SB_URL,SB_KEY);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ini=n=>!n?'?':n.trim().split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,2);
+const fmt=v=>'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtD=d=>{if(!d)return'—';try{return new Date(d+'T12:00:00').toLocaleDateString('pt-BR')}catch{return d}};
+const ICONS={film:'<rect x="2" y="2" width="20" height="20" rx="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/>',comment:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',calendar:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',edit:'<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>',trash:'<polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/>',check:'<polyline points="20 6 9 17 4 12"/>',close:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>'};
+function ic(n,s){s=s||16;return`<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[n]||''}</svg>`}
+const ST_COLORS={'Pago':'background:rgba(16,185,129,.1);color:var(--accent2);border:1px solid rgba(16,185,129,.2)','Concluído':'background:rgba(59,130,246,.1);color:#3b82f6;border:1px solid rgba(59,130,246,.2)','A Fazer':'background:rgba(245,158,11,.1);color:var(--amber);border:1px solid rgba(245,158,11,.2)'};
+
+function driveId(url){if(!url)return null;let m=url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)||url.match(/[?&]id=([a-zA-Z0-9_-]+)/);return m?m[1]:null;}
+function videoEmbed(url){if(!url)return null;let m;m=url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);if(m)return{provider:'youtube',id:m[1],src:`https://www.youtube.com/embed/${m[1]}?rel=0`};m=url.match(/vimeo\.com\/(?:video\/)?(\d+)/);if(m)return{provider:'vimeo',id:m[1],src:`https://player.vimeo.com/video/${m[1]}`};const d=driveId(url);if(d)return{provider:'drive',id:d,src:`https://drive.google.com/file/d/${d}/preview`};return null;}
+let curPlayer={provider:null};
+function seekTo(sec){const e=curPlayer;if(!e||!e.provider)return;const f=document.getElementById('p-iframe');if(!f)return;if(e.provider==='youtube')f.src=`https://www.youtube.com/embed/${e.id}?rel=0&autoplay=1&start=${sec}`;else if(e.provider==='vimeo')f.src=`https://player.vimeo.com/video/${e.id}#t=${sec}s`;}
+function secToMMSS(s){s=Math.max(0,parseInt(s)||0);const m=Math.floor(s/60),x=s%60;return`${m}:${String(x).padStart(2,'0')}`;}
+function mmssToSec(t){if(!t)return 0;const p=String(t).split(':').map(n=>parseInt(n)||0);if(p.length>=3)return p[0]*3600+p[1]*60+p[2];if(p.length===2)return p[0]*60+p[1];return p[0]||0;}
+function maskTime(el){let d=el.value.replace(/\D/g,'').slice(0,6);let out=d.slice(0,2);if(d.length>2)out+=':'+d.slice(2,4);if(d.length>4)out+=':'+d.slice(4,6);el.value=out;}
+function renderState(big,small){document.getElementById('root').innerHTML=`<div class="state"><div class="big">${big}</div><div>${small}</div></div><div class="foot">Feito com <a href="/index.html">Editor Flow Pro</a></div>`;}
+
+let PROJ=null,CMTS=[];
+
+/* ─── Comment row ─── */
+function cmtRow(c){
+  const seekable=curPlayer&&curPlayer.provider&&curPlayer.provider!=='drive';
+  return `<div class="cmt-item${seekable?' seekable':''}${c.feito?' done':''}" id="cmt-${c.id}" ${seekable?`onclick="seekTo(${c.segundos||0})"`:''}>
+    <span class="cmt-chip" onclick="event.stopPropagation();seekTo(${c.segundos||0})">${secToMMSS(c.segundos)}</span>
+    <div class="cmt-body">
+      <div class="cmt-txt">${esc(c.texto)}</div>
+      <div class="cmt-meta">${fmtD((c.criado_em||'').split('T')[0])}</div>
+      <div class="cmt-actions" onclick="event.stopPropagation()">
+        <button class="cmt-btn" onclick="editCmt('${c.id}')">${ic('edit',11)} Editar</button>
+        <button class="cmt-btn del" onclick="delCmt('${c.id}')" data-del="0">${ic('trash',11)} Excluir</button>
+      </div>
+    </div>
+  </div>`;
+}
+function renderCmtList(){
+  const el=document.getElementById('cmt-list');if(!el)return;
+  el.innerHTML=CMTS.length?CMTS.map(cmtRow).join(''):'<div class="empty">Sem comentários ainda. Seja o primeiro!</div>';
+}
+
+/* ─── Edit / Delete comment ─── */
+function editCmt(id){
+  const c=CMTS.find(x=>x.id===id);if(!c)return;
+  const wrap=document.getElementById('cmt-'+id);if(!wrap)return;
+  const txtEl=wrap.querySelector('.cmt-txt');
+  const actEl=wrap.querySelector('.cmt-actions');
+  const ta=document.createElement('textarea');ta.className='cmt-edit-area';ta.rows=2;ta.value=c.texto;
+  txtEl.replaceWith(ta);ta.focus();
+  actEl.innerHTML=`
+    <button class="cmt-btn" style="color:var(--accent-light)" onclick="saveCmtEdit('${id}',this.closest('.cmt-body').querySelector('.cmt-edit-area'))">${ic('check',11)} Salvar</button>
+    <button class="cmt-btn del" onclick="cancelCmtEdit('${id}')">${ic('close',11)} Cancelar</button>`;
+}
+async function saveCmtEdit(id,ta){
+  const texto=ta.value.trim();if(!texto)return;
+  const {error}=await sb.from('comentarios').update({texto}).eq('id',id).eq('projeto_id',PROJ.id);
+  if(!error){const c=CMTS.find(x=>x.id===id);if(c)c.texto=texto;renderCmtList();}
+  else{alert('Não foi possível salvar.');}
+}
+function cancelCmtEdit(id){renderCmtList();}
+async function delCmt(id,btn){
+  const wrap=document.getElementById('cmt-'+id);
+  const delBtn=wrap?wrap.querySelector('[data-del]'):null;
+  if(!delBtn)return;
+  if(delBtn.dataset.del==='1'){
+    // Optimistic
+    CMTS=CMTS.filter(c=>c.id!==id);renderCmtList();
+    await sb.from('comentarios').delete().eq('id',id).eq('projeto_id',PROJ.id);
+  }else{
+    delBtn.dataset.del='1';delBtn.textContent='Confirmar?';delBtn.style.color='#fca5a5';delBtn.style.background='rgba(239,68,68,.1)';
+    setTimeout(()=>{if(delBtn.dataset.del==='1'){delBtn.dataset.del='0';delBtn.innerHTML=ic('trash',11)+' Excluir';delBtn.style.color='';delBtn.style.background='';}},3000);
+  }
+}
+
+/* ─── Add comment ─── */
+async function addComentarioPublico(){
+  const texto=document.getElementById('cf-txt').value.trim();
+  const seg=mmssToSec(document.getElementById('cf-min').value.trim());
+  const msg=document.getElementById('cf-msg'),btn=document.getElementById('cf-btn');
+  if(!texto){msg.className='cf-msg err';msg.textContent='Escreva um comentário.';return;}
+  btn.disabled=true;btn.textContent='Enviando…';
+  const rec={projeto_id:PROJ.id,user_id:PROJ.user_id,segundos:seg,texto,autor:null,criado_em:new Date().toISOString()};
+  const {data,error}=await sb.from('comentarios').insert(rec).select().maybeSingle();
+  btn.disabled=false;btn.textContent='Enviar';
+  if(error){msg.className='cf-msg err';msg.textContent='Não foi possível enviar. Tente novamente.';return;}
+  CMTS.push(data||rec);CMTS.sort((a,b)=>(a.segundos||0)-(b.segundos||0));renderCmtList();
+  document.getElementById('cf-txt').value='';document.getElementById('cf-min').value='';
+  msg.className='cf-msg ok';msg.textContent='Comentário enviado!';
+  setTimeout(()=>{msg.className='cf-msg'},2500);
+}
+
+/* ─── Render full page ─── */
+function renderProjeto(p,comentarios){
+  PROJ=p;CMTS=comentarios||[];
+  const e=videoEmbed(p.video_url);curPlayer=e?{provider:e.provider,id:e.id}:{provider:null};
+  const val=parseFloat(p.valor)||0;
+  const seekable=e&&e.provider!=='drive';
+  const player=e
+    ?`<div class="pv-frame"><iframe id="p-iframe" src="${e.src}" allow="autoplay; fullscreen" allowfullscreen></iframe></div>`
+    :`<div class="pv-empty">Nenhum vídeo disponível ainda.</div>`;
+  document.getElementById('root').innerHTML=`
+  <div class="proj-layout">
+    <!-- ── Esquerda: Preview + Detalhes ── -->
+    <div class="glass-card">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+        <div class="av">${ini(p.cliente)}</div>
+        <div style="min-width:0">
+          <div class="p-name">${esc(p.nome)}</div>
+          <div class="p-client">${esc(p.cliente||'')}</div>
+        </div>
+      </div>
+      <div class="badges">
+        <span class="badge" style="${ST_COLORS[p.status]||ST_COLORS['A Fazer']}">${esc(p.status||'—')}</span>
+        ${p.tipo?`<span class="badge" style="background:rgba(74,109,255,.12);color:var(--accent-light);border:1px solid rgba(74,109,255,.2)">${esc(p.tipo)}</span>`:''}
+      </div>
+      <div class="mini">
+        <div class="rm"><div class="rm-v" style="color:var(--accent2)">${fmt(val)}</div><div class="rm-l">Valor</div></div>
+        <div class="rm"><div class="rm-v" style="font-size:15px">${esc(p.status||'—')}</div><div class="rm-l">Status</div></div>
+        <div class="rm"><div class="rm-v" style="font-size:15px">${fmtD(p.prazo)}</div><div class="rm-l">Prazo</div></div>
+      </div>
+      <div class="sec-title">${ic('film',14)} Preview do vídeo</div>
+      ${player}
+    </div>
+
+    <!-- ── Direita: Comentários ── -->
+    <div class="glass-card" style="display:flex;flex-direction:column;gap:0">
+      <div class="sec-title" style="margin-top:0">${ic('comment',14)} Comentários${seekable?' · clique para pular':''}</div>
+      ${seekable?'<div class="cmt-hint">Clique em um comentário para ir até a minutagem no vídeo.</div>':''}
+      <div class="cmt-list" id="cmt-list"></div>
+      <div class="cmt-form">
+        <div style="font-size:12px;font-weight:700;margin-bottom:10px;color:var(--accent-light)">Deixar comentário</div>
+        <div class="cmt-form-row">
+          <input class="cf-i cf-time" id="cf-min" placeholder="mm:ss" maxlength="8" inputmode="numeric" oninput="maskTime(this)" title="Minutagem">
+          <input class="cf-i" id="cf-txt" placeholder="Escreva o ajuste ou feedback..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();addComentarioPublico()}">
+          <button class="cf-btn" id="cf-btn" onclick="addComentarioPublico()">Enviar</button>
+        </div>
+        <div class="cf-msg" id="cf-msg"></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot" style="margin-top:28px">Feito com <a href="/index.html">Editor Flow Pro</a></div>`;
+  renderCmtList();
+}
+
+async function load(){
+  const id=new URLSearchParams(location.search).get('id');
+  if(!id){renderState('Sem projeto','Link inválido.');return;}
+  const {data,error}=await sb.from('projetos').select('*').eq('id',id).maybeSingle();
+  if(error){renderState('Ops','Não foi possível carregar este projeto agora.');return;}
+  if(!data){renderState('Projeto não encontrado','Este link não existe ou o projeto não está mais compartilhado.');return;}
+  let cmts=[];
+  try{const r=await sb.from('comentarios').select('*').eq('projeto_id',id).order('segundos',{ascending:true});cmts=r.data||[];}catch(_){}
+  renderProjeto(data,cmts);
+}
+load();
+</script>
+</body>
+</html>

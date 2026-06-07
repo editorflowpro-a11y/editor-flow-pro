@@ -1,18 +1,37 @@
 const { createClient } = require('@supabase/supabase-js');
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_URL        = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+const WEBHOOK_SECRET      = process.env.WEBHOOK_SECRET; // defina no Netlify + no AbacatePay
 
 // IDs dos planos AbacatePay
 const PLANOS = {
-  'bill_Hp5xeTW6FKzHT5PUxEmhDedx': { nome: 'pro',     dias: 30 },
-  'bill_eJbLAmhaCqUHqFwUDpFQmtUx': { nome: 'premium', dias: 30 },
+  'bill_Hp5xeTW6FKzHT5PUxEmhDedx': { nome: 'pro',     dias: 30, valor: 19.90 },
+  'bill_jLyPYFUQrWBYZCcDFgdwzqSG': { nome: 'premium', dias: 30, valor: 29.90 }, // Premium R$29,90
+  'bill_eJbLAmhaCqUHqFwUDpFQmtUx': { nome: 'premium', dias: 30, valor: 39.90 }, // legado (preço antigo)
 };
 
 exports.handler = async (event) => {
   // Só aceita POST
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
+  }
+
+  // ── VERIFICAÇÃO DE ASSINATURA ──────────────────────────────────
+  // AbacatePay envia o secret configurado no header X-Webhook-Secret
+  if (WEBHOOK_SECRET) {
+    const h = event.headers;
+    const received =
+      h['x-webhook-secret'] ||
+      h['x-abacate-secret']  ||
+      h['x-abacatepay-secret'];
+
+    if (!received || received !== WEBHOOK_SECRET) {
+      console.warn('Webhook REJEITADO: secret inválido ou ausente');
+      return { statusCode: 401, body: 'Unauthorized' };
+    }
+  } else {
+    console.warn('ATENÇÃO: WEBHOOK_SECRET não configurado — adicione no Netlify + AbacatePay');
   }
 
   // Parseia o payload
@@ -23,11 +42,13 @@ exports.handler = async (event) => {
     return { statusCode: 400, body: 'JSON inválido' };
   }
 
-  console.log('AbacatePay webhook recebido:', JSON.stringify(payload, null, 2));
+  // Log sem dados sensíveis
+  console.log('AbacatePay webhook recebido — event:', payload?.event || payload?.type);
 
   // Só processa pagamentos confirmados
   const evento = payload.event || payload.type || '';
-  if (!evento.includes('paid') && !evento.includes('PAID')) {
+  const eventosValidos = ['paid', 'PAID', 'subscription.completed', 'checkout.completed', 'transparent.completed'];
+  if (!eventosValidos.some(e => evento.includes(e))) {
     return { statusCode: 200, body: 'Evento ignorado: ' + evento };
   }
 
@@ -46,8 +67,9 @@ exports.handler = async (event) => {
   const planoInfo = Object.entries(PLANOS).find(([id]) =>
     billingId.includes(id) || billing?.metadata?.planId === id
   );
-  const plano = planoInfo ? planoInfo[1].nome : 'pro';
+  const plano = planoInfo ? planoInfo[1].nome  : 'pro';
   const dias  = planoInfo ? planoInfo[1].dias  : 30;
+  const valor = planoInfo ? planoInfo[1].valor : 19.90;
 
   // Calcula fim do período
   const fimPeriodo = new Date();
@@ -63,6 +85,7 @@ exports.handler = async (event) => {
         email:       email.toLowerCase().trim(),
         status:      'ativo',
         plano:       plano,
+        valor:       valor,
         fim_periodo: fimPeriodo.toISOString(),
         atualizado_em: new Date().toISOString(),
       },

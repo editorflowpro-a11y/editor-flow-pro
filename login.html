@@ -3,8 +3,17 @@
 <head>
 <meta charset="UTF-8"/>
 <link rel="icon" type="image/png" href="https://i.imgur.com/JvSPKKb.png"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Editor Flow Pro — Login</title>
+
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#4a6dff"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Editor Flow"/>
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -115,7 +124,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 
 <div class="card">
   <a class="logo" href="/index.html">
-    <img src="https://i.imgur.com/5mQrC4V.png" alt="Editor Flow Pro"/>
+    <img src="https://i.imgur.com/MQX8YTJ.png" alt="Editor Flow Pro"/>
   </a>
 
   <h1 class="title">Bem-vindo <span class="italic">de volta</span></h1>
@@ -170,6 +179,12 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
       <input class="form-i" id="signup-senha" type="password" placeholder="Crie uma senha (mín. 6 caracteres)"
         onkeydown="if(event.key==='Enter')handleSignup()"/>
     </div>
+    <div class="form-g" style="margin-bottom:4px">
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:12px;color:var(--text2);line-height:1.6">
+        <input type="checkbox" id="signup-termos" style="margin-top:3px;accent-color:var(--accent);flex-shrink:0;width:15px;height:15px"/>
+        Li e aceito os <a href="/termos.html" target="_blank" style="color:var(--accent-light);text-decoration:underline">Termos de Uso</a> e a <a href="/privacidade.html" target="_blank" style="color:var(--accent-light);text-decoration:underline">Política de Privacidade</a>
+      </label>
+    </div>
     <button class="btn" id="btn-signup" onclick="handleSignup()">
       Criar conta grátis
     </button>
@@ -189,6 +204,9 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 
   <div class="foot">
     Quer conhecer os planos? <a href="/index.html#planos">Ver Basic, Pro e Premium →</a>
+  </div>
+  <div class="foot" style="margin-top:12px;font-size:11px;color:var(--text3)">
+    <a href="/termos.html" target="_blank">Termos de Uso</a> · <a href="/privacidade.html" target="_blank">Política de Privacidade</a>
   </div>
 </div>
 
@@ -238,7 +256,7 @@ function setLoading(btnId, loading) {
   }
 }
 
-// ── GOOGLE OAUTH (escopo Drive p/ preview de vídeos) ──
+// ── GOOGLE OAUTH ──
 async function loginGoogle() {
   const btn = document.getElementById('btn-google');
   btn.disabled = true;
@@ -247,9 +265,7 @@ async function loginGoogle() {
   const { error } = await sb.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: window.location.origin + '/app.html',
-      scopes: 'https://www.googleapis.com/auth/drive.readonly',
-      queryParams: { access_type: 'offline', prompt: 'consent' }
+      redirectTo: window.location.origin + '/app.html'
     }
   });
   if (error) {
@@ -287,6 +303,7 @@ async function handleSignup() {
   const senha = document.getElementById('signup-senha').value;
   if (!email || !senha) { showMsg('Preencha email e senha.'); return; }
   if (senha.length < 6) { showMsg('A senha precisa ter pelo menos 6 caracteres.'); return; }
+  if (!document.getElementById('signup-termos').checked) { showMsg('Aceite os Termos de Uso e a Política de Privacidade para continuar.'); return; }
 
   setLoading('btn-signup', true);
   hideMsg();
@@ -358,6 +375,9 @@ async function verificarAcesso(email) {
   // Acesso liberado — redireciona para o app
   window.location.href = '/app.html';
 }
+
+// ── PWA: registra o service worker ──
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').catch(()=>{});});}
 </script>
 </body>
 </html>

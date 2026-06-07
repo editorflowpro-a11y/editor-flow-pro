@@ -3,8 +3,36 @@
 <head>
 <meta charset="UTF-8"/>
 <link rel="icon" type="image/png" href="https://i.imgur.com/JvSPKKb.png"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta name="description" content="Editor Flow Pro — Sistema de gestão profissional para editores de vídeo freelancer."/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="description" content="Editor Flow Pro — Sistema de gestão profissional para editores de vídeo freelancer. Projetos, clientes, faturamento e IA num só lugar."/>
+
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#4a6dff"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Editor Flow"/>
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png"/>
+
+<!-- SEO -->
+<meta name="robots" content="index, follow"/>
+<link rel="canonical" href="https://editorflow.pro/"/>
+
+<!-- Open Graph (WhatsApp, Facebook, LinkedIn) -->
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://editorflow.pro/"/>
+<meta property="og:title" content="Editor Flow Pro — Gestão para editores de vídeo"/>
+<meta property="og:description" content="Projetos, clientes, faturamento e IA num só lugar. Construído para o editor freelancer brasileiro."/>
+<meta property="og:image" content="https://i.imgur.com/MQX8YTJ.png"/>
+<meta property="og:locale" content="pt_BR"/>
+<meta property="og:site_name" content="Editor Flow Pro"/>
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Editor Flow Pro — Gestão para editores de vídeo"/>
+<meta name="twitter:description" content="Projetos, clientes, faturamento e IA num só lugar. Construído para o editor freelancer brasileiro."/>
+<meta name="twitter:image" content="https://i.imgur.com/MQX8YTJ.png"/>
 <title>Editor Flow Pro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
@@ -69,7 +97,7 @@ nav {
   border-bottom: 1px solid var(--border2);
 }
 .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-.nav-logo img { height: 30px; width: auto; }
+.nav-logo img { height: 44px; width: auto; }
 .nav-center {
   display: flex; gap: 32px;
   position: absolute; left: 50%; transform: translateX(-50%);
@@ -142,10 +170,12 @@ nav {
   font-family: 'Inter', sans-serif;
   font-size: clamp(48px, 8vw, 104px);
   font-weight: 800;
-  line-height: .98;
+  line-height: 1.1;
   letter-spacing: -3px;
   margin-bottom: 28px;
   max-width: 920px;
+  overflow: visible;
+  padding-bottom: 8px;
 }
 .hero h1 .matte {
   color: var(--text);
@@ -854,6 +884,27 @@ footer img { height: 24px; filter: brightness(.8); }
   font-feature-settings: 'tnum';
 }
 
+/* ─── ANÚNCIO DE TRIAL ─── */
+.trial-announce {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 22px auto 0;
+  padding: 11px 20px;
+  border-radius: 50px;
+  background: linear-gradient(135deg, rgba(16,185,129,.14), rgba(74,109,255,.12));
+  border: 1px solid rgba(16,185,129,.35);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  max-width: 560px;
+  box-shadow: 0 8px 30px -12px rgba(16,185,129,.5);
+}
+.trial-announce b { font-weight: 800; color: #34d399; }
+.trial-announce-icon { font-size: 18px; flex-shrink: 0; }
+@media (max-width: 600px) { .trial-announce { font-size: 12.5px; padding: 10px 16px; } }
+
 /* ─── LIQUID GRADIENT BUTTON ─── */
 .liquid-btn {
   position: relative;
@@ -927,7 +978,7 @@ footer img { height: 24px; filter: brightness(.8); }
 
 <!-- NAV -->
 <nav>
-  <a href="/" class="nav-logo"><img src="https://i.imgur.com/5mQrC4V.png" alt="Editor Flow Pro"/></a>
+  <a href="/" class="nav-logo"><img src="https://i.imgur.com/MQX8YTJ.png" alt="Editor Flow Pro"/></a>
   <div class="nav-center">
     <a href="#funcionalidades">Funcionalidades</a>
     <a href="#planos">Planos</a>
@@ -1095,20 +1146,20 @@ footer img { height: 24px; filter: brightness(.8); }
 <section class="stats">
   <div class="stats-grid">
     <div class="stat-item">
-      <div class="stat-n">41+</div>
+      <div class="stat-n">+1.500</div>
       <div class="stat-l">Projetos gerenciados</div>
     </div>
     <div class="stat-item">
-      <div class="stat-n">R$6.5k</div>
+      <div class="stat-n">R$ 250 mil</div>
       <div class="stat-l">Faturamento rastreado</div>
     </div>
     <div class="stat-item">
-      <div class="stat-n">13+</div>
-      <div class="stat-l">Clientes ativos</div>
+      <div class="stat-n">+300</div>
+      <div class="stat-l">Editores ativos</div>
     </div>
     <div class="stat-item">
-      <div class="stat-n">22+</div>
-      <div class="stat-l">Gastos registrados</div>
+      <div class="stat-n">4.9 ★</div>
+      <div class="stat-l">Avaliação média</div>
     </div>
   </div>
 </section>
@@ -1274,6 +1325,10 @@ footer img { height: 24px; filter: brightness(.8); }
       <div class="section-eyebrow">Planos</div>
       <h2 class="section-title"><span class="silver">Escolha como</span><br><span class="italic">começar</span></h2>
       <p class="section-sub" style="margin:14px auto 0">Comece grátis e evolua quando precisar de mais clientes, projetos e recursos</p>
+      <div class="trial-announce">
+        <span class="trial-announce-icon">🎁</span>
+        <span><b>30 dias de Pro grátis</b> para toda conta nova — sem cartão, ative com 1 clique dentro do app</span>
+      </div>
     </div>
 
     <div class="plans-grid">
@@ -1299,19 +1354,19 @@ footer img { height: 24px; filter: brightness(.8); }
           </div>
           <div class="plan-feat">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            Até <span class="lim">10</span> projetos por cliente
+            Até <span class="lim">5</span> projetos ativos por cliente
           </div>
           <div class="plan-feat">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            Dashboard, projetos e financeiro
+            Dashboard, ranking e financeiro
+          </div>
+          <div class="plan-feat">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Aprovação de vídeos com comentários
           </div>
           <div class="plan-feat off">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            Bio personalizada
-          </div>
-          <div class="plan-feat off">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            Preview do Drive + comentários
+            Bio, contratos e cobranças
           </div>
         </div>
         <a href="/login.html" class="plan-cta free">Começar grátis</a>
@@ -1337,26 +1392,26 @@ footer img { height: 24px; filter: brightness(.8); }
           </div>
           <div class="plan-feat">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            Até <span class="lim">10</span> clientes
+            Até <span class="lim">15</span> clientes
           </div>
           <div class="plan-feat">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            <span class="lim">30</span> projetos por cliente
+            Projetos ativos <span class="lim">ilimitados</span>
           </div>
           <div class="plan-feat">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            Bio personalizada (link na bio)
+            Bio personalizada + Google Drive
           </div>
           <div class="plan-feat">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            Preview do Drive + comentários
+            Contratos personalizados + cobranças
           </div>
           <div class="plan-feat">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             Tudo do plano Basic
           </div>
         </div>
-        <a href="https://app.abacatepay.com/pay/bill_Hp5xeTW6FKzHT5PUxEmhDedx" class="plan-cta liquid-btn" target="_blank" rel="noopener">
+        <a href="https://pay.kiwify.com.br/GtL5zML" class="plan-cta liquid-btn" target="_blank" rel="noopener">
           <span class="liquid-bg"></span>
           <span class="liquid-content">Assinar Pro</span>
         </a>
@@ -1366,41 +1421,37 @@ footer img { height: 24px; filter: brightness(.8); }
       <div class="plan reveal">
         <div class="plan-name">Premium</div>
         <div class="plan-price">
-          <span class="currency">R$</span><span class="num-flow" data-target="39">0</span><span class="cents">,90</span>
+          <span class="currency">R$</span><span class="num-flow" data-target="29">0</span><span class="cents">,90</span>
         </div>
         <div class="plan-period">por mês · cancele quando quiser</div>
         <div class="plan-equiv">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-          Sem limites · agência completa
+          Sem limites · para quem vive de edição
         </div>
         <div class="plan-divider"></div>
         <div class="plan-features">
           <div class="plan-feat">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            <span><span class="lim">50</span> mensagens de IA por dia</span>
+            <span><span class="lim">100</span> mensagens de IA por dia</span>
           </div>
           <div class="plan-feat">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            Clientes <span class="lim">ilimitados</span>
+            Clientes e projetos <span class="lim">ilimitados</span>
           </div>
           <div class="plan-feat">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            Projetos <span class="lim">ilimitados</span>
+            <span class="lim">Todos</span> os contratos personalizados
           </div>
           <div class="plan-feat">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            Rank de clientes
+            Captura de leads pela bio
           </div>
           <div class="plan-feat">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            Ver leads captados na bio
-          </div>
-          <div class="plan-feat">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            Tudo do plano Pro
+            Suporte prioritário · Tudo do Pro
           </div>
         </div>
-        <a href="https://app.abacatepay.com/pay/bill_eJbLAmhaCqUHqFwUDpFQmtUx" class="plan-cta dark" target="_blank" rel="noopener">Assinar Premium</a>
+        <a href="https://pay.kiwify.com.br/ROtVrZr" class="plan-cta dark" target="_blank" rel="noopener">Assinar Premium</a>
       </div>
 
     </div>
@@ -1502,7 +1553,7 @@ footer img { height: 24px; filter: brightness(.8); }
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
         </div>
-        <div class="faq-body"><div class="faq-body-inner">Não. O plano Basic é grátis para sempre e não pede cartão. Você só assina o Pro (R$19,90/mês) ou Premium (R$39,90/mês) quando quiser mais clientes, projetos e recursos como bio personalizada e preview do Google Drive.</div></div>
+        <div class="faq-body"><div class="faq-body-inner">Não. O plano Basic é grátis para sempre e não pede cartão. Toda conta nova ainda ganha 30 dias de Pro grátis para testar tudo. Depois, você só assina o Pro (R$19,90/mês) ou Premium (R$29,90/mês) quando quiser mais clientes, projetos e recursos como bio personalizada, contratos e captura de leads.</div></div>
       </div>
       <div class="faq-item">
         <div class="faq-q" onclick="toggleFaq(this)">
@@ -1511,7 +1562,7 @@ footer img { height: 24px; filter: brightness(.8); }
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
         </div>
-        <div class="faq-body"><div class="faq-body-inner">Sim, sem burocracia. Você cancela diretamente pela Kiwify a qualquer momento e o acesso é mantido até o final do período pago. Sem fidelidade, sem multa.</div></div>
+        <div class="faq-body"><div class="faq-body-inner">Sim, sem burocracia. Você cancela a qualquer momento pelo suporte e o acesso é mantido até o final do período pago. Sem fidelidade, sem multa.</div></div>
       </div>
       <div class="faq-item">
         <div class="faq-q" onclick="toggleFaq(this)">
@@ -1520,7 +1571,7 @@ footer img { height: 24px; filter: brightness(.8); }
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
         </div>
-        <div class="faq-body"><div class="faq-body-inner">Depende do plano. O Basic vai até 3 clientes e 10 projetos por cliente; o Pro até 10 clientes e 30 projetos por cliente; e o Premium é totalmente ilimitado. Você pode trocar de plano quando quiser.</div></div>
+        <div class="faq-body"><div class="faq-body-inner">Depende do plano. O Basic vai até 3 clientes e 5 projetos ativos por cliente; o Pro até 15 clientes com projetos ativos ilimitados; e o Premium é totalmente ilimitado. Você pode trocar de plano quando quiser.</div></div>
       </div>
       <div class="faq-item">
         <div class="faq-q" onclick="toggleFaq(this)">
@@ -1589,7 +1640,7 @@ footer img { height: 24px; filter: brightness(.8); }
   <p class="cta-final-sub">Comece a organizar sua carreira hoje — de graça, sem cartão</p>
   <div class="cta-final-actions">
     <a href="/login.html" class="btn-dark">Começar grátis</a>
-    <a href="https://app.abacatepay.com/pay/bill_Hp5xeTW6FKzHT5PUxEmhDedx" class="btn-light" target="_blank" rel="noopener">
+    <a href="https://pay.kiwify.com.br/GtL5zML" class="btn-light" target="_blank" rel="noopener">
       Assinar Pro — R$19,90/mês
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </a>
@@ -1605,6 +1656,8 @@ footer img { height: 24px; filter: brightness(.8); }
     <a href="#faq">FAQ</a>
     <a href="#suporte">Suporte</a>
     <a href="/login.html">Entrar</a>
+    <a href="/termos.html">Termos de Uso</a>
+    <a href="/privacidade.html">Privacidade</a>
     <a href="mailto:editorflowpro@gmail.com">editorflowpro@gmail.com</a>
   </div>
   <div class="footer-copy">© 2026 Editor Flow Pro</div>
@@ -1686,6 +1739,9 @@ document.querySelectorAll('.feat').forEach(card => {
     card.style.setProperty('--my', (e.clientY - rect.top) + 'px');
   });
 });
+
+// ── PWA: registra o service worker ──
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').catch(()=>{});});}
 </script>
 </body>
 </html>

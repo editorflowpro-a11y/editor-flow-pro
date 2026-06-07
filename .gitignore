@@ -1,0 +1,17 @@
+# Local Netlify folder
+.netlify
+
+# Node
+node_modules/
+package-lock.json
+
+# Scripts SQL internos (sensíveis — não vão para o repositório)
+*.sql
+
+# Scripts de geração de marketing
+MARKETING/
+
+# Arquivos temporários
+*.log
+.DS_Store
+Thumbs.db

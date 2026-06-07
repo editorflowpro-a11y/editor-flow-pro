@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<link rel="icon" type="image/png" href="https://i.imgur.com/MQX8YTJ.png"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin — Editor Flow Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d0d10;--surface:#141417;--surface2:#1c1c21;--surface3:#242429;--border:#2a2a32;--border2:#333340;--accent:#6c63ff;--accent2:#00d4aa;--amber:#f5a623;--red:#ff4d6d;--text:#e8e8f0;--muted:#6b6b7e}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* NAV */
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:18px;display:flex;align-items:center;gap:8px}
+.nav-logo em{font-style:normal;color:var(--accent)}
+.nav-badge{background:rgba(255,77,109,.15);color:var(--red);border:1px solid rgba(255,77,109,.25);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700}
+.nav-right{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--muted)}
+.btn-logout{background:var(--surface2);color:var(--text);border:1px solid var(--border2);padding:7px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s}
+.btn-logout:hover{border-color:var(--red);color:var(--red)}
+
+/* MAIN */
+.main{padding:28px 32px;max-width:1200px;margin:0 auto}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:.5px;margin-bottom:24px}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:.5px}
+.green{color:var(--accent2)}.amber{color:var(--amber)}.red{color:var(--red)}.white{color:var(--text)}.accent{color:var(--accent)}
+
+/* FILTROS */
+.filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.ftabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:3px}
+.ftab{padding:7px 16px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted);border:none;background:none;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s}
+.ftab:hover{color:var(--text);background:var(--surface2)}
+.ftab.active{background:var(--accent);color:#fff}
+.search{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--text);font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;width:240px;transition:border-color .2s}
+.search:focus{border-color:var(--accent)}
+.search::placeholder{color:var(--muted)}
+
+/* TABELA */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th{padding:12px 20px;text-align:left;font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);background:var(--surface2)}
+td{padding:14px 20px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+.badge{padding:3px 9px;border-radius:100px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.badge-ativo{background:rgba(0,212,170,.1);color:var(--accent2);border:1px solid rgba(0,212,170,.2)}
+.badge-inativo{background:rgba(245,166,35,.1);color:var(--amber);border:1px solid rgba(245,166,35,.2)}
+.badge-cancelado{background:rgba(255,77,109,.1);color:var(--red);border:1px solid rgba(255,77,109,.2)}
+
+.av{width:32px;height:32px;border-radius:50%;background:rgba(108,99,255,.2);color:var(--accent);font-weight:700;font-size:11px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+
+.btn-action{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;border:none;transition:all .2s}
+.btn-block{background:rgba(255,77,109,.1);color:var(--red);border:1px solid rgba(255,77,109,.2)}
+.btn-block:hover{background:rgba(255,77,109,.2)}
+.btn-activate{background:rgba(0,212,170,.1);color:var(--accent2);border:1px solid rgba(0,212,170,.2)}
+.btn-activate:hover{background:rgba(0,212,170,.2)}
+.btn-delete{background:var(--red);color:#fff;border:1px solid var(--red)}
+.btn-delete:hover{filter:brightness(1.1)}
+.row-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+
+.empty{padding:48px;text-align:center;color:var(--muted);font-size:13px}
+.loading{padding:40px;text-align:center;color:var(--muted);font-size:13px}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;width:400px;max-width:95vw}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:16px}
+.modal-body{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:22px}
+.modal-actions{display:flex;gap:10px}
+.btn-confirm{flex:1;padding:10px;background:var(--red);color:#fff;border:none;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:13px;cursor:pointer}
+.btn-cancel{flex:1;padding:10px;background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:14px 20px;font-size:13px;font-weight:500;z-index:9999;display:flex;align-items:center;gap:10px;animation:slideUp .25s ease;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.toast-dot{width:8px;height:8px;border-radius:50%}
+
+/* DEMO SECTION */
+.section-title{font-size:14px;font-weight:700;letter-spacing:.3px;margin:32px 0 14px;display:flex;align-items:center;gap:10px;color:var(--text)}
+.section-title .stag{background:rgba(108,99,255,.15);color:var(--accent);border:1px solid rgba(108,99,255,.25);padding:2px 9px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:.5px}
+.demo-form{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px}
+.demo-form-group{display:flex;flex-direction:column;gap:6px;flex:1;min-width:180px}
+.demo-form-group label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.demo-input{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:9px 13px;color:var(--text);font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;width:100%;transition:border-color .2s}
+.demo-input:focus{border-color:var(--accent)}
+.demo-select{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:9px 13px;color:var(--text);font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;width:100%;cursor:pointer}
+.btn-demo-add{background:linear-gradient(180deg,var(--accent),#5850e8);color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;transition:opacity .2s;display:flex;align-items:center;gap:7px}
+.btn-demo-add:hover{opacity:.88}
+.btn-demo-add:disabled{opacity:.5;cursor:not-allowed}
+.badge-demo{background:rgba(108,99,255,.12);color:var(--accent);border:1px solid rgba(108,99,255,.25)}
+.btn-remove-demo{background:rgba(255,77,109,.1);color:var(--red);border:1px solid rgba(255,77,109,.2);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:background .2s}
+.btn-remove-demo:hover{background:rgba(255,77,109,.22)}
+.demo-empty{padding:28px;text-align:center;color:var(--muted);font-size:13px}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .stats{grid-template-columns:1fr 1fr}
+  .main{padding:20px 16px}
+  nav{padding:0 16px}
+  .search{width:100%}
+  .filters{flex-direction:column;align-items:flex-start}
+  table{font-size:12px}
+  td,th{padding:10px 12px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <img src="https://i.imgur.com/MQX8YTJ.png" alt="Editor Flow Pro" style="height:32px;width:auto"/>
+    <span class="nav-badge">ADMIN</span>
+  </div>
+  <div class="nav-right">
+    <span id="admin-email"></span>
+    <button class="btn-logout" onclick="logout()">Sair</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="page-title">Painel de Assinantes</div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat"><div class="stat-label">Assinantes Ativos</div><div class="stat-val green" id="s-ativos">—</div></div>
+    <div class="stat"><div class="stat-label">Inativos</div><div class="stat-val amber" id="s-inativos">—</div></div>
+    <div class="stat"><div class="stat-label">Cancelados</div><div class="stat-val red" id="s-cancelados">—</div></div>
+    <div class="stat"><div class="stat-label">Total</div><div class="stat-val white" id="s-total">—</div></div>
+    <div class="stat"><div class="stat-label">MRR</div><div class="stat-val accent" id="s-mrr">—</div></div>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="filters">
+    <div class="ftabs">
+      <button class="ftab active" onclick="setFiltro('todos',this)">Todos</button>
+      <button class="ftab" onclick="setFiltro('ativo',this)">Ativos</button>
+      <button class="ftab" onclick="setFiltro('inativo',this)">Inativos</button>
+      <button class="ftab" onclick="setFiltro('cancelado',this)">Cancelados</button>
+    </div>
+    <input class="search" type="text" placeholder="Buscar por email ou nome..." oninput="buscar(this.value)"/>
+  </div>
+
+  <!-- TABELA -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Assinante</th>
+          <th>Status</th>
+          <th>Plano</th>
+          <th>Próx. cobrança</th>
+          <th>Desde</th>
+          <th>Ação</th>
+        </tr>
+      </thead>
+      <tbody id="tabela-body">
+        <tr><td colspan="6" class="loading">Carregando...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- CONTAS DEMO -->
+  <div class="section-title">
+    🎁 Contas Demo
+    <span class="stag">ACESSO GRÁTIS</span>
+  </div>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:14px;margin-top:-8px">Contas com acesso Premium permanente sem cobrança. Ideal para parceiros, influenciadores e testes.</p>
+
+  <div class="demo-form">
+    <div class="demo-form-group">
+      <label>Email *</label>
+      <input class="demo-input" id="demo-email" type="email" placeholder="email@exemplo.com"/>
+    </div>
+    <div class="demo-form-group">
+      <label>Nome (opcional)</label>
+      <input class="demo-input" id="demo-nome" type="text" placeholder="Nome do usuário"/>
+    </div>
+    <div class="demo-form-group" style="max-width:160px">
+      <label>Plano</label>
+      <select class="demo-select" id="demo-plano">
+        <option value="premium">Premium</option>
+        <option value="pro">Pro</option>
+      </select>
+    </div>
+    <button class="btn-demo-add" id="btn-demo-add" onclick="criarDemo()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Criar conta demo
+    </button>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Usuário</th>
+          <th>Plano</th>
+          <th>Criado em</th>
+          <th>Ação</th>
+        </tr>
+      </thead>
+      <tbody id="demo-body">
+        <tr><td colspan="4" class="loading">Carregando...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMAÇÃO -->
+<div class="overlay" id="modal-confirm">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Confirmar ação</div>
+    <div class="modal-body" id="modal-body">Tem certeza?</div>
+    <div class="modal-actions">
+      <button class="btn-confirm" id="modal-btn-confirm">Confirmar</button>
+      <button class="btn-cancel" onclick="fecharModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://svcglbkbwjovxswlpkrh.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN2Y2dsYmtid2pvdnhzd2xwa3JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMjE5NjYsImV4cCI6MjA5NTU5Nzk2Nn0.QcBFJWS3kk-WMKvSEQXTiSWpYUE_Rw2Mvz8WoC075gs';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+const esc = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
+
+let todosAssinantes = [];
+let filtroAtual = 'todos';
+let buscaAtual = '';
+
+// ── INIT ──
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+
+  if (!session) {
+    window.location.href = '/login.html';
+    return;
+  }
+
+  // Verifica se é admin
+  const { data: admin } = await sb
+    .from('admins')
+    .select('email')
+    .eq('email', session.user.email)
+    .single();
+
+  if (!admin) {
+    await sb.auth.signOut();
+    window.location.href = '/login.html';
+    return;
+  }
+
+  document.getElementById('admin-email').textContent = session.user.email;
+  await carregarDados();
+}
+
+// ── CARREGAR DADOS ──
+async function carregarDados() {
+  const { data, error } = await sb
+    .from('assinantes')
+    .select('*')
+    .order('criado_em', { ascending: false });
+
+  if (error) { toast('Erro ao carregar dados', 'var(--red)'); return; }
+
+  todosAssinantes = data || [];
+  atualizarStats();
+  renderTabela();
+  renderDemo();
+}
+
+// ── STATS ──
+function atualizarStats() {
+  const pagantes = todosAssinantes.filter(a => !a.demo);
+  const ativos = pagantes.filter(a => a.status === 'ativo').length;
+  const inativos = pagantes.filter(a => a.status === 'inativo').length;
+  const cancelados = pagantes.filter(a => a.status === 'cancelado').length;
+  const PRECO_PLANO = { pro: 19.90, premium: 29.90, basic: 0 };
+  const mrr = pagantes
+    .filter(a => a.status === 'ativo')
+    .reduce((s, a) => s + (parseFloat(a.valor) || PRECO_PLANO[(a.plano || '').toLowerCase()] || 0), 0);
+
+  document.getElementById('s-ativos').textContent = ativos;
+  document.getElementById('s-inativos').textContent = inativos;
+  document.getElementById('s-cancelados').textContent = cancelados;
+  document.getElementById('s-total').textContent = todosAssinantes.length;
+  document.getElementById('s-mrr').textContent = 'R$' + mrr.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+}
+
+// ── FILTRO ──
+function setFiltro(filtro, btn) {
+  filtroAtual = filtro;
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderTabela();
+}
+
+function buscar(val) {
+  buscaAtual = val.toLowerCase();
+  renderTabela();
+}
+
+// ── RENDER TABELA ──
+function renderTabela() {
+  let lista = todosAssinantes;
+  if (filtroAtual !== 'todos') lista = lista.filter(a => a.status === filtroAtual);
+  if (buscaAtual) lista = lista.filter(a =>
+    (a.email || '').toLowerCase().includes(buscaAtual) ||
+    (a.nome || '').toLowerCase().includes(buscaAtual)
+  );
+
+  const tbody = document.getElementById('tabela-body');
+
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">Nenhum assinante encontrado</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = lista.filter(a => !a.demo).map(a => {
+    const initials = (a.nome || a.email || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    const badgeClass = a.status === 'ativo' ? 'badge-ativo' : a.status === 'cancelado' ? 'badge-cancelado' : 'badge-inativo';
+    const fimPeriodo = a.fim_periodo ? new Date(a.fim_periodo).toLocaleDateString('pt-BR') : '—';
+    const desde = a.inicio_assinatura ? new Date(a.inicio_assinatura).toLocaleDateString('pt-BR') : new Date(a.criado_em||Date.now()).toLocaleDateString('pt-BR');
+    const planoLabel = {basic:'Basic',pro:'Pro',premium:'Premium'}[a.plano||'basic']||'Basic';
+
+    const btnAcao = a.status === 'ativo'
+      ? `<button class="btn-action btn-block" onclick="confirmarAcao('${a.id}','bloquear','${esc(a.email)}')">Bloquear</button>`
+      : `<button class="btn-action btn-activate" onclick="confirmarAcao('${a.id}','ativar','${esc(a.email)}')">Ativar</button>`;
+    const btnExcluir = `<button class="btn-action btn-delete" onclick="confirmarAcao('${a.id}','excluir','${esc(a.email)}')">Excluir</button>`;
+
+    return `<tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="av">${esc(initials)}</div>
+          <div>
+            <div style="font-weight:600">${esc(a.nome||'—')}</div>
+            <div style="font-size:11px;color:var(--muted)">${esc(a.email)}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="badge ${badgeClass}">${a.status}</span></td>
+      <td style="font-weight:600;color:var(--accent2)">${esc(planoLabel)}</td>
+      <td style="color:var(--muted)">${fimPeriodo}</td>
+      <td style="color:var(--muted)">${desde}</td>
+      <td><div class="row-actions">${btnAcao}${btnExcluir}</div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── AÇÕES ──
+let acaoPendente = null;
+
+function confirmarAcao(id, acao, email) {
+  acaoPendente = { id, acao, email };
+  const titulos = { bloquear:'Bloquear acesso', ativar:'Ativar acesso', excluir:'Excluir assinante' };
+  const corpos = {
+    bloquear: `Tem certeza que deseja bloquear o acesso de "${email}"? O assinante não conseguirá mais entrar no app.`,
+    ativar:   `Ativar o acesso de "${email}" manualmente? Isso vai liberar o login mesmo sem pagamento confirmado.`,
+    excluir:  `Excluir permanentemente o registro de "${email}"? Esta ação remove a assinatura do banco e NÃO pode ser desfeita. O acesso ao app será revogado imediatamente.`
+  };
+  document.getElementById('modal-title').textContent = titulos[acao] || 'Confirmar';
+  document.getElementById('modal-body').textContent = corpos[acao] || '';
+  const btn = document.getElementById('modal-btn-confirm');
+  btn.style.background = acao === 'ativar' ? 'var(--accent2)' : 'var(--red)';
+  btn.textContent = acao === 'excluir' ? 'Excluir' : 'Confirmar';
+  btn.onclick = executarAcao;
+  document.getElementById('modal-confirm').classList.add('open');
+}
+
+function fecharModal() {
+  document.getElementById('modal-confirm').classList.remove('open');
+  acaoPendente = null;
+}
+
+async function executarAcao() {
+  if (!acaoPendente) return;
+  const { id, acao } = acaoPendente;
+
+  // ── EXCLUIR ──
+  if (acao === 'excluir') {
+    const { error } = await sb.from('assinantes').delete().eq('id', id);
+    fecharModal();
+    if (error) { toast('Erro ao excluir assinante', 'var(--red)'); return; }
+    toast('Assinante excluído!', 'var(--red)');
+    await carregarDados();
+    return;
+  }
+
+  // ── BLOQUEAR / ATIVAR ──
+  const novoStatus = acao === 'bloquear' ? 'inativo' : 'ativo';
+  const { error } = await sb
+    .from('assinantes')
+    .update({ status: novoStatus })
+    .eq('id', id);
+
+  fecharModal();
+
+  if (error) { toast('Erro ao executar ação', 'var(--red)'); return; }
+
+  toast(acao === 'bloquear' ? 'Acesso bloqueado!' : 'Acesso ativado!', acao === 'bloquear' ? 'var(--red)' : 'var(--accent2)');
+  await carregarDados();
+}
+
+// ── CONTAS DEMO ──
+function renderDemo() {
+  const demos = todosAssinantes.filter(a => a.demo);
+  const tbody = document.getElementById('demo-body');
+  if (!tbody) return;
+  if (!demos.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="demo-empty">Nenhuma conta demo criada ainda.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = demos.map(a => {
+    const initials = (a.nome || a.email || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    const planoLabel = {basic:'Basic',pro:'Pro',premium:'Premium'}[a.plano||'basic']||'Basic';
+    const desde = new Date(a.criado_em||Date.now()).toLocaleDateString('pt-BR');
+    return `<tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="av" style="background:rgba(108,99,255,.2);color:var(--accent)">${esc(initials)}</div>
+          <div>
+            <div style="font-weight:600">${esc(a.nome||'—')}</div>
+            <div style="font-size:11px;color:var(--muted)">${esc(a.email)}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="badge badge-demo">${esc(planoLabel)} Demo</span></td>
+      <td style="color:var(--muted)">${desde}</td>
+      <td><button class="btn-remove-demo" onclick="removerDemo('${a.id}','${esc(a.email)}')">Remover</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function criarDemo() {
+  const email = document.getElementById('demo-email').value.trim().toLowerCase();
+  const nome  = document.getElementById('demo-nome').value.trim();
+  const plano = document.getElementById('demo-plano').value;
+  if (!email) { toast('Informe o email da conta demo.', 'var(--amber)'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast('Email inválido.', 'var(--amber)'); return; }
+
+  const btn = document.getElementById('btn-demo-add');
+  btn.disabled = true; btn.textContent = 'Criando…';
+
+  const { error } = await sb.from('assinantes').upsert({
+    email,
+    nome: nome || null,
+    status: 'ativo',
+    plano,
+    demo: true,
+    fim_periodo: '2099-12-31T00:00:00.000Z',
+    atualizado_em: new Date().toISOString()
+  }, { onConflict: 'email' });
+
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Criar conta demo';
+
+  if (error) { toast('Erro: ' + error.message, 'var(--red)'); return; }
+
+  document.getElementById('demo-email').value = '';
+  document.getElementById('demo-nome').value = '';
+  toast('Conta demo criada! ' + email, 'var(--accent)');
+  await carregarDados();
+}
+
+async function removerDemo(id, email) {
+  if (!confirm(`Remover conta demo de "${email}"?\n\nO acesso Premium será revogado.`)) return;
+  const { error } = await sb.from('assinantes').delete().eq('id', id);
+  if (error) { toast('Erro ao remover: ' + error.message, 'var(--red)'); return; }
+  toast('Conta demo removida.', 'var(--red)');
+  await carregarDados();
+}
+
+// ── LOGOUT ──
+async function logout() {
+  await sb.auth.signOut();
+  window.location.href = '/login.html';
+}
+
+// ── TOAST ──
+function toast(msg, cor = 'var(--accent2)') {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<span class="toast-dot" style="background:${cor}"></span>${msg}`;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+// ── FECHA MODAL CLICANDO FORA ──
+document.getElementById('modal-confirm').addEventListener('click', e => {
+  if (e.target.id === 'modal-confirm') fecharModal();
+});
+
+// ── START ──
+init();
+</script>
+</body>
+</html>

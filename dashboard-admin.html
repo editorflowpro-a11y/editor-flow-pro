@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Editor Flow Pro — Dashboard Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0d0d10;--surface:#141417;--surface2:#1c1c21;--surface3:#242429;--border:#2a2a32;--border2:#333340;--accent:#6c63ff;--accent2:#00d4aa;--amber:#f5a623;--red:#ff4d6d;--text:#e8e8f0;--muted:#6b6b7e}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:18px;display:flex;align-items:center;gap:10px}
+.nav-logo em{font-style:normal;color:var(--accent)}
+.nav-badge{background:rgba(108,99,255,.15);color:var(--accent);border:1px solid rgba(108,99,255,.25);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700}
+.nav-right{display:flex;gap:10px;align-items:center}
+.btn-nav{background:var(--surface2);color:var(--text);border:1px solid var(--border2);padding:6px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none;transition:all .2s}
+.btn-nav:hover{border-color:var(--accent);color:var(--accent)}
+.btn-logout{background:rgba(255,77,109,.1);color:var(--red);border:1px solid rgba(255,77,109,.2);padding:6px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s}
+.btn-logout:hover{background:rgba(255,77,109,.2)}
+.main{padding:28px 32px;max-width:1300px;margin:0 auto}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:.5px}
+.last-update{font-size:11px;color:var(--muted)}
+.btn-refresh{background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;display:flex;align-items:center;gap:6px}
+.btn-refresh:hover{border-color:var(--accent)}
+.stats-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:20px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+.stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.5px}
+.stat-sub{font-size:10px;color:var(--muted);margin-top:3px}
+.c-green{color:var(--accent2)}.c-amber{color:var(--amber)}.c-red{color:var(--red)}.c-accent{color:var(--accent)}.c-white{color:var(--text)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.card-head{padding:14px 20px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:space-between}
+.card-body{padding:20px}
+.chart-wrap{position:relative;height:220px}
+.ftabs{display:flex;gap:4px;background:var(--surface2);border-radius:7px;padding:3px}
+.ftab{padding:5px 12px;border-radius:5px;font-size:11px;font-weight:500;cursor:pointer;color:var(--muted);border:none;background:none;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s}
+.ftab:hover{color:var(--text)}
+.ftab.active{background:var(--accent);color:#fff}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 16px;text-align:left;font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);background:var(--surface2)}
+td{padding:12px 16px;font-size:12px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.badge{padding:3px 9px;border-radius:100px;font-size:10px;font-weight:700;text-transform:uppercase}
+.badge-ativo{background:rgba(0,212,170,.1);color:var(--accent2);border:1px solid rgba(0,212,170,.2)}
+.badge-inativo{background:rgba(245,166,35,.1);color:var(--amber);border:1px solid rgba(245,166,35,.2)}
+.badge-cancelado{background:rgba(255,77,109,.1);color:var(--red);border:1px solid rgba(255,77,109,.2)}
+.av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.search{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:7px 12px;color:var(--text);font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;width:220px;transition:border-color .2s}
+.search:focus{border-color:var(--accent)}
+.search::placeholder{color:var(--muted)}
+.empty{padding:32px;text-align:center;color:var(--muted);font-size:12px}
+.metric-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.metric-row:last-child{border-bottom:none}
+.metric-label{font-size:12px;color:var(--muted)}
+.metric-val{font-size:13px;font-weight:600}
+.rank-num{font-family:'Bebas Neue',sans-serif;font-size:18px;width:24px;text-align:center}
+.progress-bar{height:4px;background:var(--border2);border-radius:2px;margin-top:4px;overflow:hidden}
+.progress-fill{height:100%;border-radius:2px;background:var(--accent2);transition:width .5s}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;font-weight:500;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.4);display:flex;align-items:center;gap:10px;animation:slideUp .25s}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
+@media(max-width:1100px){.stats-grid{grid-template-columns:repeat(3,1fr)}.grid-2,.grid-3{grid-template-columns:1fr}.main{padding:20px 16px}}
+@media(max-width:600px){.stats-grid{grid-template-columns:1fr 1fr}nav{padding:0 16px}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <div style="width:32px;height:32px;background:var(--accent);border-radius:8px;display:grid;place-items:center;font-family:'Bebas Neue',sans-serif;font-size:14px">EF</div>
+    EDITOR<em>FLOW</em> PRO
+    <span class="nav-badge">ADMIN</span>
+  </div>
+  <div class="nav-right">
+    <a href="/admin.html" class="btn-nav">👥 Assinantes</a>
+    <button class="btn-logout" onclick="logout()">Sair</button>
+  </div>
+</nav>
+
+<div class="main">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">Dashboard Admin</div>
+      <div class="last-update" id="last-update"></div>
+    </div>
+    <button class="btn-refresh" onclick="loadAll()">🔄 Atualizar</button>
+  </div>
+
+  <!-- STATS PRINCIPAIS -->
+  <div class="stats-grid" id="stats-grid"></div>
+
+  <!-- GRÁFICOS -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-head">
+        📈 Crescimento de Assinantes
+        <div class="ftabs" id="tabs-crescimento">
+          <button class="ftab active" onclick="setCrescimento(3,this)">3m</button>
+          <button class="ftab" onclick="setCrescimento(6,this)">6m</button>
+          <button class="ftab" onclick="setCrescimento(12,this)">12m</button>
+        </div>
+      </div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="chart-crescimento"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-head">💰 MRR ao Longo do Tempo</div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="chart-mrr"></canvas></div></div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <!-- STATUS -->
+    <div class="card">
+      <div class="card-head">🥧 Status dos Assinantes</div>
+      <div class="card-body" style="display:flex;align-items:center;justify-content:center">
+        <div style="width:180px;height:180px"><canvas id="chart-status"></canvas></div>
+      </div>
+    </div>
+
+    <!-- MÉTRICAS -->
+    <div class="card">
+      <div class="card-head">📊 Métricas de Saúde</div>
+      <div class="card-body">
+        <div class="metric-row"><div class="metric-label">Taxa de Churn</div><div class="metric-val c-red" id="m-churn">—</div></div>
+        <div class="metric-row"><div class="metric-label">LTV Médio (12m)</div><div class="metric-val c-green" id="m-ltv">—</div></div>
+        <div class="metric-row"><div class="metric-label">Ticket Médio</div><div class="metric-val c-accent" id="m-ticket">—</div></div>
+        <div class="metric-row"><div class="metric-label">Assinantes Ativos</div><div class="metric-val c-green" id="m-ativos">—</div></div>
+        <div class="metric-row"><div class="metric-label">Receita Total</div><div class="metric-val c-green" id="m-receita">—</div></div>
+        <div class="metric-row"><div class="metric-label">Assinantes Este Mês</div><div class="metric-val c-accent" id="m-novos">—</div></div>
+      </div>
+    </div>
+
+    <!-- MAIS ANTIGOS -->
+    <div class="card">
+      <div class="card-head">⭐ Assinantes Mais Antigos</div>
+      <div id="lista-antigos"></div>
+    </div>
+  </div>
+
+  <!-- TABELA COMPLETA -->
+  <div class="card">
+    <div class="card-head">
+      👥 Todos os Assinantes
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="ftabs" id="tabs-filtro">
+          <button class="ftab active" onclick="setFiltro('todos',this)">Todos</button>
+          <button class="ftab" onclick="setFiltro('ativo',this)">Ativos</button>
+          <button class="ftab" onclick="setFiltro('inativo',this)">Inativos</button>
+          <button class="ftab" onclick="setFiltro('cancelado',this)">Cancelados</button>
+        </div>
+        <input class="search" type="text" placeholder="Buscar email ou nome..." oninput="buscar(this.value)" id="search-input"/>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Assinante</th>
+            <th>Status</th>
+            <th>Desde</th>
+            <th>Dias ativo</th>
+            <th>Valor pago</th>
+            <th>Próx. cobrança</th>
+          </tr>
+        </thead>
+        <tbody id="tabela-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const SB_URL='https://svcglbkbwjovxswlpkrh.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN2Y2dsYmtid2pvdnhzd2xwa3JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMjE5NjYsImV4cCI6MjA5NTU5Nzk2Nn0.QcBFJWS3kk-WMKvSEQXTiSWpYUE_Rw2Mvz8WoC075gs';
+const sb=supabase.createClient(SB_URL,SB_KEY);
+const ADMIN='tst16902@gmail.com';
+
+let allA=[],filtroAtual='todos',buscaAtual='',crescimentoMeses=3;
+const ci={};
+
+const fmt=v=>'R$'+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtD=d=>{if(!d)return'—';try{return new Date(d).toLocaleDateString('pt-BR')}catch{return'—'}};
+const ini=n=>{if(!n)return'?';return n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)};
+const avc=n=>{if(!n)return'';const h=[...n].reduce((a,c)=>a+c.charCodeAt(0),0);const colors=['rgba(108,99,255,.2)','rgba(0,212,170,.2)','rgba(245,166,35,.2)','rgba(255,77,109,.2)'];const text=['var(--accent)','var(--accent2)','var(--amber)','var(--red)'];return{bg:colors[h%4],color:text[h%4]}};
+const diasAtivo=d=>{if(!d)return 0;return Math.floor((Date.now()-new Date(d).getTime())/86400000)};
+const valorPago=(a)=>{const dias=diasAtivo(a.criado_em);const meses=Math.floor(dias/30);return meses*(parseFloat(a.valor)||12.90)};
+
+function toast(msg,color='var(--accent2)'){const t=document.createElement('div');t.className='toast';t.innerHTML=`<span style="width:8px;height:8px;border-radius:50%;background:${color};display:inline-block"></span>${msg}`;document.body.appendChild(t);setTimeout(()=>t.remove(),3000)}
+
+async function init(){
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session||session.user.email!==ADMIN){window.location.href='/login.html';return}
+  await loadAll();
+}
+
+async function logout(){await sb.auth.signOut();window.location.href='/login.html'}
+
+async function loadAll(){
+  document.getElementById('last-update').textContent='Atualizando...';
+  const {data,error}=await sb.from('assinantes').select('*').order('criado_em',{ascending:true});
+  if(error){toast('Erro ao carregar','var(--red)');return}
+  allA=data||[];
+  document.getElementById('last-update').textContent='Última atualização: '+new Date().toLocaleTimeString('pt-BR');
+  renderStats();
+  renderChartCrescimento();
+  renderChartMRR();
+  renderChartStatus();
+  renderMetricas();
+  renderAntigos();
+  renderTabela();
+}
+
+function renderStats(){
+  const ativos=allA.filter(a=>a.status==='ativo');
+  const cancelados=allA.filter(a=>a.status==='cancelado');
+  const inativos=allA.filter(a=>a.status==='inativo');
+  const mrr=ativos.reduce((s,a)=>s+(parseFloat(a.valor)||12.90),0);
+  const arr=mrr*12;
+  const now=new Date();
+  const novosEsteMes=allA.filter(a=>{
+    if(!a.criado_em)return false;
+    const d=new Date(a.criado_em);
+    return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+  }).length;
+  const churn=allA.length>0?Math.round((cancelados.length/allA.length)*100):0;
+
+  document.getElementById('stats-grid').innerHTML=`
+    <div class="stat"><div class="stat-label">MRR</div><div class="stat-val c-green">${fmt(mrr)}</div><div class="stat-sub">Receita mensal recorrente</div></div>
+    <div class="stat"><div class="stat-label">ARR</div><div class="stat-val c-accent">${fmt(arr)}</div><div class="stat-sub">Projeção anual</div></div>
+    <div class="stat"><div class="stat-label">Ativos</div><div class="stat-val c-green">${ativos.length}</div><div class="stat-sub">Assinantes pagantes</div></div>
+    <div class="stat"><div class="stat-label">Cancelados</div><div class="stat-val c-red">${cancelados.length}</div><div class="stat-sub">Total histórico</div></div>
+    <div class="stat"><div class="stat-label">Novos este mês</div><div class="stat-val c-accent">${novosEsteMes}</div><div class="stat-sub">Novas assinaturas</div></div>
+    <div class="stat"><div class="stat-label">Churn rate</div><div class="stat-val ${churn>15?'c-red':churn>8?'c-amber':'c-green'}">${churn}%</div><div class="stat-sub">Taxa de cancelamento</div></div>
+  `;
+}
+
+function renderChartCrescimento(){
+  const canvas=document.getElementById('chart-crescimento');
+  if(ci['cres'])ci['cres'].destroy();
+  const labels=[],ativos=[],total=[];
+  for(let i=crescimentoMeses-1;i>=0;i--){
+    const d=new Date();d.setMonth(d.getMonth()-i);
+    const m=d.getMonth(),y=d.getFullYear();
+    labels.push(d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}));
+    const ate=new Date(y,m+1,0);
+    ativos.push(allA.filter(a=>{
+      if(!a.criado_em)return false;
+      const cd=new Date(a.criado_em);
+      if(cd>ate)return false;
+      if(a.status==='cancelado'&&a.cancelado_em&&new Date(a.cancelado_em)<=ate)return false;
+      return true;
+    }).length);
+    total.push(allA.filter(a=>a.criado_em&&new Date(a.criado_em)<=ate).length);
+  }
+  ci['cres']=new Chart(canvas,{type:'line',data:{labels,datasets:[
+    {label:'Ativos',data:ativos,borderColor:'rgba(0,212,170,1)',backgroundColor:'rgba(0,212,170,.1)',borderWidth:2,fill:true,tension:.4,pointRadius:4},
+    {label:'Total',data:total,borderColor:'rgba(108,99,255,.8)',backgroundColor:'rgba(108,99,255,.05)',borderWidth:2,fill:false,tension:.4,pointRadius:4,borderDash:[4,4]}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#6b6b7e',font:{size:11},boxWidth:12}}},scales:{x:{grid:{color:'#2a2a32'},ticks:{color:'#6b6b7e',font:{size:10}}},y:{grid:{color:'#2a2a32'},ticks:{color:'#6b6b7e',font:{size:10},stepSize:1}}}}});
+}
+
+function renderChartMRR(){
+  const canvas=document.getElementById('chart-mrr');
+  if(ci['mrr'])ci['mrr'].destroy();
+  const labels=[],vals=[];
+  for(let i=5;i>=0;i--){
+    const d=new Date();d.setMonth(d.getMonth()-i);
+    const m=d.getMonth(),y=d.getFullYear();
+    labels.push(d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}));
+    const ate=new Date(y,m+1,0);
+    const mrr=allA.filter(a=>{
+      if(!a.criado_em)return false;
+      const cd=new Date(a.criado_em);
+      if(cd>ate)return false;
+      if(a.status==='cancelado'&&a.cancelado_em&&new Date(a.cancelado_em)<=ate)return false;
+      return true;
+    }).reduce((s,a)=>s+(parseFloat(a.valor)||12.90),0);
+    vals.push(Math.round(mrr*100)/100);
+  }
+  ci['mrr']=new Chart(canvas,{type:'bar',data:{labels,datasets:[{label:'MRR',data:vals,backgroundColor:'rgba(108,99,255,.7)',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'#2a2a32'},ticks:{color:'#6b6b7e',font:{size:10}}},y:{grid:{color:'#2a2a32'},ticks:{color:'#6b6b7e',font:{size:10},callback:v=>'R$'+v}}}}});
+}
+
+function renderChartStatus(){
+  const canvas=document.getElementById('chart-status');
+  if(ci['status'])ci['status'].destroy();
+  const ativos=allA.filter(a=>a.status==='ativo').length;
+  const inativos=allA.filter(a=>a.status==='inativo').length;
+  const cancelados=allA.filter(a=>a.status==='cancelado').length;
+  ci['status']=new Chart(canvas,{type:'doughnut',data:{labels:['Ativos','Inativos','Cancelados'],datasets:[{data:[ativos,inativos,cancelados],backgroundColor:['rgba(0,212,170,.8)','rgba(245,166,35,.7)','rgba(255,77,109,.7)'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{color:'#6b6b7e',font:{size:10},boxWidth:10,padding:8}}}}});
+}
+
+function renderMetricas(){
+  const ativos=allA.filter(a=>a.status==='ativo');
+  const cancelados=allA.filter(a=>a.status==='cancelado');
+  const churn=allA.length>0?((cancelados.length/allA.length)*100).toFixed(1)+'%':'0%';
+  const ticket=ativos.length>0?ativos.reduce((s,a)=>s+(parseFloat(a.valor)||12.90),0)/ativos.length:12.90;
+  const ltv=ticket*12*(1-parseFloat(churn)/100);
+  const receita=allA.reduce((s,a)=>s+valorPago(a),0);
+  const now=new Date();
+  const novos=allA.filter(a=>{if(!a.criado_em)return false;const d=new Date(a.criado_em);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear()}).length;
+
+  document.getElementById('m-churn').textContent=churn;
+  document.getElementById('m-ltv').textContent=fmt(ltv);
+  document.getElementById('m-ticket').textContent=fmt(ticket);
+  document.getElementById('m-ativos').textContent=ativos.length;
+  document.getElementById('m-receita').textContent=fmt(receita);
+  document.getElementById('m-novos').textContent=novos;
+}
+
+function renderAntigos(){
+  const sorted=[...allA].filter(a=>a.status==='ativo'&&a.criado_em).sort((a,b)=>new Date(a.criado_em)-new Date(b.criado_em)).slice(0,5);
+  const max=sorted.length>0?diasAtivo(sorted[sorted.length-1].criado_em)||1:1;
+  document.getElementById('lista-antigos').innerHTML=sorted.length?sorted.map((a,i)=>{
+    const dias=diasAtivo(a.criado_em);
+    const pct=Math.round((dias/Math.max(...sorted.map(x=>diasAtivo(x.criado_em)||1)))*100);
+    const av=avc(a.nome||a.email);
+    const medals=['🥇','🥈','🥉','4️⃣','5️⃣'];
+    return`<div style="padding:12px 16px;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="font-size:14px">${medals[i]}</span>
+        <div class="av" style="background:${av.bg};color:${av.color}">${ini(a.nome||a.email)}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.nome||a.email}</div>
+          <div style="font-size:10px;color:var(--muted)">${dias} dias ativo · desde ${fmtD(a.criado_em)}</div>
+        </div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join(''):'<div class="empty">Nenhum assinante ativo ainda</div>';
+}
+
+function setCrescimento(meses,btn){
+  crescimentoMeses=meses;
+  document.querySelectorAll('#tabs-crescimento .ftab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderChartCrescimento();
+}
+
+function setFiltro(filtro,btn){
+  filtroAtual=filtro;
+  document.querySelectorAll('#tabs-filtro .ftab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderTabela();
+}
+
+function buscar(val){buscaAtual=val.toLowerCase();renderTabela()}
+
+function renderTabela(){
+  let lista=allA;
+  if(filtroAtual!=='todos')lista=lista.filter(a=>a.status===filtroAtual);
+  if(buscaAtual)lista=lista.filter(a=>(a.email||'').toLowerCase().includes(buscaAtual)||(a.nome||'').toLowerCase().includes(buscaAtual));
+  lista=[...lista].sort((a,b)=>new Date(b.criado_em||0)-new Date(a.criado_em||0));
+
+  const tbody=document.getElementById('tabela-body');
+  if(!lista.length){tbody.innerHTML='<tr><td colspan="7" class="empty">Nenhum assinante encontrado</td></tr>';return}
+
+  tbody.innerHTML=lista.map((a,i)=>{
+    const av=avc(a.nome||a.email);
+    const badgeClass=a.status==='ativo'?'badge-ativo':a.status==='cancelado'?'badge-cancelado':'badge-inativo';
+    const dias=diasAtivo(a.criado_em);
+    const pago=valorPago(a);
+    const fimPeriodo=a.fim_periodo?fmtD(a.fim_periodo):'—';
+    return`<tr>
+      <td style="color:var(--muted);font-size:11px">${i+1}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="av" style="background:${av.bg};color:${av.color}">${ini(a.nome||a.email)}</div>
+          <div>
+            <div style="font-weight:600;font-size:12px">${a.nome||'—'}</div>
+            <div style="font-size:10px;color:var(--muted)">${a.email}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="badge ${badgeClass}">${a.status}</span></td>
+      <td style="color:var(--muted)">${fmtD(a.criado_em)}</td>
+      <td style="color:var(--muted)">${dias}d</td>
+      <td style="font-weight:600;color:var(--accent2)">${fmt(pago)}</td>
+      <td style="color:var(--muted)">${fimPeriodo}</td>
+    </tr>`;
+  }).join('');
+}
+
+init();
+</script>
+</body>
+</html>

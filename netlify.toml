@@ -3,3 +3,211 @@
 
 [functions]
   node_bundler = "esbuild"
+
+# ── CLEAN URLS (remove .html da barra de endereços) ─────────────
+# Passo 1 — redireciona a versão .html para a URL limpa (301)
+[[redirects]]
+  from = "/index.html"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/login.html"
+  to = "/login"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/app.html"
+  to = "/app"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/admin.html"
+  to = "/admin"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/projeto.html"
+  to = "/projeto"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/roteiros.html"
+  to = "/roteiros"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/parcerias.html"
+  to = "/parcerias"
+  status = 301
+  force = true
+
+# Passo 2 — serve o arquivo .html real para cada URL limpa (200 rewrite)
+# O navegador vê /app, o Netlify entrega /app.html — invisível pro usuário
+[[redirects]]
+  from = "/login"
+  to = "/login.html"
+  status = 200
+
+[[redirects]]
+  from = "/app"
+  to = "/app.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin"
+  to = "/admin.html"
+  status = 200
+
+[[redirects]]
+  from = "/projeto"
+  to = "/projeto.html"
+  status = 200
+
+[[redirects]]
+  from = "/roteiros"
+  to = "/roteiros.html"
+  status = 200
+
+[[redirects]]
+  from = "/parcerias"
+  to = "/parcerias.html"
+  status = 200
+
+# ── BLOQUEIO DE ARQUIVOS SENSÍVEIS ──────────────────────────────
+# Impede acesso público a scripts internos, mesmo que estejam na pasta.
+# force = true faz o 404 ter prioridade sobre o arquivo real.
+
+[[redirects]]
+  from = "/supabase-setup-completo.sql"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/supabase-rls.sql"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/supabase-rls-publico.sql"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/supabase-demo.sql"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/supabase-ia-uso.sql"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/supabase-admin.sql"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/supabase-leads-upgrade.sql"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/supabase-planos-trial.sql"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/supabase-fix-limite-projetos.sql"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/edge-function-assistente.ts"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/importar-dados.sql"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/supabase-admin-delete.sql"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/supabase/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/node_modules/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/EMAIL_TEMPLATE_RESEND.html"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/demo-dados-ficticios.sql"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/supabase-paginas-internas.sql"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/README.md"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/package.json"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/package-lock.json"
+  to = "/404.html"
+  status = 404
+  force = true
+
+# ── HEADERS DE SEGURANÇA ────────────────────────────────────────
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
