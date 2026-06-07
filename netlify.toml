@@ -84,6 +84,13 @@
 # Impede acesso público a scripts internos, mesmo que estejam na pasta.
 # force = true faz o 404 ter prioridade sobre o arquivo real.
 
+# Coringa: bloqueia QUALQUER arquivo .sql (cobre todos os scripts internos)
+[[redirects]]
+  from = "/*.sql"
+  to = "/404.html"
+  status = 404
+  force = true
+
 [[redirects]]
   from = "/supabase-setup-completo.sql"
   to = "/404.html"

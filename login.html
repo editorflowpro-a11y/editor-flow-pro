@@ -308,7 +308,7 @@ async function handleSignup() {
   setLoading('btn-signup', true);
   hideMsg();
 
-  const { error } = await sb.auth.signUp({
+  const { data, error } = await sb.auth.signUp({
     email,
     password: senha,
     options: {
@@ -317,16 +317,24 @@ async function handleSignup() {
     }
   });
 
-  setLoading('btn-signup', false);
-
   if (error) {
+    setLoading('btn-signup', false);
     showMsg(error.message.includes('registered')
       ? 'Este email já tem conta. Use a aba "Entrar".'
       : 'Não foi possível criar a conta. Tente novamente.');
     return;
   }
 
-  showMsg('✓ Conta criada! Enviamos um email para confirmar seu acesso.', 'success');
+  // Se a confirmação de email estiver desativada, o Supabase já devolve a sessão:
+  // entra direto no app (sem depender de email chegar).
+  if (data && data.session) {
+    await verificarAcesso(email);
+    return;
+  }
+
+  // Confirmação de email ativada — precisa clicar no link recebido.
+  setLoading('btn-signup', false);
+  showMsg('✓ Conta criada! Confirme pelo email que enviamos para ativar o acesso. Se não chegar, fale com o suporte.', 'success');
 }
 
 // ── MAGIC LINK ──
@@ -352,17 +360,28 @@ async function handleMagicLink() {
   showMsg('✓ Link enviado! Verifique sua caixa de entrada.', 'success');
 }
 
-// ── VERIFICA ASSINATURA ATIVA ──
+// ── VERIFICA ASSINATURA ATIVA (com auto-provisão) ──
 async function verificarAcesso(email) {
-  const { data: assinante, error } = await sb
+  let { data: assinante } = await sb
     .from('assinantes')
     .select('status, fim_periodo')
     .eq('email', email)
-    .single();
+    .maybeSingle();
 
-  if (error || !assinante) {
+  // Conta nova que ainda não tem registro de assinante? Cria um plano grátis na hora.
+  // (Cobre o caso do trigger do banco não ter rodado — assim contas novas sempre entram.)
+  if (!assinante) {
+    await sb.from('assinantes').insert({ email, status: 'ativo', plano: 'basic' });
+    ({ data: assinante } = await sb
+      .from('assinantes')
+      .select('status, fim_periodo')
+      .eq('email', email)
+      .maybeSingle());
+  }
+
+  if (!assinante) {
     await sb.auth.signOut();
-    showMsg('Conta sem assinatura ativa encontrada. Confira seu plano para continuar.');
+    showMsg('Não foi possível liberar o acesso agora. Tente novamente em instantes.');
     return;
   }
 

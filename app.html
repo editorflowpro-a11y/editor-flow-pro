@@ -1051,11 +1051,17 @@ async function init(){
   if(!session){window.location.href='/login.html';return}
   let asn=null;
   // tenta com colunas de trial; se ainda não existirem no banco, faz fallback
-  let r=await sb.from('assinantes').select('status,plano,trial_ends,trial_usado').eq('email',session.user.email).single();
+  let r=await sb.from('assinantes').select('status,plano,trial_ends,trial_usado').eq('email',session.user.email).maybeSingle();
   if(r.error&&/column|trial/i.test(r.error.message||'')){
-    r=await sb.from('assinantes').select('status,plano').eq('email',session.user.email).single();
+    r=await sb.from('assinantes').select('status,plano').eq('email',session.user.email).maybeSingle();
   }
   asn=r.data;
+  // Conta nova sem registro de assinante? Cria plano grátis na hora (cobre falha do trigger).
+  if(!asn){
+    await sb.from('assinantes').insert({email:session.user.email,status:'ativo',plano:'basic'});
+    const r2=await sb.from('assinantes').select('status,plano').eq('email',session.user.email).maybeSingle();
+    asn=r2.data;
+  }
   if(!asn||asn.status!=='ativo'){await sb.auth.signOut();window.location.href='/login.html';return}
   cu=session.user;
   meuPlanoPago=(asn.plano||'basic').toLowerCase();
@@ -1253,6 +1259,7 @@ function openPlanos(){
     let btn;
     if(atual)btn='<div class="plano-atual">Seu plano atual</div>';
     else if(pl.id==='basic')btn='';
+    else if(PLAN_RANK[pl.id]<PLAN_RANK[plano])btn='<div class="plano-atual" style="color:var(--muted);background:rgba(255,255,255,.04)">Plano inferior ao seu</div>';
     else btn=`<button class="btn-primary" style="width:100%;justify-content:center" onclick="window.open('${checkout}','_blank')">Assinar ${pl.nome}</button>`;
     return `<div class="plano-card${atual?' atual':''}"><div class="plano-nome">${pl.nome}</div><div class="plano-preco">${pl.preco}</div><div class="plano-desc">${pl.desc}</div><ul class="plano-feats">${pl.feats.map(f=>`<li>${ic('check',13)} ${f}</li>`).join('')}</ul>${btn}</div>`;
   }).join('');
@@ -1765,23 +1772,19 @@ async function doDelete(tipo,id){
   else renderGastos();
   toast('Removido!');
   saveCache();
-  // ── Delete no banco em segundo plano ──
-  const {error}=await sb.from(tab).delete().eq('id',id).eq('user_id',cu.id);
-  if(error){
-    toast('Erro ao excluir — recarregando...','var(--red)');
+  // ── Delete no banco, confirmando o que foi de fato removido ──
+  const {data:del,error}=await sb.from(tab).delete().eq('id',id).eq('user_id',cu.id).select();
+  if(error||!del||!del.length){
+    // Falhou de verdade (erro ou nenhuma linha removida) → restaura o estado real do banco
+    toast(error?('Erro ao excluir: '+error.message):'Não foi possível excluir este item.','var(--red)');
     await loadAll();
     if(tipo==='projeto'){renderProjetos();renderDashboard();}
     else if(tipo==='cliente')renderClientes();
     else renderGastos();
     saveCache();
-  }else{
-    loadAll().then(()=>{
-      if(tipo==='projeto'){renderProjetos();renderDashboard();}
-      else if(tipo==='cliente')renderClientes();
-      else renderGastos();
-      saveCache();
-    });
+    return;
   }
+  // Sucesso: o estado otimista já está correto — não recarrega (evita o item "voltar" na tela).
 }
 
 /* ─────────────── CONTRATOS ─────────────── */

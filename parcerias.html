@@ -176,6 +176,27 @@ a{color:inherit;text-decoration:none}
 .camp-pick .cp-cover{width:80px;height:46px;border-radius:8px;object-fit:cover;background:linear-gradient(135deg,rgba(74,109,255,.3),rgba(155,107,255,.2));flex-shrink:0}
 .camp-pick b{font-size:14px}.camp-pick span{font-size:12px;color:var(--green-light);font-weight:700;display:block;margin-top:2px}
 
+/* ── DETALHE DA CAMPANHA (briefing — leitura) ── */
+.det-hero{position:relative;border-radius:0;overflow:hidden;aspect-ratio:16/7;background:linear-gradient(135deg,rgba(74,109,255,.25),rgba(155,107,255,.18));display:flex;align-items:center;justify-content:center}
+.det-hero img{width:100%;height:100%;object-fit:cover}
+.det-hero .ph{font-weight:800;font-size:26px;opacity:.4;letter-spacing:-.5px;padding:20px;text-align:center}
+.det-platbar{height:5px}
+.det-platbar.youtube{background:linear-gradient(90deg,#ff0033,#cc0029)}
+.det-platbar.instagram{background:linear-gradient(90deg,#833ab4,#fd1d1d,#fcb045)}
+.det-platbar.tiktok{background:linear-gradient(90deg,#25f4ee,#fff,#fe2c55)}
+.det-pay{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,rgba(16,185,129,.14),rgba(74,109,255,.08));border:1px solid rgba(16,185,129,.3);border-radius:14px;padding:16px 18px;margin-bottom:20px}
+.det-pay .dp-l{font-size:11px;color:var(--green-light);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:2px}
+.det-pay .dp-v{font-size:30px;font-weight:800;letter-spacing:-1px;color:var(--green-light);line-height:1}
+.det-plat-tag{margin-left:auto;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;padding:6px 13px;border-radius:100px;background:rgba(255,255,255,.06);border:1px solid var(--border2);color:var(--text2)}
+.det-sec{margin-bottom:22px}
+.det-label{font-size:10.5px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--text3);margin-bottom:9px;display:flex;align-items:center;gap:7px}
+.det-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.det-desc{font-size:14px;color:var(--text);line-height:1.7}
+.det-brief{background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:12px;padding:18px 20px;font-size:13.5px;line-height:1.8;white-space:pre-wrap;word-break:break-word;color:#fff}
+.det-material{display:inline-flex;align-items:center;gap:9px;background:rgba(74,109,255,.12);border:1px solid rgba(74,109,255,.3);color:var(--accent-light);border-radius:11px;padding:12px 18px;font-size:13px;font-weight:600;transition:all .2s}
+.det-material:hover{background:rgba(74,109,255,.2);transform:translateY(-1px)}
+.det-empty{color:var(--text3);font-style:italic;font-size:13px}
+
 /* ── GATE ── */
 .gate{position:fixed;inset:0;z-index:500;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px}
 .gate .orb{position:fixed;border-radius:50%;filter:blur(14px);pointer-events:none}
@@ -387,6 +408,49 @@ a{color:inherit;text-decoration:none}
   </div>
 </div>
 
+<!-- MODAL: DETALHE DA CAMPANHA (briefing — leitura) -->
+<div class="overlay" id="modal-detalhe">
+  <div class="modal" style="width:620px;padding:0">
+    <div class="det-platbar" id="d-platbar"></div>
+    <div class="det-hero" id="d-hero"></div>
+    <div class="modal-head" style="border-top:1px solid var(--border)">
+      <h3 id="d-titulo" style="font-size:19px">Campanha</h3>
+      <button class="x" onclick="closeM('modal-detalhe')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="det-pay">
+        <div>
+          <div class="dp-l">💰 Pagamento por envio aprovado</div>
+          <div class="dp-v" id="d-valor">R$ 0,00</div>
+        </div>
+        <span class="det-plat-tag" id="d-plat">YouTube</span>
+      </div>
+
+      <div class="det-sec">
+        <div class="det-label">📄 Sobre a campanha</div>
+        <div class="det-desc" id="d-desc"></div>
+      </div>
+
+      <div class="det-sec" id="d-brief-sec">
+        <div class="det-label">📋 Briefing &amp; Instruções</div>
+        <div class="det-brief" id="d-brief"></div>
+      </div>
+
+      <div class="det-sec" id="d-material-sec">
+        <div class="det-label">📎 Material de apoio</div>
+        <a class="det-material" id="d-material" href="#" target="_blank" rel="noopener">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Baixar material / briefing completo
+        </a>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-save" id="d-enviar" onclick="enviarDaDetalhe()">Enviar agora</button>
+      <button class="btn-rm" id="d-editar" onclick="editarDaDetalhe()" style="display:none;padding:13px 18px;color:var(--accent-light);background:rgba(74,109,255,.1);border-color:rgba(74,109,255,.3)">Editar campanha</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL: CAMPANHA (admin) -->
 <div class="overlay" id="modal-camp">
   <div class="modal">
@@ -529,7 +593,7 @@ function platIcon(p){
 function campCard(m,admin){
   const cover=m.capa_url?`<img src="${esc(m.capa_url)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="ph" style="display:none">${esc(m.titulo.slice(0,18))}</div>`:`<div class="ph">${esc(m.titulo.slice(0,18))}</div>`;
   const adminCtl=IS_ADMIN?`<div class="camp-admin"><button onclick='event.stopPropagation();editarCampanha(${JSON.stringify(m.id)})' title="Editar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></div>`:'';
-  return `<div class="camp">
+  return `<div class="camp" style="cursor:pointer" onclick='verCampanha(${JSON.stringify(m.id)})'>
     <div class="camp-bar ${esc(m.plataforma)}"><div class="pico">${platIcon(m.plataforma)}</div></div>
     ${adminCtl}
     <div class="camp-cover"><div class="camp-badge">Campanha Oficial</div>${cover}</div>
@@ -541,7 +605,7 @@ function campCard(m,admin){
           <div class="pl">💰 Pagamento por envio</div>
           <div class="pv">${brl(m.valor)}</div>
         </div>
-        <button class="btn-submit" onclick='abrirEnvio(${JSON.stringify(m.id)})'>Enviar agora</button>
+        <button class="btn-submit" onclick='event.stopPropagation();abrirEnvio(${JSON.stringify(m.id)})'>Enviar agora</button>
       </div>
     </div>
   </div>`;
@@ -556,6 +620,35 @@ function renderCampAdmin(){
   const g=document.getElementById('camp-grid-admin');
   g.innerHTML=modelos.length?modelos.map(m=>campCard(m,true)).join(''):'<div class="empty">Nenhuma campanha criada. Clique em "Nova Campanha".</div>';
 }
+
+// ── DETALHE DA CAMPANHA (briefing — leitura) ──
+let DET_ID=null;
+function verCampanha(id){
+  const m=modelos.find(x=>x.id===id);if(!m)return;
+  DET_ID=id;
+  document.getElementById('d-platbar').className='det-platbar '+esc(m.plataforma||'youtube');
+  const hero=document.getElementById('d-hero');
+  hero.innerHTML=m.capa_url?`<img src="${esc(m.capa_url)}" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=ph>'+this.alt+'</div>'" alt="${esc(m.titulo)}"/>`:`<div class="ph">${esc(m.titulo)}</div>`;
+  document.getElementById('d-titulo').textContent=m.titulo||'Campanha';
+  document.getElementById('d-valor').textContent=brl(m.valor);
+  document.getElementById('d-plat').textContent=PLAT_LBL[m.plataforma]||m.plataforma||'';
+  document.getElementById('d-desc').innerHTML=m.descricao?esc(m.descricao):'<span class="det-empty">Sem descrição.</span>';
+
+  const briefSec=document.getElementById('d-brief-sec');
+  if(m.briefing){document.getElementById('d-brief').textContent=m.briefing;briefSec.style.display='block';}
+  else{briefSec.style.display='none';}
+
+  const matSec=document.getElementById('d-material-sec');
+  if(m.material_url){document.getElementById('d-material').href=m.material_url;matSec.style.display='block';}
+  else{matSec.style.display='none';}
+
+  // admin vê botão de editar; parceiro só lê + envia
+  document.getElementById('d-editar').style.display=IS_ADMIN?'block':'none';
+
+  document.getElementById('modal-detalhe').classList.add('open');
+}
+function enviarDaDetalhe(){if(!DET_ID)return;closeM('modal-detalhe');abrirEnvio(DET_ID);}
+function editarDaDetalhe(){if(!DET_ID)return;closeM('modal-detalhe');editarCampanha(DET_ID);}
 
 // ── ENVIO (parceiro) ──
 function abrirEnvio(modeloId){

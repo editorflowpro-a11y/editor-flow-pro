@@ -145,7 +145,7 @@ nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-con
 .view-text{font-size:14px;color:var(--text2);line-height:1.75;white-space:pre-wrap;word-break:break-word}
 .view-gancho{background:linear-gradient(135deg,rgba(74,109,255,.1),rgba(155,107,255,.07));border:1px solid rgba(107,138,255,.25);border-left:3px solid var(--accent);border-radius:12px;padding:16px 18px;font-size:15px;color:var(--text);font-weight:500;line-height:1.65;font-style:italic}
 .view-cta{background:linear-gradient(135deg,rgba(155,107,255,.1),rgba(74,109,255,.07));border:1px solid rgba(155,107,255,.25);border-left:3px solid var(--purple);border-radius:12px;padding:14px 18px;font-size:14px;color:var(--text);font-weight:600}
-.view-content{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:12px;padding:18px 20px;font-size:13.5px;line-height:1.8;white-space:pre-wrap;word-break:break-word;color:var(--text2);font-family:'Inter',sans-serif}
+.view-content{background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:12px;padding:18px 20px;font-size:14px;line-height:1.85;white-space:pre-wrap;word-break:break-word;color:#fff;font-family:'Inter',sans-serif;font-weight:400}
 .view-descricao{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:12px;padding:14px 18px;font-size:13.5px;line-height:1.75;white-space:pre-wrap;word-break:break-word;color:var(--text2)}
 .view-tags{display:flex;gap:6px;flex-wrap:wrap}
 .view-foot{display:flex;gap:10px;padding:14px 26px 24px;border-top:1px solid var(--border);position:sticky;bottom:0;background:rgba(10,15,30,.95);backdrop-filter:blur(12px);align-items:center}
@@ -252,7 +252,7 @@ nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-con
       <button data-f="carrossel" onclick="setFormato('carrossel',this)">Carrossel</button>
     </div>
     <input class="search" id="search" placeholder="Buscar roteiro..." oninput="render()"/>
-    <button class="btn-glow" onclick="novoRoteiro()">
+    <button class="btn-glow" id="btn-novo" onclick="novoRoteiro()" style="display:none">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Novo Roteiro
     </button>
@@ -338,8 +338,20 @@ nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-con
 
     <div class="view-foot">
       <div class="view-meta" id="v-meta"></div>
+      <!-- LEITOR: só pode mudar o status -->
+      <div id="v-status-edit" style="display:none;align-items:center;gap:9px">
+        <label style="font-size:10.5px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;font-weight:700">Status</label>
+        <select class="fs" id="v-status-sel" style="width:auto;padding:10px 34px 10px 14px;font-size:13px">
+          <option value="revisao">Revisão</option>
+          <option value="gravacao">Gravação</option>
+          <option value="gravado">Gravado</option>
+          <option value="publicado">Publicado</option>
+        </select>
+        <button class="btn-edit" id="btn-salvar-status" onclick="salvarStatusRapido()">Salvar status</button>
+      </div>
       <button class="btn-close-view" onclick="closeView()">Fechar</button>
-      <button class="btn-edit" id="btn-ir-editar" onclick="irParaEdicao()">
+      <!-- ADMIN: edita tudo -->
+      <button class="btn-edit" id="btn-ir-editar" onclick="irParaEdicao()" style="display:none">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         Editar
       </button>
@@ -449,10 +461,19 @@ async function checarAcesso(){
   document.getElementById('app').style.display='block';
   document.getElementById('user-email').textContent=MEU_EMAIL;
 
-  // seção de equipe — SOMENTE admin
+  // ── permissões por papel ──
   if(IS_ADMIN){
+    // admin: cria, edita, exclui e gerencia equipe
     document.getElementById('admin-sec').style.display='block';
+    document.getElementById('btn-novo').style.display='inline-flex';
+    document.getElementById('btn-ir-editar').style.display='inline-flex';
+    document.getElementById('v-status-edit').style.display='none';
     carregarEquipe();
+  } else {
+    // leitor: só lê e muda o status
+    document.getElementById('btn-novo').style.display='none';
+    document.getElementById('btn-ir-editar').style.display='none';
+    document.getElementById('v-status-edit').style.display='flex';
   }
 
   await carregar();
@@ -568,7 +589,21 @@ function verRoteiro(id){
   const data=new Date(r.atualizado_em||r.criado_em||Date.now()).toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'});
   document.getElementById('v-meta').innerHTML=`<strong>${esc((r.autor_email||'').split('@')[0]||'—')}</strong> · ${data}`;
 
+  // leitor: pré-seleciona o status atual no seletor rápido
+  if(!IS_ADMIN){document.getElementById('v-status-sel').value=r.status||'revisao';}
+
   document.getElementById('view-overlay').classList.add('open');
+}
+
+// LEITOR: salva apenas a mudança de status
+async function salvarStatusRapido(){
+  if(!VIEW_ID)return;
+  const novo=document.getElementById('v-status-sel').value;
+  const btn=document.getElementById('btn-salvar-status');btn.disabled=true;const t=btn.textContent;btn.innerHTML='<span class="spinner"></span>';
+  const {error}=await sb.from('roteiros').update({status:novo,atualizado_em:new Date().toISOString()}).eq('id',VIEW_ID);
+  btn.disabled=false;btn.textContent=t;
+  if(error){toast('Erro: '+error.message,'var(--red)');return;}
+  closeView();await carregar();toast('Status atualizado!','var(--green)');
 }
 
 function closeView(){
