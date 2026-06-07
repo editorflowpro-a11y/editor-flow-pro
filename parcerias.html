@@ -213,7 +213,7 @@ a{color:inherit;text-decoration:none}
 .det-label{font-size:10.5px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--text3);margin-bottom:9px;display:flex;align-items:center;gap:7px}
 .det-label::after{content:'';flex:1;height:1px;background:var(--border)}
 .det-desc{font-size:14px;color:var(--text);line-height:1.7}
-.det-brief{background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:12px;padding:18px 20px;font-size:13.5px;line-height:1.8;white-space:pre-wrap;word-break:break-word;color:#fff}
+.det-brief{background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:12px;padding:18px 20px;font-size:13.5px;line-height:1.8;word-break:break-word;color:#fff}
 .det-material{display:inline-flex;align-items:center;gap:9px;background:rgba(74,109,255,.12);border:1px solid rgba(74,109,255,.3);color:var(--accent-light);border-radius:11px;padding:12px 18px;font-size:13px;font-weight:600;transition:all .2s}
 .det-material:hover{background:rgba(74,109,255,.2);transform:translateY(-1px)}
 .det-empty{color:var(--text3);font-style:italic;font-size:13px}
@@ -225,6 +225,23 @@ a{color:inherit;text-decoration:none}
 .yt-admin .lbl-adm{font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#fca5a5;margin-bottom:8px;display:flex;align-items:center;gap:7px}
 .yt-admin-row{display:flex;gap:9px}
 .yt-admin-row .fi{flex:1}
+
+/* ── TIKTOK SHORT ── */
+.camp-bar.tiktok_short{background:linear-gradient(135deg,#fe2c55,#010101,#25f4ee)}
+.det-platbar.tiktok_short{background:linear-gradient(90deg,#fe2c55,#25f4ee)}
+
+/* ── GOOGLE DRIVE PREVIEW ── */
+.gdrive-wrap{position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000;border:1px solid var(--border2);margin-bottom:14px}
+.gdrive-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+/* ── RICH TEXT TOOLBAR (briefing) ── */
+.rich-tb{display:flex;gap:5px;margin-bottom:8px;align-items:center;flex-wrap:wrap}
+.rtb-btn{padding:5px 10px;border-radius:7px;background:rgba(255,255,255,.06);border:1px solid var(--border2);color:var(--text2);font-family:inherit;font-size:13px;cursor:pointer;min-width:32px;line-height:1.3;transition:all .16s}
+.rtb-btn:hover{background:rgba(74,109,255,.15);color:#fff;border-color:var(--accent)}
+.rtb-sep{width:1px;height:22px;background:var(--border2);margin:0 2px;align-self:center}
+.rich-editor{width:100%;min-height:120px;padding:12px 15px;border-radius:11px;border:1px solid var(--border2);background:rgba(255,255,255,.03);color:var(--text);font-size:14px;font-family:inherit;outline:none;line-height:1.6;transition:border-color .2s;word-break:break-word;cursor:text}
+.rich-editor:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(74,109,255,.13)}
+.rich-editor:empty::before{content:attr(data-ph);color:var(--text3);pointer-events:none;display:block}
 
 /* ── GATE ── */
 .gate{position:fixed;inset:0;z-index:500;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px}
@@ -364,6 +381,7 @@ a{color:inherit;text-decoration:none}
             <button data-p="instagram" onclick="setPlat('instagram',this)">Instagram</button>
             <button data-p="youtube" onclick="setPlat('youtube',this)">YouTube</button>
             <button data-p="tiktok" onclick="setPlat('tiktok',this)">TikTok</button>
+            <button data-p="tiktok_short" onclick="setPlat('tiktok_short',this)">TikTok Short</button>
           </div>
         </div>
 
@@ -485,6 +503,9 @@ a{color:inherit;text-decoration:none}
 
       <div class="det-sec" id="d-material-sec">
         <div class="det-label">📎 Material de apoio</div>
+        <div class="gdrive-wrap" id="d-gdrive-wrap" style="display:none">
+          <iframe id="d-gdrive-iframe" src="" allowfullscreen allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
+        </div>
         <a class="det-material" id="d-material" href="#" target="_blank" rel="noopener">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           Baixar material / briefing completo
@@ -508,13 +529,22 @@ a{color:inherit;text-decoration:none}
       <div class="fg"><label class="fl">Descrição</label><textarea class="ft" id="c-desc" placeholder="O que o criador deve abordar no vídeo..."></textarea></div>
       <div class="f2">
         <div class="fg"><label class="fl">Plataforma</label>
-          <select class="fs" id="c-plat"><option value="youtube">YouTube</option><option value="instagram">Instagram</option><option value="tiktok">TikTok</option></select>
+          <select class="fs" id="c-plat"><option value="youtube">YouTube</option><option value="instagram">Instagram</option><option value="tiktok">TikTok</option><option value="tiktok_short">TikTok Short</option></select>
         </div>
         <div class="fg"><label class="fl">Valor do pagamento (R$)</label><input class="fi" id="c-valor" type="number" step="0.01" placeholder="460"/></div>
       </div>
       <div class="fg"><label class="fl">URL da capa (imagem)</label><input class="fi" id="c-capa" placeholder="https://..."/></div>
       <div class="fg"><label class="fl">Link do material (briefing, assets) — opcional</label><input class="fi" id="c-material" placeholder="https://drive.google.com/..."/></div>
-      <div class="fg"><label class="fl">Briefing / instruções — opcional</label><textarea class="ft" id="c-briefing" placeholder="Pontos obrigatórios, do's and don'ts, hashtags..."></textarea></div>
+      <div class="fg"><label class="fl">Briefing / instruções — opcional</label>
+        <div class="rich-tb">
+          <button type="button" class="rtb-btn" onclick="execBrief('bold')" title="Negrito"><b>N</b></button>
+          <button type="button" class="rtb-btn" onclick="execBrief('italic')" title="Itálico"><i>I</i></button>
+          <span class="rtb-sep"></span>
+          <button type="button" class="rtb-btn" onclick="execBriefSize(false)" title="Diminuir fonte"><span style="font-size:11px;line-height:1">A-</span></button>
+          <button type="button" class="rtb-btn" onclick="execBriefSize(true)" title="Aumentar fonte"><span style="font-size:16px;line-height:1">A+</span></button>
+        </div>
+        <div class="rich-editor" id="c-briefing" contenteditable="true" data-ph="Pontos obrigatórios, do's e don'ts, hashtags..."></div>
+      </div>
     </div>
     <div class="modal-foot">
       <button class="btn-save" id="btn-camp" onclick="salvarCampanha()">Criar Campanha</button>
@@ -572,7 +602,7 @@ const brl=n=>'R$ '+(Number(n)||0).toLocaleString('pt-BR',{minimumFractionDigits:
 
 let MEU_EMAIL='',IS_ADMIN=false;
 let modelos=[],envios=[],parceiros=[],fPlat='todos',fPag='pendentes';
-const PLAT_LBL={youtube:'YouTube',instagram:'Instagram',tiktok:'TikTok'};
+const PLAT_LBL={youtube:'YouTube',instagram:'Instagram',tiktok:'TikTok',tiktok_short:'TikTok Short'};
 const ST_LBL={pendente:'Em análise',aprovado:'Aprovado',ajustes:'Ajustes solicitados'};
 
 // ── GATE ──
@@ -621,6 +651,38 @@ function ytEmbed(url){
   if(m)id=m[1];
   else if(/^[A-Za-z0-9_-]{6,}$/.test(u))id=u; // só o id
   return id?('https://www.youtube.com/embed/'+id):'';
+}
+function gdriveEmbed(url){
+  if(!url)return '';
+  const m1=url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/);
+  if(m1)return'https://drive.google.com/file/d/'+m1[1]+'/preview';
+  const m2=(url.match(/[?&]id=([^&#]+)/)||[])[1];
+  if(m2&&/drive\.google\.com/.test(url))return'https://drive.google.com/file/d/'+m2+'/preview';
+  return '';
+}
+function renderBriefing(txt){
+  if(!txt)return '';
+  if(/<[a-zA-Z]/.test(txt))return txt; // já é HTML
+  return esc(txt).replace(/\n/g,'<br>'); // texto simples → HTML
+}
+function execBrief(cmd){
+  const ed=document.getElementById('c-briefing');
+  ed.focus();
+  document.execCommand(cmd,false,null);
+}
+function execBriefSize(bigger){
+  const ed=document.getElementById('c-briefing');
+  ed.focus();
+  const sel=window.getSelection();
+  if(!sel||!sel.rangeCount||sel.isCollapsed)return;
+  document.execCommand('fontSize',false,bigger?'5':'2');
+  // converte <font size=""> para <span style="font-size:...em">
+  ed.querySelectorAll('font[size]').forEach(f=>{
+    const sp=document.createElement('span');
+    sp.style.fontSize={'1':'0.65em','2':'0.82em','3':'1em','4':'1.2em','5':'1.4em','6':'1.65em','7':'2em'}[f.getAttribute('size')]||'1em';
+    sp.innerHTML=f.innerHTML;
+    f.replaceWith(sp);
+  });
 }
 async function carregarConfig(){
   const {data}=await sb.from('parceria_config').select('valor').eq('chave','how_video').maybeSingle();
@@ -682,7 +744,8 @@ function setPlat(p,btn){fPlat=p;document.querySelectorAll('#pfilter button').for
 function platIcon(p){
   if(p==='youtube')return '<svg width="13" height="13" viewBox="0 0 24 24" fill="#ff0033"><path d="M23 12s0-3.9-.5-5.8c-.3-1-1-1.8-2-2C18.7 4 12 4 12 4s-6.7 0-8.5.4c-1 .3-1.8 1-2 2C1 8.1 1 12 1 12s0 3.9.5 5.8c.3 1 1 1.8 2 2C5.3 20 12 20 12 20s6.7 0 8.5-.4c1-.3 1.8-1 2-2 .5-1.9.5-5.6.5-5.6zM10 15.5v-7l6 3.5-6 3.5z"/></svg>';
   if(p==='instagram')return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#d6249f" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#d6249f"/></svg>';
-  return '<svg width="13" height="13" viewBox="0 0 24 24" fill="#000"><path d="M16 2v3.5a5 5 0 0 0 4 4.9V14a8 8 0 0 1-4-1v5a6 6 0 1 1-6-6v3a3 3 0 1 0 3 3V2h3z"/></svg>';
+  if(p==='tiktok_short')return '<svg width="13" height="13" viewBox="0 0 24 24" fill="#fe2c55"><path d="M16 2v3.5a5 5 0 0 0 4 4.9V14a8 8 0 0 1-4-1v5a6 6 0 1 1-6-6v3a3 3 0 1 0 3 3V2h3z"/></svg>';
+  return '<svg width="13" height="13" viewBox="0 0 24 24" fill="#010101"><path d="M16 2v3.5a5 5 0 0 0 4 4.9V14a8 8 0 0 1-4-1v5a6 6 0 1 1-6-6v3a3 3 0 1 0 3 3V2h3z"/></svg>';
 }
 function campCard(m,admin){
   const cover=m.capa_url?`<img src="${esc(m.capa_url)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="ph" style="display:none">${esc(m.titulo.slice(0,18))}</div>`:`<div class="ph">${esc(m.titulo.slice(0,18))}</div>`;
@@ -729,12 +792,17 @@ function verCampanha(id){
   document.getElementById('d-desc').innerHTML=m.descricao?esc(m.descricao):'<span class="det-empty">Sem descrição.</span>';
 
   const briefSec=document.getElementById('d-brief-sec');
-  if(m.briefing){document.getElementById('d-brief').textContent=m.briefing;briefSec.style.display='block';}
+  if(m.briefing){document.getElementById('d-brief').innerHTML=renderBriefing(m.briefing);briefSec.style.display='block';}
   else{briefSec.style.display='none';}
 
   const matSec=document.getElementById('d-material-sec');
   if(m.material_url){document.getElementById('d-material').href=m.material_url;matSec.style.display='block';}
   else{matSec.style.display='none';}
+  const gEmbed=gdriveEmbed(m.material_url||'');
+  const gWrap=document.getElementById('d-gdrive-wrap');
+  const gIframe=document.getElementById('d-gdrive-iframe');
+  if(gEmbed){gIframe.src=gEmbed;gWrap.style.display='block';}
+  else{gIframe.src='';gWrap.style.display='none';}
 
   // admin vê botão de editar; parceiro só lê + envia
   document.getElementById('d-editar').style.display=IS_ADMIN?'block':'none';
@@ -841,7 +909,8 @@ async function excluirSub(id){
 
 // ── CAMPANHA CRUD (admin) ──
 function novaCampanha(){
-  ['c-id','c-titulo','c-desc','c-valor','c-capa','c-material','c-briefing'].forEach(i=>document.getElementById(i).value='');
+  ['c-id','c-titulo','c-desc','c-valor','c-capa','c-material'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('c-briefing').innerHTML='';
   document.getElementById('c-plat').value='youtube';
   document.getElementById('mc-title').textContent='Nova Campanha';
   document.getElementById('btn-camp').textContent='Criar Campanha';
@@ -857,7 +926,7 @@ function editarCampanha(id){
   document.getElementById('c-valor').value=m.valor||'';
   document.getElementById('c-capa').value=m.capa_url||'';
   document.getElementById('c-material').value=m.material_url||'';
-  document.getElementById('c-briefing').value=m.briefing||'';
+  document.getElementById('c-briefing').innerHTML=m.briefing?renderBriefing(m.briefing):'';
   document.getElementById('mc-title').textContent='Editar Campanha';
   document.getElementById('btn-camp').textContent='Salvar Alterações';
   document.getElementById('btn-camp-del').style.display='block';
@@ -866,6 +935,7 @@ function editarCampanha(id){
 async function salvarCampanha(){
   const titulo=document.getElementById('c-titulo').value.trim();
   if(!titulo){toast('Dê um título à campanha.','var(--amber)');return;}
+  const bHtml=document.getElementById('c-briefing').innerHTML.trim();
   const rec={
     titulo,
     descricao:document.getElementById('c-desc').value||null,
@@ -873,7 +943,7 @@ async function salvarCampanha(){
     valor:parseFloat(document.getElementById('c-valor').value)||0,
     capa_url:document.getElementById('c-capa').value||null,
     material_url:document.getElementById('c-material').value||null,
-    briefing:document.getElementById('c-briefing').value||null
+    briefing:(bHtml&&bHtml!=='<br>')?bHtml:null
   };
   const id=document.getElementById('c-id').value;
   const btn=document.getElementById('btn-camp');btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';
@@ -981,6 +1051,12 @@ function closeM(id){document.getElementById(id).classList.remove('open');}
 async function logout(){await sb.auth.signOut();location.reload();}
 function toast(msg,cor='var(--green)'){const t=document.createElement('div');t.className='toast';t.innerHTML=`<span class="dot" style="background:${cor}"></span>${esc(msg)}`;document.body.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transform='translateY(14px)';t.style.transition='.3s';setTimeout(()=>t.remove(),300);},2800);}
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+// briefing: paste como texto puro (preserva formatação do editor, não do clipboard)
+document.getElementById('c-briefing').addEventListener('paste',e=>{
+  e.preventDefault();
+  const t=(e.clipboardData||window.clipboardData).getData('text/plain');
+  document.execCommand('insertText',false,t);
+});
 
 // ── START ──
 checarAcesso();
