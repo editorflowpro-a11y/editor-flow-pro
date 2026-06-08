@@ -80,6 +80,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .state .big{font-family:'Instrument Serif',serif;font-style:italic;font-size:30px;color:#fff}
 .foot{margin-top:26px;text-align:center;font-size:11px;color:var(--muted2)}
 .foot a{color:var(--muted);text-decoration:none;font-weight:600}
+/* ── botão abrir Drive ── */
+.drive-btn{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;padding:12px 16px;background:rgba(74,109,255,.1);border:1px solid rgba(74,109,255,.25);border-radius:12px;color:var(--accent-light);font-size:13px;font-weight:600;text-decoration:none;transition:all .2s}
+.drive-btn:hover{background:rgba(74,109,255,.2);transform:translateY(-1px)}
 @media(max-width:480px){.wrap{padding:28px 14px 50px}.glass-card{padding:18px}.p-name{font-size:19px}.mini .rm-v{font-size:18px}}
 </style>
 </head>
@@ -104,7 +107,34 @@ const ST_COLORS={'Pago':'background:rgba(16,185,129,.1);color:var(--accent2);bor
 function driveId(url){if(!url)return null;let m=url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)||url.match(/[?&]id=([a-zA-Z0-9_-]+)/);return m?m[1]:null;}
 function videoEmbed(url){if(!url)return null;let m;m=url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);if(m)return{provider:'youtube',id:m[1],src:`https://www.youtube.com/embed/${m[1]}?rel=0`};m=url.match(/vimeo\.com\/(?:video\/)?(\d+)/);if(m)return{provider:'vimeo',id:m[1],src:`https://player.vimeo.com/video/${m[1]}`};const d=driveId(url);if(d)return{provider:'drive',id:d,src:`https://drive.google.com/file/d/${d}/preview`};return null;}
 let curPlayer={provider:null};
-function seekTo(sec){const e=curPlayer;if(!e||!e.provider)return;const f=document.getElementById('p-iframe');if(!f)return;if(e.provider==='youtube')f.src=`https://www.youtube.com/embed/${e.id}?rel=0&autoplay=1&start=${sec}`;else if(e.provider==='vimeo')f.src=`https://player.vimeo.com/video/${e.id}#t=${sec}s`;}
+let ytPlayer=null;
+/* ── seek: YouTube IFrame API (sem reload), Vimeo postMessage ── */
+function seekTo(sec){
+  const e=curPlayer;if(!e||!e.provider)return;
+  if(e.provider==='youtube'){
+    if(ytPlayer&&typeof ytPlayer.seekTo==='function'){ytPlayer.seekTo(sec,true);ytPlayer.playVideo();}
+  }else if(e.provider==='vimeo'){
+    const f=document.getElementById('p-iframe');if(!f)return;
+    try{
+      f.contentWindow.postMessage(JSON.stringify({method:'seekTo',value:sec}),'https://player.vimeo.com');
+      f.contentWindow.postMessage(JSON.stringify({method:'play'}),'https://player.vimeo.com');
+    }catch(err){f.src=`https://player.vimeo.com/video/${e.id}?api=1#t=${sec}s`;}
+  }
+}
+function initYouTubePlayer(videoId){
+  function create(){
+    const el=document.getElementById('p-iframe');if(!el)return;
+    ytPlayer=new YT.Player('p-iframe',{videoId:videoId,playerVars:{rel:0,modestbranding:1,playsinline:1},events:{onReady:function(){}}});
+  }
+  if(window.YT&&YT.Player){create();}
+  else{
+    window._pendingYTId=videoId;
+    if(!document.querySelector('script[src*="youtube.com/iframe_api"]')){
+      const s=document.createElement('script');s.src='https://www.youtube.com/iframe_api';document.head.appendChild(s);
+    }
+    window.onYouTubeIframeAPIReady=function(){if(window._pendingYTId){create();window._pendingYTId=null;}};
+  }
+}
 function secToMMSS(s){s=Math.max(0,parseInt(s)||0);const m=Math.floor(s/60),x=s%60;return`${m}:${String(x).padStart(2,'0')}`;}
 function mmssToSec(t){if(!t)return 0;const p=String(t).split(':').map(n=>parseInt(n)||0);if(p.length>=3)return p[0]*3600+p[1]*60+p[2];if(p.length===2)return p[0]*60+p[1];return p[0]||0;}
 function maskTime(el){let d=el.value.replace(/\D/g,'').slice(0,6);let out=d.slice(0,2);if(d.length>2)out+=':'+d.slice(2,4);if(d.length>4)out+=':'+d.slice(4,6);el.value=out;}
@@ -185,12 +215,23 @@ async function addComentarioPublico(){
 /* ─── Render full page ─── */
 function renderProjeto(p,comentarios){
   PROJ=p;CMTS=comentarios||[];
+  ytPlayer=null;
   const e=videoEmbed(p.video_url);curPlayer=e?{provider:e.provider,id:e.id}:{provider:null};
   const val=parseFloat(p.valor)||0;
-  const seekable=e&&e.provider!=='drive';
-  const player=e
-    ?`<div class="pv-frame"><iframe id="p-iframe" src="${e.src}" allow="autoplay; fullscreen" allowfullscreen></iframe></div>`
-    :`<div class="pv-empty">Nenhum vídeo disponível ainda.</div>`;
+  const seekable=e&&(e.provider==='youtube'||e.provider==='vimeo');
+  /* playerHtml por provider */
+  let playerHtml;
+  if(!e){
+    playerHtml='<div class="pv-empty">Nenhum vídeo disponível ainda.</div>';
+  }else if(e.provider==='youtube'){
+    /* div vazia — YT IFrame API injeta o iframe aqui */
+    playerHtml='<div class="pv-frame"><div id="p-iframe" style="position:absolute;inset:0;width:100%;height:100%"></div></div>';
+  }else if(e.provider==='drive'){
+    playerHtml=`<div class="pv-frame"><iframe id="p-iframe" src="${e.src}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div><a class="drive-btn" href="https://drive.google.com/file/d/${e.id}/view" target="_blank" rel="noopener">${ic('film',14)} Abrir e tocar no Google Drive</a>`;
+  }else{
+    /* Vimeo: adiciona ?api=1 para postMessage funcionar */
+    playerHtml=`<div class="pv-frame"><iframe id="p-iframe" src="${e.src}?api=1" allow="autoplay; fullscreen" allowfullscreen></iframe></div>`;
+  }
   document.getElementById('root').innerHTML=`
   <div class="proj-layout">
     <!-- ── Esquerda: Preview + Detalhes ── -->
@@ -212,7 +253,7 @@ function renderProjeto(p,comentarios){
         <div class="rm"><div class="rm-v" style="font-size:15px">${fmtD(p.prazo)}</div><div class="rm-l">Prazo</div></div>
       </div>
       <div class="sec-title">${ic('film',14)} Preview do vídeo</div>
-      ${player}
+      ${playerHtml}
     </div>
 
     <!-- ── Direita: Comentários ── -->
@@ -233,6 +274,8 @@ function renderProjeto(p,comentarios){
   </div>
   <div class="foot" style="margin-top:28px">Feito com <a href="/index.html">Editor Flow Pro</a></div>`;
   renderCmtList();
+  /* inicia player YouTube via IFrame API (seek sem reload) */
+  if(e&&e.provider==='youtube')initYouTubePlayer(e.id);
 }
 
 async function load(){
