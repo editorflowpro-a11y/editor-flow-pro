@@ -422,6 +422,11 @@ textarea.form-i{resize:vertical;font-family:'Inter',sans-serif}
 .pv-frame{position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#000}
 .pv-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .pv-empty{aspect-ratio:16/9;border:1px dashed var(--border2);border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:13px;padding:20px}
+/* Drive mobile: thumbnail + botão */
+.pv-drive-thumb{display:none;position:relative;width:100%;height:240px;border-radius:12px;overflow:hidden;background:#111 center/cover no-repeat;border:1px solid var(--border)}
+.pv-drive-open{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(0,0,0,.52);color:#fff;font-size:15px;font-weight:700;text-decoration:none}
+.pv-drive-open:hover{background:rgba(0,0,0,.7)}
+@media(max-width:640px){.pv-frame{aspect-ratio:unset;height:240px}.pv-frame.drive-frame{display:none}.pv-drive-thumb{display:block}}
 .cmt-add{display:flex;gap:8px}
 .cmt-time{max-width:84px;text-align:center}
 .cmt-item{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border)}
@@ -2213,9 +2218,20 @@ function renderPlayer(url){
   const wrap=document.getElementById('resumo-player');if(!wrap)return;
   const e=videoEmbed(url);
   curPlayer=e?{provider:e.provider,id:e.id}:{provider:null};
-  wrap.innerHTML=e
-    ? `<div class="pv-frame"><iframe id="resumo-iframe" src="${e.src}" allow="autoplay; fullscreen" allowfullscreen></iframe></div>`
-    : `<div class="pv-empty">Nenhum vídeo vinculado.<br>Edite o projeto e cole o link do vídeo (Google Drive, YouTube ou Vimeo).</div>`;
+  let html;
+  if(!e){
+    html='<div class="pv-empty">Nenhum vídeo vinculado.<br>Edite o projeto e cole o link do vídeo (Google Drive, YouTube ou Vimeo).</div>';
+  }else if(e.provider==='drive'){
+    /* desktop: iframe | mobile ≤640px: thumbnail + botão (drive-frame escondido via CSS) */
+    html=`<div class="pv-frame drive-frame"><iframe id="resumo-iframe" src="${e.src}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`
+        +`<div class="pv-drive-thumb" style="background-image:url(https://drive.google.com/thumbnail?id=${e.id}&sz=w800)">`
+        +`<a class="pv-drive-open" href="https://drive.google.com/file/d/${e.id}/view" target="_blank" rel="noopener">`
+        +`<svg width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="28" r="28" fill="rgba(0,0,0,.55)"/><polygon points="23,18 43,28 23,38" fill="white"/></svg>`
+        +`Tocar no Google Drive</a></div>`;
+  }else{
+    html=`<div class="pv-frame"><iframe id="resumo-iframe" src="${e.src}" allow="autoplay; fullscreen" allowfullscreen></iframe></div>`;
+  }
+  wrap.innerHTML=html;
   const hint=document.getElementById('cmt-hint');
   if(hint)hint.style.display=(e&&e.provider!=='drive')?'block':'none';
 }
