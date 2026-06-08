@@ -313,7 +313,7 @@ async function handleSignup() {
     password: senha,
     options: {
       data: { nome },
-      emailRedirectTo: window.location.origin + '/app.html'
+      emailRedirectTo: window.location.origin + '/app.html' + (new URLSearchParams(location.search).get('next')?'?next='+encodeURIComponent(new URLSearchParams(location.search).get('next')):'')
     }
   });
 
@@ -391,8 +391,9 @@ async function verificarAcesso(email) {
     return;
   }
 
-  // Acesso liberado — redireciona para o app
-  window.location.href = '/app.html';
+  // Acesso liberado — redireciona para o app (ou ?next= se vier dos botões de plano)
+  const nextUrl = new URLSearchParams(location.search).get('next') || '';
+  window.location.href = nextUrl.startsWith('https://pay.kiwify.com.br/') ? nextUrl : '/app.html';
 }
 
 // ── PWA: registra o service worker ──

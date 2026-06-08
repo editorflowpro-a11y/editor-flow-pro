@@ -445,7 +445,10 @@ a{color:inherit;text-decoration:none}
         <div class="sec-head"><div><h2>Perfil &amp; Pagamento</h2><div class="sub">Seus dados para receber os pagamentos das campanhas aprovadas</div></div></div>
         <div class="panel">
           <div class="fg"><label class="fl">Nome completo</label><input class="fi" id="p-nome" placeholder="Seu nome"/></div>
-          <div class="fg"><label class="fl">Instagram / @</label><input class="fi" id="p-insta" placeholder="@seuperfil"/></div>
+          <div class="f2">
+            <div class="fg"><label class="fl">Instagram / @</label><input class="fi" id="p-insta" placeholder="@seuperfil"/></div>
+            <div class="fg"><label class="fl">TikTok / @</label><input class="fi" id="p-tiktok" placeholder="@seuperfil"/></div>
+          </div>
           <div class="f2">
             <div class="fg"><label class="fl">Chave PIX</label><input class="fi" id="p-pix" placeholder="CPF, email, telefone ou aleatória"/></div>
             <div class="fg"><label class="fl">Banco</label><input class="fi" id="p-banco" placeholder="Ex: Nubank"/></div>
@@ -631,7 +634,7 @@ async function checarAcesso(){
   document.getElementById('u-email').textContent=MEU_EMAIL;
   document.getElementById('u-name').textContent=(aut&&aut.nome)||MEU_EMAIL.split('@')[0];
   document.getElementById('u-av').textContent=((aut&&aut.nome)||MEU_EMAIL)[0].toUpperCase();
-  if(aut){document.getElementById('p-nome').value=aut.nome||'';document.getElementById('p-insta').value=aut.instagram||'';document.getElementById('p-pix').value=aut.chave_pix||'';document.getElementById('p-banco').value=aut.banco||'';}
+  if(aut){document.getElementById('p-nome').value=aut.nome||'';document.getElementById('p-insta').value=aut.instagram||'';document.getElementById('p-tiktok').value=aut.tiktok||'';document.getElementById('p-pix').value=aut.chave_pix||'';document.getElementById('p-banco').value=aut.banco||'';}
   if(IS_ADMIN){
     document.getElementById('admin-nav').style.display='block';
     document.getElementById('admin-newcamp').style.display='block';
@@ -1038,7 +1041,7 @@ async function togglePago(id,estaPago){
 
 // ── PERFIL ──
 async function salvarPerfil(){
-  const rec={nome:document.getElementById('p-nome').value.trim()||null,instagram:document.getElementById('p-insta').value.trim()||null,chave_pix:document.getElementById('p-pix').value.trim()||null,banco:document.getElementById('p-banco').value.trim()||null};
+  const rec={nome:document.getElementById('p-nome').value.trim()||null,instagram:document.getElementById('p-insta').value.trim()||null,tiktok:document.getElementById('p-tiktok').value.trim()||null,chave_pix:document.getElementById('p-pix').value.trim()||null,banco:document.getElementById('p-banco').value.trim()||null};
   const {error}=await sb.from('parceiros_autorizados').update(rec).eq('email',MEU_EMAIL);
   if(error){toast('Erro: '+error.message,'var(--red)');return;}
   document.getElementById('u-name').textContent=rec.nome||MEU_EMAIL.split('@')[0];

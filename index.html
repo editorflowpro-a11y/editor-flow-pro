@@ -1411,7 +1411,7 @@ footer img { height: 24px; filter: brightness(.8); }
             Tudo do plano Basic
           </div>
         </div>
-        <a href="https://pay.kiwify.com.br/GtL5zML" class="plan-cta liquid-btn" target="_blank" rel="noopener">
+        <a href="/login.html?next=https://pay.kiwify.com.br/GtL5zML" class="plan-cta liquid-btn">
           <span class="liquid-bg"></span>
           <span class="liquid-content">Assinar Pro</span>
         </a>
@@ -1451,7 +1451,7 @@ footer img { height: 24px; filter: brightness(.8); }
             Suporte prioritário · Tudo do Pro
           </div>
         </div>
-        <a href="https://pay.kiwify.com.br/ROtVrZr" class="plan-cta dark" target="_blank" rel="noopener">Assinar Premium</a>
+        <a href="/login.html?next=https://pay.kiwify.com.br/ROtVrZr" class="plan-cta dark">Assinar Premium</a>
       </div>
 
     </div>
@@ -1742,6 +1742,14 @@ document.querySelectorAll('.feat').forEach(card => {
 
 // ── PWA: registra o service worker ──
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').catch(()=>{});});}
+
+// ── Redireciona usuário já logado para o app (sem carregar SDK) ──
+(function(){
+  try{
+    const k=Object.keys(localStorage).find(k=>k.startsWith('sb-')&&k.endsWith('-auth-token'));
+    if(k){const s=JSON.parse(localStorage.getItem(k));if(s&&s.access_token&&(s.expires_at||0)*1000>Date.now())window.location.replace('/app.html');}
+  }catch(e){}
+})();
 </script>
 </body>
 </html>

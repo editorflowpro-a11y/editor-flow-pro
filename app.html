@@ -88,7 +88,7 @@ body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .ftab{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted);border:none;background:none;font-family:'Inter',sans-serif;transition:all .2s}
 .ftab:hover{color:var(--text);background:var(--surface2)}
 .ftab.active{background:var(--accent);color:#fff}
-.av{width:34px;height:34px;border-radius:50%;font-weight:700;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.av{width:34px;height:34px;border-radius:50%;font-weight:700;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;background-size:cover;background-position:center}
 .av-p{background:rgba(74,109,255,.2);color:var(--accent)}.av-t{background:rgba(16,185,129,.2);color:var(--accent2)}.av-a{background:rgba(245,158,11,.2);color:var(--amber)}.av-r{background:rgba(239,68,68,.2);color:var(--red)}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center;padding:16px}
 .modal-overlay.open{display:flex}
@@ -543,7 +543,14 @@ textarea.form-i{resize:vertical;font-family:'Inter',sans-serif}
   </div>
   <div class="page" id="page-gastos">
     <div class="topbar"><h1>Gastos</h1><button class="btn-primary" onclick="openModal('modal-gasto')"><span data-ic="plus" data-ic-size="14"></span> Novo Gasto</button></div>
-    <div class="stats-grid g3" id="g-stats"></div>
+    <div class="stats-grid g4" id="g-stats"></div>
+    <div class="section" id="g-fixos-section" style="display:none">
+      <div class="section-head" style="display:flex;align-items:center;justify-content:space-between">
+        <span><span data-ic="refresh" data-ic-size="13"></span> Fixos Mensais</span>
+        <span id="g-fixos-total" style="font-size:13px;font-weight:700;color:var(--red)"></span>
+      </div>
+      <div id="gastos-fixos-list"></div>
+    </div>
     <div class="chart-grid-half">
       <div class="chart-card"><div class="chart-title">Por Categoria</div><div class="chart-box"><canvas id="c-gcat"</canvas></div></div>
       <div class="chart-card"><div class="chart-title">Gastos Mensais</div><div class="chart-box"><canvas id="c-gmes"</canvas></div></div>
@@ -798,8 +805,12 @@ textarea.form-i{resize:vertical;font-family:'Inter',sans-serif}
           <div class="form-g"><label class="form-l">Categoria</label><select class="form-s" id="fg-cat"><option>Software</option><option>Equipamento</option><option>Infraestrutura</option><option>Marketing</option><option>Outros</option></select></div>
           <div class="form-g"><label class="form-l">Valor *</label><input class="form-i" id="fg-valor" type="number" step="0.01" min="0" required></div>
         </div>
-        <div class="form-g"><label class="form-l">Data</label><input class="form-i" id="fg-data" type="date"></div>
-        <button type="submit" class="btn-primary" style="width:100%;margin-top:10px;justify-content:center" id="btn-save-gasto">Adicionar Gasto</button>
+        <div class="form-g"><label class="form-l">Data <span style="color:var(--muted2);font-weight:400">(deixe em branco para fixos)</span></label><input class="form-i" id="fg-data" type="date"></div>
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;cursor:pointer;margin-top:4px;font-size:13px">
+          <input type="checkbox" id="fg-recorrente" style="width:16px;height:16px;accent-color:var(--accent)">
+          <div><b>Gasto fixo / mensal</b><div style="font-size:11px;color:var(--muted2)">Assinatura, internet, aluguel — aparece em Fixos Mensais</div></div>
+        </label>
+        <button type="submit" class="btn-primary" style="width:100%;margin-top:12px;justify-content:center" id="btn-save-gasto">Adicionar Gasto</button>
       </form>
     </div>
   </div>
@@ -951,6 +962,8 @@ const fmtDateTime=d=>{if(!d)return'—';try{const dt=new Date(d);const h=dt.getH
 const today=()=>new Date().toISOString().split('T')[0];
 const ini=n=>{if(!n)return'?';return n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)};
 const avc=n=>{if(!n)return'av-p';const h=[...n].reduce((a,c)=>a+c.charCodeAt(0),0);return['av-p','av-t','av-a','av-r'][h%4]};
+/* seta foto em elemento .av — usa foto_url se disponível, senão iniciais */
+function setAvEl(el,nome,fotoUrl){if(!el)return;if(fotoUrl){el.style.backgroundImage=`url('${fotoUrl}')`;el.textContent='';el.className='av';}else{el.style.backgroundImage='';el.textContent=ini(nome);el.className='av '+avc(nome);}}
 const isLate=p=>{if(!p.prazo||p.status==='Pago'||p.status==='Concluído')return false;return new Date(p.prazo+'T23:59:59')<new Date()};
 
 /* ── ÍCONES SVG (substituem emojis) ── */
@@ -1412,9 +1425,11 @@ const CAL_STATUS={'Pago':{c:'#10b981',b:'rgba(16,185,129,.15)',bd:'rgba(16,185,1
 function projItem(p){
   const atr=isLate(p);
   const cls=atr?' late':(p.status!=='Pago'?' unpaid':'');
+  const pCli=allC.find(c=>c.nome===p.cliente);
+  const avStyle=pCli?.foto_url?`style="background-image:url('${pCli.foto_url}')" class="av"`:`class="av ${avc(p.cliente)}"`;
   return`<div class="proj-card${cls}" onclick="openResumo('${p.id}')">
     <div class="proj-card-top">
-      <div class="av ${avc(p.cliente)}">${ini(p.cliente)}</div>
+      <div ${avStyle}>${pCli?.foto_url?'':ini(p.cliente)}</div>
       <div style="flex:1;min-width:0"><div class="proj-card-name">${escH(p.nome)}</div><div class="proj-card-sub">${escH(p.cliente||'—')} · ${escH(p.tipo||'Outros')}</div></div>
       <span class="badge" style="${ST_COLORS[p.status]||ST_COLORS['A Fazer']}">${escH(p.status)}</span>
     </div>
@@ -1535,7 +1550,7 @@ function openClientKanban(name){
   document.getElementById('kanban-client-name').textContent=name;
   const ps=allP.filter(p=>p.cliente===name);
   document.getElementById('kanban-sub').textContent=`${ps.length} projeto${ps.length===1?'':'s'} · arraste entre as colunas`;
-  const av=document.getElementById('kanban-av');av.textContent=ini(name);av.className='av '+avc(name);
+  const cli=allC.find(c=>c.nome===name);setAvEl(document.getElementById('kanban-av'),name,cli?.foto_url||'');
   renderKanban(name);document.getElementById('modal-kanban').classList.add('open');
 }
 function backToClients(){curKanban=null;closeModal('modal-kanban')}
@@ -1584,7 +1599,7 @@ function openResumo(id){
   curPreview=p;
   document.getElementById('resumo-nome').textContent=p.nome;
   document.getElementById('resumo-cliente').textContent=p.cliente||'—';
-  const av=document.getElementById('resumo-av');av.textContent=ini(p.cliente);av.className='av '+avc(p.cliente);
+  const cliR=allC.find(c=>c.nome===p.cliente);setAvEl(document.getElementById('resumo-av'),p.cliente,cliR?.foto_url||'');
   const atr=isLate(p);
   const badges=[`<span class="badge" style="${ST_COLORS[p.status]||ST_COLORS['A Fazer']}">${escH(p.status||'—')}</span>`];
   if(atr)badges.push('<span class="badge" style="background:rgba(239,68,68,.15);color:var(--red)">Atrasado</span>');
@@ -1610,12 +1625,26 @@ function handleDelResumo(btn){
 }
 
 function renderGastos(){
+  const fixos=allG.filter(g=>g.recorrente);
+  const variaveis=allG.filter(g=>!g.recorrente);
   const total=allG.reduce((s,g)=>s+(parseFloat(g.valor)||0),0);
-  const now=new Date();const mes=allG.filter(g=>{const d=new Date(g.data||g.criado_em);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear()}).reduce((s,g)=>s+(parseFloat(g.valor)||0),0);
-  document.getElementById('g-stats').innerHTML=`<div class="stat-card"><div class="label">Total</div><div class="val c-red" style="font-size:27px">${fmt(total)}</div></div><div class="stat-card"><div class="label">Este Mês</div><div class="val c-amber" style="font-size:27px">${fmt(mes)}</div></div><div class="stat-card"><div class="label">Quantidade</div><div class="val c-white">${allG.length}</div></div>`;
-  renderChartGCat();renderChartGMes();
+  const fixoMes=fixos.reduce((s,g)=>s+(parseFloat(g.valor)||0),0);
+  const now=new Date();const mes=variaveis.filter(g=>{const d=new Date(g.data||g.criado_em);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear()}).reduce((s,g)=>s+(parseFloat(g.valor)||0),0);
+  document.getElementById('g-stats').innerHTML=`
+    <div class="stat-card"><div class="label">Total</div><div class="val c-red" style="font-size:27px">${fmt(total)}</div></div>
+    <div class="stat-card"><div class="label">Este Mês</div><div class="val c-amber" style="font-size:27px">${fmt(mes)}</div></div>
+    <div class="stat-card"><div class="label">Fixos/Mês</div><div class="val c-red" style="font-size:27px">${fmt(fixoMes)}</div></div>
+    <div class="stat-card"><div class="label">Quantidade</div><div class="val c-white">${allG.length}</div></div>`;
+  /* seção fixos */
+  const fsec=document.getElementById('g-fixos-section');
   const icons={'Software':ic('monitor',16),'Equipamento':ic('headphones',16),'Infraestrutura':ic('server',16),'Marketing':ic('megaphone',16),'Outros':ic('box',16)};
-  document.getElementById('gastos-list').innerHTML=allG.length?allG.map(g=>`<div class="gasto-item"><div class="gasto-icon">${icons[g.categoria]||ic('box',16)}</div><div style="flex:1"><div style="font-size:13px;font-weight:700">${g.nome}</div><div style="font-size:11px;color:var(--muted)">${fmtD(g.data)} · ${g.categoria}</div></div><div style="font-weight:700;color:var(--red)">${fmt(g.valor)}</div><button class="btn-danger btn-sm" onclick="confirmDel(this,'gasto','${g.id}')">${ic('trash',12)}</button></div>`).join(''):'<div class="empty">Nenhum gasto</div>';
+  if(fixos.length){
+    fsec.style.display='';
+    document.getElementById('g-fixos-total').textContent=fmt(fixoMes)+'/mês';
+    document.getElementById('gastos-fixos-list').innerHTML=fixos.map(g=>`<div class="gasto-item"><div class="gasto-icon">${icons[g.categoria]||ic('refresh',16)}</div><div style="flex:1"><div style="font-size:13px;font-weight:700">${escH(g.nome)}</div><div style="font-size:11px;color:var(--muted)">${g.categoria} · recorrente</div></div><div style="font-weight:700;color:var(--red)">${fmt(g.valor)}</div><button class="btn-danger btn-sm" onclick="confirmDel(this,'gasto','${g.id}')">${ic('trash',12)}</button></div>`).join('');
+  }else{fsec.style.display='none';}
+  renderChartGCat();renderChartGMes();
+  document.getElementById('gastos-list').innerHTML=variaveis.length?variaveis.map(g=>`<div class="gasto-item"><div class="gasto-icon">${icons[g.categoria]||ic('box',16)}</div><div style="flex:1"><div style="font-size:13px;font-weight:700">${escH(g.nome)}</div><div style="font-size:11px;color:var(--muted)">${fmtD(g.data)} · ${g.categoria}</div></div><div style="font-weight:700;color:var(--red)">${fmt(g.valor)}</div><button class="btn-danger btn-sm" onclick="confirmDel(this,'gasto','${g.id}')">${ic('trash',12)}</button></div>`).join(''):'<div class="empty">Nenhum gasto avulso</div>';
 }
 function renderChartGCat(){
   const c=document.getElementById('c-gcat');if(!c)return;if(ci['gcat'])ci['gcat'].destroy();
@@ -1735,10 +1764,13 @@ async function handleSaveGasto(e){
   e.preventDefault();
   const btn=document.getElementById('btn-save-gasto');
   btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Salvando...';
-  const rec={user_id:cu.id,nome:document.getElementById('fg-nome').value,categoria:document.getElementById('fg-cat').value,valor:parseFloat(document.getElementById('fg-valor').value)||0,data:document.getElementById('fg-data').value||null,criado_em:new Date().toISOString()};
-  const {error}=await sb.from('gastos').insert(rec);
+  const recorrente=document.getElementById('fg-recorrente').checked;
+  const rec={user_id:cu.id,nome:document.getElementById('fg-nome').value,categoria:document.getElementById('fg-cat').value,valor:parseFloat(document.getElementById('fg-valor').value)||0,data:document.getElementById('fg-data').value||null,recorrente,criado_em:new Date().toISOString()};
+  let {error}=await sb.from('gastos').insert(rec);
+  /* graceful: se coluna recorrente não existir ainda, tenta sem ela */
+  if(error&&/recorrente|column/i.test(error.message||'')){const{recorrente:_,...base}=rec;({error}=await sb.from('gastos').insert(base));}
   btn.disabled=false;btn.textContent='Adicionar Gasto';
-  if(!error){closeModal('modal-gasto');document.getElementById('fg-nome').value='';document.getElementById('fg-valor').value='';document.getElementById('fg-data').value=today();await loadAll();renderGastos();toast('Gasto adicionado!')}
+  if(!error){closeModal('modal-gasto');document.getElementById('fg-nome').value='';document.getElementById('fg-valor').value='';document.getElementById('fg-data').value='';document.getElementById('fg-recorrente').checked=false;await loadAll();renderGastos();toast('Gasto adicionado!')}
   else{console.error(error);toast('Erro: '+error.message,'var(--red)')}
 }
 
