@@ -986,7 +986,7 @@ footer img { height: 24px; filter: brightness(.8); }
     <a href="#suporte">Suporte</a>
   </div>
   <div class="nav-right">
-    <a href="/login.html" class="nav-login">Entrar</a>
+    <a href="/login" class="nav-login">Entrar</a>
     <a href="#planos" class="nav-cta">
       Começar
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -1369,7 +1369,7 @@ footer img { height: 24px; filter: brightness(.8); }
             Bio, contratos e cobranças
           </div>
         </div>
-        <a href="/login.html" class="plan-cta free">Começar grátis</a>
+        <a href="/login" class="plan-cta free">Começar grátis</a>
       </div>
 
       <!-- PRO FEATURED -->
@@ -1411,7 +1411,7 @@ footer img { height: 24px; filter: brightness(.8); }
             Tudo do plano Basic
           </div>
         </div>
-        <a href="/login.html?next=https://pay.kiwify.com.br/GtL5zML" class="plan-cta liquid-btn">
+        <a href="/login?next=https://pay.kiwify.com.br/GtL5zML" class="plan-cta liquid-btn">
           <span class="liquid-bg"></span>
           <span class="liquid-content">Assinar Pro</span>
         </a>
@@ -1451,7 +1451,7 @@ footer img { height: 24px; filter: brightness(.8); }
             Suporte prioritário · Tudo do Pro
           </div>
         </div>
-        <a href="/login.html?next=https://pay.kiwify.com.br/ROtVrZr" class="plan-cta dark">Assinar Premium</a>
+        <a href="/login?next=https://pay.kiwify.com.br/ROtVrZr" class="plan-cta dark">Assinar Premium</a>
       </div>
 
     </div>
@@ -1544,7 +1544,7 @@ footer img { height: 24px; filter: brightness(.8); }
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
         </div>
-        <div class="faq-body"><div class="faq-body-inner">Após o pagamento, você recebe automaticamente um email com o link de acesso. Entre com seu email em editorflow.pro/login.html. Não precisa instalar nada — funciona direto no navegador em qualquer dispositivo.</div></div>
+        <div class="faq-body"><div class="faq-body-inner">Após o pagamento, você recebe automaticamente um email com o link de acesso. Entre com seu email em editorflow.pro/login. Não precisa instalar nada — funciona direto no navegador em qualquer dispositivo.</div></div>
       </div>
       <div class="faq-item">
         <div class="faq-q" onclick="toggleFaq(this)">
@@ -1619,7 +1619,7 @@ footer img { height: 24px; filter: brightness(.8); }
         <div class="support-card-title">Email</div>
         <div class="support-card-desc">editorflowpro@gmail.com · Resposta em até 24 horas</div>
       </a>
-      <a href="/login.html" class="support-card reveal">
+      <a href="/login" class="support-card reveal">
         <div class="support-card-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
         </div>
@@ -1639,7 +1639,7 @@ footer img { height: 24px; filter: brightness(.8); }
   </h2>
   <p class="cta-final-sub">Comece a organizar sua carreira hoje — de graça, sem cartão</p>
   <div class="cta-final-actions">
-    <a href="/login.html" class="btn-dark">Começar grátis</a>
+    <a href="/login" class="btn-dark">Começar grátis</a>
     <a href="https://pay.kiwify.com.br/GtL5zML" class="btn-light" target="_blank" rel="noopener">
       Assinar Pro — R$19,90/mês
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -1655,9 +1655,9 @@ footer img { height: 24px; filter: brightness(.8); }
     <a href="#planos">Planos</a>
     <a href="#faq">FAQ</a>
     <a href="#suporte">Suporte</a>
-    <a href="/login.html">Entrar</a>
-    <a href="/termos.html">Termos de Uso</a>
-    <a href="/privacidade.html">Privacidade</a>
+    <a href="/login">Entrar</a>
+    <a href="/termos">Termos de Uso</a>
+    <a href="/privacidade">Privacidade</a>
     <a href="mailto:editorflowpro@gmail.com">editorflowpro@gmail.com</a>
   </div>
   <div class="footer-copy">© 2026 Editor Flow Pro</div>
@@ -1747,7 +1747,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.s
 (function(){
   try{
     const k=Object.keys(localStorage).find(k=>k.startsWith('sb-')&&k.endsWith('-auth-token'));
-    if(k){const s=JSON.parse(localStorage.getItem(k));if(s&&s.access_token&&(s.expires_at||0)*1000>Date.now())window.location.replace('/app.html');}
+    if(k){const s=JSON.parse(localStorage.getItem(k));if(s&&s.access_token&&(s.expires_at||0)*1000>Date.now())window.location.replace('/app');}
   }catch(e){}
 })();
 </script>

@@ -422,11 +422,7 @@ textarea.form-i{resize:vertical;font-family:'Inter',sans-serif}
 .pv-frame{position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#000}
 .pv-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .pv-empty{aspect-ratio:16/9;border:1px dashed var(--border2);border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:13px;padding:20px}
-/* Drive mobile: thumbnail + botão */
-.pv-drive-thumb{display:none;position:relative;width:100%;height:240px;border-radius:12px;overflow:hidden;background:#111 center/cover no-repeat;border:1px solid var(--border)}
-.pv-drive-open{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(0,0,0,.52);color:#fff;font-size:15px;font-weight:700;text-decoration:none}
-.pv-drive-open:hover{background:rgba(0,0,0,.7)}
-@media(max-width:640px){.pv-frame{aspect-ratio:unset;height:240px}.pv-frame.drive-frame{display:none}.pv-drive-thumb{display:block}}
+@media(max-width:640px){.pv-frame{aspect-ratio:unset;height:240px}}
 .cmt-add{display:flex;gap:8px}
 .cmt-time{max-width:84px;text-align:center}
 .cmt-item{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border)}
@@ -805,11 +801,12 @@ textarea.form-i{resize:vertical;font-family:'Inter',sans-serif}
           <div class="form-g"><label class="form-l">Categoria</label><select class="form-s" id="fg-cat"><option>Software</option><option>Equipamento</option><option>Infraestrutura</option><option>Marketing</option><option>Outros</option></select></div>
           <div class="form-g"><label class="form-l">Valor *</label><input class="form-i" id="fg-valor" type="number" step="0.01" min="0" required></div>
         </div>
-        <div class="form-g"><label class="form-l">Data <span style="color:var(--muted2);font-weight:400">(deixe em branco para fixos)</span></label><input class="form-i" id="fg-data" type="date"></div>
+        <div class="form-g" id="fg-data-wrap"><label class="form-l">Data</label><input class="form-i" id="fg-data" type="date"></div>
         <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;cursor:pointer;margin-top:4px;font-size:13px">
-          <input type="checkbox" id="fg-recorrente" style="width:16px;height:16px;accent-color:var(--accent)">
-          <div><b>Gasto fixo / mensal</b><div style="font-size:11px;color:var(--muted2)">Assinatura, internet, aluguel — aparece em Fixos Mensais</div></div>
+          <input type="checkbox" id="fg-recorrente" onchange="toggleRecorrente()" style="width:16px;height:16px;accent-color:var(--accent)">
+          <div><b>Gasto fixo / mensal</b></div>
         </label>
+        <div class="form-g" id="fg-dia-wrap" style="display:none;margin-top:10px"><label class="form-l">Dia do vencimento (todo mês)</label><input class="form-i" id="fg-dia" type="number" min="1" max="31" placeholder="Ex: 5"></div>
         <button type="submit" class="btn-primary" style="width:100%;margin-top:12px;justify-content:center" id="btn-save-gasto">Adicionar Gasto</button>
       </form>
     </div>
@@ -1066,7 +1063,7 @@ function closeNotif(){document.getElementById('notif-panel').classList.remove('o
 async function init(){
   injectIcons();
   const {data:{session}}=await sb.auth.getSession();
-  if(!session){window.location.href='/login.html';return}
+  if(!session){window.location.href='/login';return}
   let asn=null;
   // tenta com colunas de trial; se ainda não existirem no banco, faz fallback
   let r=await sb.from('assinantes').select('status,plano,trial_ends,trial_usado').eq('email',session.user.email).maybeSingle();
@@ -1080,7 +1077,7 @@ async function init(){
     const r2=await sb.from('assinantes').select('status,plano').eq('email',session.user.email).maybeSingle();
     asn=r2.data;
   }
-  if(!asn||asn.status!=='ativo'){await sb.auth.signOut();window.location.href='/login.html';return}
+  if(!asn||asn.status!=='ativo'){await sb.auth.signOut();window.location.href='/login';return}
   cu=session.user;
   meuPlanoPago=(asn.plano||'basic').toLowerCase();
   trialEnds=asn.trial_ends||null;
@@ -1122,7 +1119,7 @@ function askConfirm(opts){
 
 async function logout(){
   if(!await askConfirm({tipo:'danger',icon:'logout',title:'Sair da conta',message:'Você será desconectado e precisará entrar novamente para acessar seus projetos e clientes.',confirmText:'Sair',cancelText:'Continuar'}))return;
-  await sb.auth.signOut();window.location.href='/login.html';
+  await sb.auth.signOut();window.location.href='/login';
 }
 
 async function loadAll(){
@@ -1357,6 +1354,7 @@ function closeModal(id){
   if(id==='modal-project'){document.getElementById('fp-id').value='';document.getElementById('fp-nome').value='';document.getElementById('fp-valor').value='';document.getElementById('fp-assistente').value='0';document.getElementById('fp-prazo').value='';document.getElementById('fp-video').value=''}
   if(id==='modal-client'){document.getElementById('fc-id').value='';document.getElementById('fc-nome').value='';document.getElementById('fc-email').value='';document.getElementById('fc-tel').value='';document.getElementById('fc-tag').value='';document.getElementById('fc-doc').value='';document.getElementById('fc-foto').value='';setFotoPreview('fc-foto-prev','')}
   if(id==='modal-resumo'){const pl=document.getElementById('resumo-player');if(pl)pl.innerHTML='';curPreview=null;curPlayer={provider:null}}
+  if(id==='modal-gasto'){document.getElementById('fg-recorrente').checked=false;document.getElementById('fg-dia').value='';toggleRecorrente()}
 }
 
 function goTo(id,el){
@@ -1387,7 +1385,11 @@ function renderDashboard(){
   const map={};allP.filter(p=>p.status==='Pago').forEach(p=>{const c=p.cliente||'?';if(!map[c])map[c]={v:0,n:0};map[c].v+=parseFloat(p.valor)||0;map[c].n++});
   const rk=Object.entries(map).sort((a,b)=>b[1].v-a[1].v).slice(0,5);
   const rc=['#f5a623','#9ca3af','#cd7c3f','var(--muted)','var(--muted)'];
-  document.getElementById('d-ranking').innerHTML=rk.length?rk.map(([name,d],i)=>`<div class="rank-item"><span style="font-family:'Instrument Serif',serif;font-size:16px;color:${rc[i]};width:18px;text-align:center">${i+1}</span><div class="av ${avc(name)}">${ini(name)}</div><div style="flex:1;font-size:13px;font-weight:600">${name}</div><div style="font-family:'Instrument Serif',serif;font-size:15px;color:var(--accent2)">${fmt(d.v)}</div></div>`).join(''):'<div class="empty">Nenhum projeto pago</div>';
+  document.getElementById('d-ranking').innerHTML=rk.length?rk.map(([name,d],i)=>{
+    const cli=allC.find(c=>c.nome===name);
+    const av=cli?.foto_url?`<div class="av" style="background-image:url('${cli.foto_url}')"></div>`:`<div class="av ${avc(name)}">${ini(name)}</div>`;
+    return `<div class="rank-item"><span style="font-family:'Instrument Serif',serif;font-size:16px;color:${rc[i]};width:18px;text-align:center">${i+1}</span>${av}<div style="flex:1;font-size:13px;font-weight:600">${name}</div><div style="font-family:'Instrument Serif',serif;font-size:15px;color:var(--accent2)">${fmt(d.v)}</div></div>`;
+  }).join(''):'<div class="empty">Nenhum projeto pago</div>';
   const rec=[...allP].sort((a,b)=>new Date(b.criado_em||0)-new Date(a.criado_em||0)).slice(0,5);
   document.getElementById('d-activity').innerHTML=rec.length?rec.map(p=>`<div class="act-item" style="cursor:pointer" onclick="openResumo('${p.id}')"><div class="act-dot" style="background:${p.status==='Pago'?'var(--accent2)':p.status==='Concluído'?'var(--accent)':'var(--amber)'}"></div><div><div style="font-size:13px;font-weight:600">${p.nome}</div><div style="font-size:11px;color:var(--muted)">${p.cliente} · ${p.status}</div></div></div>`).join(''):'<div class="empty">Nenhuma atividade</div>';
 }
@@ -1446,27 +1448,41 @@ function renderCalendar(){
   document.getElementById('cal-month-label').textContent=calDate.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
   const fd=new Date(yr,mo,1).getDay(),dim=new Date(yr,mo+1,0).getDate(),td=new Date();
   const pbd={};allP.forEach(p=>{if(!p.prazo)return;const d=new Date(p.prazo+'T12:00:00');if(d.getMonth()===mo&&d.getFullYear()===yr){const day=d.getDate();if(!pbd[day])pbd[day]=[];pbd[day].push(p)}});
+  /* gastos fixos: aparecem no dia do vencimento TODO mês (dia limitado aos dias do mês) */
+  const gbd={};allG.filter(g=>g.recorrente&&g.dia_mes).forEach(g=>{const day=Math.min(parseInt(g.dia_mes)||1,dim);if(!gbd[day])gbd[day]=[];gbd[day].push(g)});
   let html='';['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].forEach(d=>{html+=`<div class="cal-day-header">${d}</div>`});
   for(let i=0;i<fd;i++)html+=`<div class="cal-day other-month"></div>`;
   for(let d=1;d<=dim;d++){
-    const isT=d===td.getDate()&&mo===td.getMonth()&&yr===td.getFullYear(),hasP=pbd[d];
-    let cls='cal-day';if(isT)cls+=' today';if(hasP)cls+=' has-project';
-    let chips='';
+    const isT=d===td.getDate()&&mo===td.getMonth()&&yr===td.getFullYear(),hasP=pbd[d],hasG=gbd[d];
+    let cls='cal-day';if(isT)cls+=' today';if(hasP||hasG)cls+=' has-project';
+    let inner='';
     if(hasP){
-      chips='<div class="cal-day-projects">'+hasP.slice(0,2).map(p=>{
+      inner+=hasP.slice(0,2).map(p=>{
         const col=CAL_STATUS[p.status]||CAL_STATUS['A Fazer'];
         return `<div class="cal-day-project" style="background:${col.b};color:${col.c};border-color:${col.bd}"><span class="cdp-dot" style="background:${col.c}"></span><span class="cdp-name">${escH(p.nome)}</span></div>`;
-      }).join('')+(hasP.length>2?`<div class="cal-day-more">+${hasP.length-2}</div>`:'')+'</div>';
+      }).join('')+(hasP.length>2?`<div class="cal-day-more">+${hasP.length-2}</div>`:'');
     }
+    if(hasG){
+      inner+=hasG.slice(0,2).map(g=>`<div class="cal-day-project" style="background:rgba(239,68,68,.15);color:#ef4444;border-color:rgba(239,68,68,.35)"><span class="cdp-dot" style="background:#ef4444"></span><span class="cdp-name">${escH(g.nome)}</span></div>`).join('')+(hasG.length>2?`<div class="cal-day-more">+${hasG.length-2}</div>`:'');
+    }
+    const chips=inner?`<div class="cal-day-projects">${inner}</div>`:'';
     html+=`<div class="${cls}" onclick="showCalDay(${d})"><div class="cal-day-num">${d}</div>${chips}</div>`;
   }
   document.getElementById('cal-grid').innerHTML=html;
 }
 function showCalDay(day){
-  calSelDay=day;const yr=calDate.getFullYear(),mo=calDate.getMonth();
+  calSelDay=day;const yr=calDate.getFullYear(),mo=calDate.getMonth(),dim=new Date(yr,mo+1,0).getDate();
   const projs=allP.filter(p=>{if(!p.prazo)return false;const d=new Date(p.prazo+'T12:00:00');return d.getDate()===day&&d.getMonth()===mo&&d.getFullYear()===yr});
-  document.getElementById('calday-title').textContent=`Projetos — ${day}/${mo+1}/${yr}`;
-  document.getElementById('calday-list').innerHTML=projs.length?projs.map(p=>projItem(p)).join(''):'<div class="empty">Nenhum projeto neste dia.</div>';
+  const fixos=allG.filter(g=>g.recorrente&&g.dia_mes&&Math.min(parseInt(g.dia_mes)||1,dim)===day);
+  document.getElementById('calday-title').textContent=`${day}/${mo+1}/${yr}`;
+  let html='';
+  if(fixos.length){
+    html+='<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--red);margin:2px 0 8px;display:flex;align-items:center;gap:6px">'+ic('refresh',12)+' Gastos fixos</div>';
+    html+=fixos.map(g=>`<div class="gasto-item" style="padding-left:0;padding-right:0"><div class="gasto-icon">${ic('refresh',16)}</div><div style="flex:1"><div style="font-size:13px;font-weight:700">${escH(g.nome)}</div><div style="font-size:11px;color:var(--muted)">${g.categoria} · todo dia ${g.dia_mes}</div></div><div style="font-weight:700;color:var(--red)">${fmt(g.valor)}</div></div>`).join('');
+    if(projs.length)html+='<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent-light);margin:14px 0 8px">Projetos</div>';
+  }
+  html+=projs.length?projs.map(p=>projItem(p)).join(''):(fixos.length?'':'<div class="empty">Nada agendado neste dia.</div>');
+  document.getElementById('calday-list').innerHTML=html;
   document.getElementById('modal-calday').classList.add('open');
 }
 
@@ -1760,17 +1776,27 @@ async function handleSaveClient(e){
   else{console.error(err);toast('Erro: '+err.message,'var(--red)')}
 }
 
+function toggleRecorrente(){
+  const on=document.getElementById('fg-recorrente').checked;
+  document.getElementById('fg-dia-wrap').style.display=on?'block':'none';
+  document.getElementById('fg-data-wrap').style.display=on?'none':'block';
+}
 async function handleSaveGasto(e){
   e.preventDefault();
   const btn=document.getElementById('btn-save-gasto');
-  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Salvando...';
   const recorrente=document.getElementById('fg-recorrente').checked;
-  const rec={user_id:cu.id,nome:document.getElementById('fg-nome').value,categoria:document.getElementById('fg-cat').value,valor:parseFloat(document.getElementById('fg-valor').value)||0,data:document.getElementById('fg-data').value||null,recorrente,criado_em:new Date().toISOString()};
+  let diaMes=null;
+  if(recorrente){
+    diaMes=Math.min(31,Math.max(1,parseInt(document.getElementById('fg-dia').value)||0));
+    if(!diaMes){toast('Informe o dia do vencimento (1 a 31).','var(--red)');return;}
+  }
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Salvando...';
+  const rec={user_id:cu.id,nome:document.getElementById('fg-nome').value,categoria:document.getElementById('fg-cat').value,valor:parseFloat(document.getElementById('fg-valor').value)||0,data:recorrente?null:(document.getElementById('fg-data').value||null),recorrente,dia_mes:diaMes,criado_em:new Date().toISOString()};
   let {error}=await sb.from('gastos').insert(rec);
-  /* graceful: se coluna recorrente não existir ainda, tenta sem ela */
-  if(error&&/recorrente|column/i.test(error.message||'')){const{recorrente:_,...base}=rec;({error}=await sb.from('gastos').insert(base));}
+  /* graceful: se colunas recorrente/dia_mes não existirem ainda, tenta sem elas */
+  if(error&&/recorrente|dia_mes|column/i.test(error.message||'')){const{recorrente:_,dia_mes:__,...base}=rec;({error}=await sb.from('gastos').insert(base));if(!error)toast('Rode supabase-ajustes-jun2026.sql para ativar gastos fixos','var(--amber)');}
   btn.disabled=false;btn.textContent='Adicionar Gasto';
-  if(!error){closeModal('modal-gasto');document.getElementById('fg-nome').value='';document.getElementById('fg-valor').value='';document.getElementById('fg-data').value='';document.getElementById('fg-recorrente').checked=false;await loadAll();renderGastos();toast('Gasto adicionado!')}
+  if(!error){closeModal('modal-gasto');document.getElementById('fg-nome').value='';document.getElementById('fg-valor').value='';document.getElementById('fg-data').value='';document.getElementById('fg-dia').value='';document.getElementById('fg-recorrente').checked=false;toggleRecorrente();await loadAll();renderGastos();toast('Gasto adicionado!')}
   else{console.error(error);toast('Erro: '+error.message,'var(--red)')}
 }
 
@@ -2024,7 +2050,7 @@ let meuPerfil=null,allLeads=[],bioTablesMissing=false,bioCor='#4a6dff';
 const BIO_COLORS=['#4a6dff','#10b981','#f59e0b','#ef4444','#a855f7','#ec4899','#06b6d4','#f97316'];
 const onlyDigits=s=>String(s||'').replace(/\D/g,'');
 function setupWarnHtml(file){return '<div class="setup-warn">⚠️ As tabelas necessárias ainda não existem no banco. Rode o arquivo <code>'+(file||'SUPABASE_BIO_LEADS.sql')+'</code> no painel do Supabase (SQL Editor) para ativar esta área.</div>';}
-function bioLink(){const u=(document.getElementById('bio-username').value||'').toLowerCase().replace(/[^a-z0-9_.]/g,'');return location.origin+'/bio.html?u='+u;}
+function bioLink(){const u=(document.getElementById('bio-username').value||'').toLowerCase().replace(/[^a-z0-9_.]/g,'');return location.origin+'/bio?u='+u;}
 
 function renderBioEditor(){
   document.getElementById('bio-setup-warn').innerHTML=bioTablesMissing?setupWarnHtml():'';
@@ -2254,12 +2280,9 @@ function renderPlayer(url){
   if(!e){
     html='<div class="pv-empty">Nenhum vídeo vinculado.<br>Edite o projeto e cole o link do vídeo (Google Drive, YouTube ou Vimeo).</div>';
   }else if(e.provider==='drive'){
-    /* desktop: iframe | mobile ≤640px: thumbnail + botão (drive-frame escondido via CSS) */
-    html=`<div class="pv-frame drive-frame"><iframe id="resumo-iframe" src="${e.src}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`
-        +`<div class="pv-drive-thumb" style="background-image:url(https://drive.google.com/thumbnail?id=${e.id}&sz=w800)">`
-        +`<a class="pv-drive-open" href="https://drive.google.com/file/d/${e.id}/view" target="_blank" rel="noopener">`
-        +`<svg width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="28" r="28" fill="rgba(0,0,0,.55)"/><polygon points="23,18 43,28 23,38" fill="white"/></svg>`
-        +`Tocar no Google Drive</a></div>`;
+    /* iframe em todas as telas + botão de abrir no Drive */
+    html=`<div class="pv-frame"><iframe id="resumo-iframe" src="${e.src}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`
+        +`<a class="drive-btn" href="https://drive.google.com/file/d/${e.id}/view" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;padding:11px;background:rgba(74,109,255,.1);border:1px solid rgba(74,109,255,.25);border-radius:10px;color:var(--accent-light);font-size:13px;font-weight:600;text-decoration:none">${ic('film',14)} Abrir no Google Drive</a>`;
   }else{
     html=`<div class="pv-frame"><iframe id="resumo-iframe" src="${e.src}" allow="autoplay; fullscreen" allowfullscreen></iframe></div>`;
   }
@@ -2319,7 +2342,7 @@ async function compartilharProjeto(id){
     }
     p.compartilhado=true;saveCache();
   }
-  const link=`${location.origin}/projeto.html?id=${id}`;
+  const link=`${location.origin}/projeto?id=${id}`;
   const cli=allC.find(c=>c.nome===p.cliente);
   const tel=cli&&cli.telefone?onlyDigits(cli.telefone):'';
   const msg=`Olá${p.cliente?' '+p.cliente:''}! Segue o projeto "${p.nome}" para você acompanhar e revisar:\n${link}`;
@@ -2334,7 +2357,7 @@ async function copiarLinkProjeto(id){
     if(error){if(/column|compartilhad|schema/i.test(error.message||''))toast('Rode SUPABASE_SHARE_PROJETO.sql para ativar o compartilhamento','var(--red)');else toast('Erro: '+error.message,'var(--red)');return;}
     p.compartilhado=true;saveCache();
   }
-  const link=`${location.origin}/projeto.html?id=${id}`;
+  const link=`${location.origin}/projeto?id=${id}`;
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(link).then(()=>toast('Link do projeto copiado!')).catch(()=>toast(link));
   else toast(link);
 }

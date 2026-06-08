@@ -246,7 +246,7 @@ async function init() {
   const { data: { session } } = await sb.auth.getSession();
 
   if (!session) {
-    window.location.href = '/login.html';
+    window.location.href = '/login';
     return;
   }
 
@@ -259,7 +259,7 @@ async function init() {
 
   if (!admin) {
     await sb.auth.signOut();
-    window.location.href = '/login.html';
+    window.location.href = '/login';
     return;
   }
 
@@ -486,7 +486,7 @@ async function removerDemo(id, email) {
 // ── LOGOUT ──
 async function logout() {
   await sb.auth.signOut();
-  window.location.href = '/login.html';
+  window.location.href = '/login';
 }
 
 // ── TOAST ──

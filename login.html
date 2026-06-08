@@ -123,7 +123,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 <div class="orb orb2"></div>
 
 <div class="card">
-  <a class="logo" href="/index.html">
+  <a class="logo" href="/">
     <img src="https://i.imgur.com/MQX8YTJ.png" alt="Editor Flow Pro"/>
   </a>
 
@@ -182,7 +182,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
     <div class="form-g" style="margin-bottom:4px">
       <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:12px;color:var(--text2);line-height:1.6">
         <input type="checkbox" id="signup-termos" style="margin-top:3px;accent-color:var(--accent);flex-shrink:0;width:15px;height:15px"/>
-        Li e aceito os <a href="/termos.html" target="_blank" style="color:var(--accent-light);text-decoration:underline">Termos de Uso</a> e a <a href="/privacidade.html" target="_blank" style="color:var(--accent-light);text-decoration:underline">Política de Privacidade</a>
+        Li e aceito os <a href="/termos" target="_blank" style="color:var(--accent-light);text-decoration:underline">Termos de Uso</a> e a <a href="/privacidade" target="_blank" style="color:var(--accent-light);text-decoration:underline">Política de Privacidade</a>
       </label>
     </div>
     <button class="btn" id="btn-signup" onclick="handleSignup()">
@@ -203,10 +203,10 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
   </div>
 
   <div class="foot">
-    Quer conhecer os planos? <a href="/index.html#planos">Ver Basic, Pro e Premium →</a>
+    Quer conhecer os planos? <a href="/#planos">Ver Basic, Pro e Premium →</a>
   </div>
   <div class="foot" style="margin-top:12px;font-size:11px;color:var(--text3)">
-    <a href="/termos.html" target="_blank">Termos de Uso</a> · <a href="/privacidade.html" target="_blank">Política de Privacidade</a>
+    <a href="/termos" target="_blank">Termos de Uso</a> · <a href="/privacidade" target="_blank">Política de Privacidade</a>
   </div>
 </div>
 
@@ -393,7 +393,7 @@ async function verificarAcesso(email) {
 
   // Acesso liberado — redireciona para o app (ou ?next= se vier dos botões de plano)
   const nextUrl = new URLSearchParams(location.search).get('next') || '';
-  window.location.href = nextUrl.startsWith('https://pay.kiwify.com.br/') ? nextUrl : '/app.html';
+  window.location.href = nextUrl.startsWith('https://pay.kiwify.com.br/') ? nextUrl : '/app';
 }
 
 // ── PWA: registra o service worker ──
