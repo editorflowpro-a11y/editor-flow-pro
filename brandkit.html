@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Editor Flow Pro — Kit de Marca</title>
+<link rel="icon" type="image/png" href="https://i.imgur.com/JvSPKKb.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#050914; --bg2:#0a101d; --card-blue:#162c6d; --card-deep:#0a101d;
+  --accent:#4a6dff; --accent-light:#6b8aff; --accent-glow:rgba(74,109,255,.4);
+  --text:#ffffff; --text2:#a1a1aa; --text3:#71717a; --text-dim:#52525b;
+  --border:rgba(255,255,255,.08); --border2:rgba(255,255,255,.04);
+  --green:#10b981; --amber:#f59e0b; --red:#ef4444;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:'Inter',sans-serif; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(1200px 600px at 80% -10%,rgba(74,109,255,.12),transparent 60%),radial-gradient(900px 500px at 0% 20%,rgba(22,44,109,.18),transparent 55%);
+  background-attachment:fixed;
+}
+.serif{font-family:'Instrument Serif',serif;font-weight:400}
+.italic{font-family:'Instrument Serif',serif;font-style:italic}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+section{padding:70px 0;border-bottom:1px solid var(--border2)}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent-light);margin-bottom:14px}
+.sec-title{font-family:'Instrument Serif',serif;font-size:clamp(30px,5vw,46px);line-height:1.05;margin-bottom:8px}
+.sec-sub{color:var(--text2);font-size:15px;max-width:560px;margin-bottom:38px}
+
+/* ── COVER ── */
+.cover{min-height:90vh;display:flex;flex-direction:column;justify-content:center;padding:80px 0 70px;border-bottom:1px solid var(--border)}
+.cover-logo{display:flex;align-items:center;gap:14px;margin-bottom:40px}
+.cover-logo img{width:54px;height:54px;border-radius:13px;box-shadow:0 10px 40px -8px var(--accent-glow)}
+.cover-logo .wm{font-size:20px;font-weight:700;letter-spacing:-.3px}
+.cover-logo .wm b{color:var(--accent-light)}
+.cover h1{font-family:'Instrument Serif',serif;font-size:clamp(44px,9vw,92px);line-height:.98;letter-spacing:-1px;margin-bottom:26px}
+.cover h1 .g{background:linear-gradient(120deg,#fff 30%,#6b8aff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.cover h1 em{font-style:italic;color:var(--accent-light)}
+.cover-meta{display:flex;gap:30px;flex-wrap:wrap;margin-top:30px;color:var(--text3);font-size:13px}
+.cover-meta b{color:var(--text2);font-weight:600}
+.tag{display:inline-block;padding:6px 14px;border:1px solid var(--border);border-radius:99px;font-size:12px;color:var(--text2);background:rgba(255,255,255,.02)}
+
+/* ── LOGO SECTION ── */
+.logo-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:20px}
+@media(max-width:760px){.logo-grid{grid-template-columns:1fr}}
+.panel{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0));border:1px solid var(--border);border-radius:18px;padding:30px}
+.logo-show{display:flex;align-items:center;justify-content:center;min-height:230px;background:radial-gradient(circle at 50% 40%,rgba(74,109,255,.16),transparent 65%),var(--bg2)}
+.logo-show img{width:96px;height:96px;border-radius:22px;box-shadow:0 20px 60px -12px var(--accent-glow)}
+.logo-lockup{display:flex;align-items:center;gap:16px}
+.logo-lockup img{width:60px;height:60px;border-radius:15px}
+.logo-lockup .lk{font-size:24px;font-weight:700;letter-spacing:-.4px}
+.logo-lockup .lk b{color:var(--accent-light)}
+.logo-lockup .lk small{display:block;font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-top:2px}
+.mini-rules{display:flex;flex-direction:column;gap:14px}
+.rule{display:flex;gap:12px;align-items:flex-start;font-size:13.5px;color:var(--text2)}
+.rule .dot{width:7px;height:7px;border-radius:50%;margin-top:7px;flex-shrink:0}
+.rule.ok .dot{background:var(--green)} .rule.no .dot{background:var(--red)}
+
+/* ── COLORS ── */
+.swatches{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:880px){.swatches{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.swatches{grid-template-columns:1fr}}
+.sw{border:1px solid var(--border);border-radius:16px;overflow:hidden;background:var(--bg2)}
+.sw-chip{height:104px;display:flex;align-items:flex-end;padding:12px;position:relative}
+.sw-body{padding:14px 15px 16px}
+.sw-name{font-weight:700;font-size:14px;margin-bottom:3px}
+.sw-role{font-size:11.5px;color:var(--text3);line-height:1.4;margin-bottom:10px;min-height:32px}
+.sw-hex{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:12px;color:var(--text2);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sw-hex .copy{cursor:pointer;color:var(--text3);font-size:11px;padding:3px 8px;border:1px solid var(--border);border-radius:6px;transition:.15s}
+.sw-hex .copy:hover{color:var(--accent-light);border-color:var(--accent)}
+.subhead{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin:34px 0 16px}
+
+/* ── TYPOGRAPHY ── */
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:760px){.type-grid{grid-template-columns:1fr}}
+.type-card{border:1px solid var(--border);border-radius:18px;padding:30px;background:var(--bg2)}
+.type-tag{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent-light);margin-bottom:18px}
+.type-big-serif{font-family:'Instrument Serif',serif;font-size:62px;line-height:1;margin-bottom:6px}
+.type-big-sans{font-family:'Inter',sans-serif;font-weight:800;font-size:54px;line-height:1;letter-spacing:-1px;margin-bottom:6px}
+.type-name{font-size:18px;font-weight:600;margin-bottom:4px}
+.type-use{font-size:13px;color:var(--text3);margin-bottom:18px}
+.type-scale span{display:block;border-top:1px solid var(--border2);padding:9px 0;color:var(--text2)}
+.weights{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.weights span{font-size:13px;padding:5px 11px;border:1px solid var(--border);border-radius:8px;color:var(--text2)}
+
+/* ── VOICE ── */
+.voice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:760px){.voice-grid{grid-template-columns:1fr}}
+.vcard{border:1px solid var(--border);border-radius:16px;padding:24px;background:var(--bg2)}
+.vcard h4{font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:8px}
+.vcard p{font-size:13.5px;color:var(--text2)}
+.say-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px}
+@media(max-width:600px){.say-grid{grid-template-columns:1fr}}
+.say{border:1px solid var(--border);border-radius:14px;padding:20px}
+.say.do{border-color:rgba(16,185,129,.25);background:rgba(16,185,129,.05)}
+.say.dont{border-color:rgba(239,68,68,.22);background:rgba(239,68,68,.05)}
+.say-h{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+.say.do .say-h{color:var(--green)} .say.dont .say-h{color:var(--red)}
+.say li{list-style:none;font-size:13.5px;color:var(--text2);padding:6px 0;border-top:1px solid var(--border2)}
+.say li:first-child{border-top:none}
+
+/* ── UI COMPONENTS ── */
+.ui-row{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:14px}
+.btn{font-family:inherit;font-weight:600;font-size:14px;border-radius:11px;padding:12px 22px;cursor:pointer;border:1px solid transparent;transition:.18s;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 8px 26px -8px var(--accent-glow)}
+.btn-primary:hover{background:var(--accent-light);transform:translateY(-1px)}
+.btn-light{background:#fff;color:#0a101d}
+.btn-ghost{background:rgba(255,255,255,.05);border-color:var(--border);color:var(--text)}
+.badge{font-size:12px;font-weight:600;padding:5px 12px;border-radius:8px}
+.b-pago{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.25)}
+.b-fazer{background:rgba(245,158,11,.12);color:var(--amber);border:1px solid rgba(245,158,11,.25)}
+.b-atras{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+.demo-card{border:1px solid var(--border);border-radius:16px;padding:20px;background:radial-gradient(120% 120% at 30% 10%,#16213c 0%,#0c1322 55%,#080d18 100%);max-width:340px;box-shadow:0 18px 40px -18px rgba(0,0,0,.7)}
+.demo-card .dc-top{display:flex;align-items:center;gap:11px;margin-bottom:14px}
+.demo-card .av{width:38px;height:38px;border-radius:50%;background:rgba(74,109,255,.2);color:var(--accent-light);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.demo-card .dc-name{font-weight:700;font-size:14px}
+.demo-card .dc-sub{font-size:12px;color:var(--text3)}
+.demo-card .dc-val{font-family:'Instrument Serif',serif;font-size:26px;color:var(--green)}
+
+/* ── GRADIENTS ── */
+.grad-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:760px){.grad-row{grid-template-columns:1fr}}
+.grad{height:120px;border-radius:16px;border:1px solid var(--border);display:flex;align-items:flex-end;padding:14px;font-size:12px;font-weight:600;color:rgba(255,255,255,.85);font-family:ui-monospace,monospace}
+.g1{background:radial-gradient(circle at 30% 30%,rgba(74,109,255,.5),transparent 70%),var(--bg2)}
+.g2{background:radial-gradient(120% 120% at 30% 10%,#16213c,#0c1322 55%,#080d18)}
+.g3{background:linear-gradient(120deg,#fff 20%,#6b8aff)}
+.g3{color:#0a101d}
+
+/* ── FOOTER ── */
+footer{padding:50px 0 70px;text-align:center;color:var(--text-dim);font-size:12px}
+footer .serif{font-size:20px;color:var(--text2)}
+.dl{display:inline-flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:20px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;transition:.25s;pointer-events:none;z-index:99}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- ══════════ COVER ══════════ -->
+<section class="cover">
+  <div class="wrap">
+    <div class="cover-logo">
+      <img src="https://i.imgur.com/JvSPKKb.png" alt="Editor Flow Pro"/>
+      <div class="wm">Editor Flow <b>Pro</b></div>
+    </div>
+    <h1><span class="g">Kit de Marca</span></h1>
+    <p style="font-size:18px;color:var(--text2);max-width:600px;margin-top:4px">
+      A identidade visual do <strong style="color:#fff">Editor Flow Pro</strong> — gestão para o editor de vídeo freelancer brasileiro. Cores, tipografia, logo e voz, num só lugar.
+    </p>
+    <div class="cover-meta">
+      <div><b>Marca</b><br>Editor Flow Pro</div>
+      <div><b>Categoria</b><br>SaaS · Gestão</div>
+      <div><b>Domínio</b><br>editorflow.pro</div>
+      <div><b>Versão</b><br>1.0 · 2026</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ LOGO ══════════ -->
+<section id="logo">
+  <div class="wrap">
+    <div class="eyebrow">01 — Logo</div>
+    <h2 class="sec-title">A marca</h2>
+    <p class="sec-sub">O símbolo combina o "Flow" (fluxo de trabalho) com a estética de painel escuro do produto. Use sempre com respiro e contraste suficiente.</p>
+    <div class="logo-grid">
+      <div class="panel logo-show">
+        <img src="https://i.imgur.com/JvSPKKb.png" alt="Símbolo Editor Flow Pro"/>
+      </div>
+      <div class="panel">
+        <div class="logo-lockup" style="margin-bottom:26px">
+          <img src="https://i.imgur.com/JvSPKKb.png" alt=""/>
+          <div class="lk">Editor Flow <b>Pro</b><small>Gestão para editores</small></div>
+        </div>
+        <div class="mini-rules">
+          <div class="rule ok"><span class="dot"></span><div>Mantenha um espaço livre igual à altura do "E" em volta do logo.</div></div>
+          <div class="rule ok"><span class="dot"></span><div>Use sobre fundos escuros (#050914) ou claros sólidos.</div></div>
+          <div class="rule no"><span class="dot"></span><div>Não distorça, gire ou recolora o símbolo.</div></div>
+          <div class="rule no"><span class="dot"></span><div>Não coloque sobre fotos de baixo contraste sem um fundo.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ CORES ══════════ -->
+<section id="cores">
+  <div class="wrap">
+    <div class="eyebrow">02 — Cores</div>
+    <h2 class="sec-title">Paleta</h2>
+    <p class="sec-sub">Base escura "espaço profundo" com o azul Flow como protagonista. As cores semânticas comunicam status no produto: verde = dinheiro, âmbar = atenção, vermelho = alerta.</p>
+
+    <div class="subhead">Primária</div>
+    <div class="swatches">
+      <div class="sw"><div class="sw-chip" style="background:#4a6dff"></div><div class="sw-body"><div class="sw-name">Azul Flow</div><div class="sw-role">Cor principal. CTAs, links, destaque de marca.</div><div class="sw-hex"><span>#4A6DFF</span><span class="copy" data-c="#4A6DFF">copiar</span></div></div></div>
+      <div class="sw"><div class="sw-chip" style="background:#6b8aff"></div><div class="sw-body"><div class="sw-name">Azul Claro</div><div class="sw-role">Hover, ícones, texto de realce sobre escuro.</div><div class="sw-hex"><span>#6B8AFF</span><span class="copy" data-c="#6B8AFF">copiar</span></div></div></div>
+      <div class="sw"><div class="sw-chip" style="background:#162c6d"></div><div class="sw-body"><div class="sw-name">Azul Card</div><div class="sw-role">Fundo de cards em destaque, gradientes.</div><div class="sw-hex"><span>#162C6D</span><span class="copy" data-c="#162C6D">copiar</span></div></div></div>
+      <div class="sw"><div class="sw-chip" style="background:radial-gradient(circle at 40% 30%,rgba(74,109,255,.6),transparent 70%),#0a101d"></div><div class="sw-body"><div class="sw-name">Glow Flow</div><div class="sw-role">Brilho de sombra/foco em botões e logo.</div><div class="sw-hex"><span>rgba(74,109,255,.4)</span><span class="copy" data-c="rgba(74,109,255,0.4)">copiar</span></div></div></div>
+    </div>
+
+    <div class="subhead">Semânticas (status do produto)</div>
+    <div class="swatches">
+      <div class="sw"><div class="sw-chip" style="background:#10b981"></div><div class="sw-body"><div class="sw-name">Verde Receita</div><div class="sw-role">Pago, recebido, sucesso, lucro.</div><div class="sw-hex"><span>#10B981</span><span class="copy" data-c="#10B981">copiar</span></div></div></div>
+      <div class="sw"><div class="sw-chip" style="background:#f59e0b"></div><div class="sw-body"><div class="sw-name">Âmbar Atenção</div><div class="sw-role">A fazer, prazo, a receber, avisos.</div><div class="sw-hex"><span>#F59E0B</span><span class="copy" data-c="#F59E0B">copiar</span></div></div></div>
+      <div class="sw"><div class="sw-chip" style="background:#ef4444"></div><div class="sw-body"><div class="sw-name">Vermelho Alerta</div><div class="sw-role">Atrasado, gastos, exclusão, erro.</div><div class="sw-hex"><span>#EF4444</span><span class="copy" data-c="#EF4444">copiar</span></div></div></div>
+      <div class="sw"><div class="sw-chip" style="background:#fff"></div><div class="sw-body"><div class="sw-name">Branco</div><div class="sw-role">Texto principal, botão claro de contraste.</div><div class="sw-hex"><span>#FFFFFF</span><span class="copy" data-c="#FFFFFF">copiar</span></div></div></div>
+    </div>
+
+    <div class="subhead">Fundos & neutros</div>
+    <div class="swatches">
+      <div class="sw"><div class="sw-chip" style="background:#050914;border-bottom:1px solid var(--border)"></div><div class="sw-body"><div class="sw-name">Espaço Profundo</div><div class="sw-role">Fundo principal de todas as telas.</div><div class="sw-hex"><span>#050914</span><span class="copy" data-c="#050914">copiar</span></div></div></div>
+      <div class="sw"><div class="sw-chip" style="background:#0a101d;border-bottom:1px solid var(--border)"></div><div class="sw-body"><div class="sw-name">Painel</div><div class="sw-role">Cards, modais, superfícies elevadas.</div><div class="sw-hex"><span>#0A101D</span><span class="copy" data-c="#0A101D">copiar</span></div></div></div>
+      <div class="sw"><div class="sw-chip" style="background:#a1a1aa"></div><div class="sw-body"><div class="sw-name">Cinza Texto</div><div class="sw-role">Texto secundário, descrições.</div><div class="sw-hex"><span>#A1A1AA</span><span class="copy" data-c="#A1A1AA">copiar</span></div></div></div>
+      <div class="sw"><div class="sw-chip" style="background:#52525b"></div><div class="sw-body"><div class="sw-name">Cinza Apagado</div><div class="sw-role">Legendas, texto desativado, bordas.</div><div class="sw-hex"><span>#52525B</span><span class="copy" data-c="#52525B">copiar</span></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ TIPOGRAFIA ══════════ -->
+<section id="tipografia">
+  <div class="wrap">
+    <div class="eyebrow">03 — Tipografia</div>
+    <h2 class="sec-title">Fontes</h2>
+    <p class="sec-sub">Um par com contraste: o serif editorial dá personalidade aos títulos e números; o sans dá clareza à interface. O itálico do serif é a assinatura da marca.</p>
+    <div class="type-grid">
+      <div class="type-card">
+        <div class="type-tag">Display · Títulos</div>
+        <div class="type-big-serif">Aa</div>
+        <div class="type-big-serif" style="font-style:italic;color:var(--accent-light);font-size:40px">igual um pro.</div>
+        <div class="type-name" style="margin-top:14px">Instrument Serif</div>
+        <div class="type-use">Headlines, números grandes (R$), momentos de marca. Use o <em class="italic">itálico</em> para ênfase.</div>
+        <div class="type-scale">
+          <span class="serif" style="font-size:32px">Você edita bem.</span>
+          <span class="serif" style="font-size:22px">Agora gerencie igual um pro.</span>
+        </div>
+      </div>
+      <div class="type-card">
+        <div class="type-tag">Interface · Corpo</div>
+        <div class="type-big-sans">Aa</div>
+        <div style="font-weight:300;font-size:34px;line-height:1;color:var(--text2)">Aa</div>
+        <div class="type-name" style="margin-top:14px">Inter</div>
+        <div class="type-use">Todo o texto de interface: botões, labels, parágrafos, tabelas.</div>
+        <div class="weights">
+          <span style="font-weight:300">Light 300</span>
+          <span style="font-weight:400">Regular 400</span>
+          <span style="font-weight:600">Semibold 600</span>
+          <span style="font-weight:800">Extrabold 800</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ VOZ ══════════ -->
+<section id="voz">
+  <div class="wrap">
+    <div class="eyebrow">04 — Voz & Tom</div>
+    <h2 class="sec-title">Como a marca fala</h2>
+    <p class="sec-sub">Direto, confiante e brasileiro de verdade. Falamos de igual pra igual com o editor — sem corporativês, sem enrolação. A gente entende a correria do freela.</p>
+    <div class="voice-grid">
+      <div class="vcard"><h4>Direto</h4><p>Frases curtas, verbo no início. "Crie um projeto", "Receba no prazo". Nada de jargão de consultoria.</p></div>
+      <div class="vcard"><h4>Parceiro</h4><p>Estamos do lado do editor. Tom de quem já passou pela correria do freela, não de fornecedor distante.</p></div>
+      <div class="vcard"><h4>Confiante</h4><p>"Gerencie igual um pro." Afirmamos com segurança, sem prometer milagre. Resultado, não hype.</p></div>
+    </div>
+    <div class="say-grid">
+      <div class="say do">
+        <div class="say-h">✓ Fala assim</div>
+        <ul>
+          <li>"Você edita bem. Agora gerencie igual um pro."</li>
+          <li>"Tudo num único lugar."</li>
+          <li>"Cobre seus clientes sem constrangimento."</li>
+          <li>"Feito pra realidade do editor brasileiro."</li>
+        </ul>
+      </div>
+      <div class="say dont">
+        <div class="say-h">✕ Evita</div>
+        <ul>
+          <li>"Solução de gestão empresarial 360°."</li>
+          <li>"Otimize sinergias do seu workflow."</li>
+          <li>"A plataforma definitiva e revolucionária."</li>
+          <li>Termos em inglês sem necessidade.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ COMPONENTES ══════════ -->
+<section id="ui">
+  <div class="wrap">
+    <div class="eyebrow">05 — Interface</div>
+    <h2 class="sec-title">Elementos</h2>
+    <p class="sec-sub">Os blocos visuais como aparecem no produto. Botões com glow azul, cantos arredondados generosos e badges de status nas cores semânticas.</p>
+
+    <div class="subhead">Botões</div>
+    <div class="ui-row">
+      <a class="btn btn-primary">Começar agora</a>
+      <a class="btn btn-light">Ver planos</a>
+      <a class="btn btn-ghost">Saber mais</a>
+    </div>
+
+    <div class="subhead">Badges de status</div>
+    <div class="ui-row">
+      <span class="badge b-pago">Pago</span>
+      <span class="badge b-fazer">A Fazer</span>
+      <span class="badge b-atras">Atrasado</span>
+    </div>
+
+    <div class="subhead">Card de projeto</div>
+    <div class="demo-card">
+      <div class="dc-top">
+        <div class="av">FF</div>
+        <div style="flex:1"><div class="dc-name">FELIPE VSL #001</div><div class="dc-sub">Felipe Freitas · VSL</div></div>
+        <span class="badge b-pago">Pago</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-end">
+        <div class="dc-sub">Prazo: 02/06/2026</div>
+        <div class="dc-val">R$ 400</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ GRADIENTES ══════════ -->
+<section id="gradientes">
+  <div class="wrap">
+    <div class="eyebrow">06 — Texturas</div>
+    <h2 class="sec-title">Gradientes & brilhos</h2>
+    <p class="sec-sub">O brilho azul radial e os gradientes profundos dão a sensação "premium dark" da marca. Use com moderação, como destaque.</p>
+    <div class="grad-row">
+      <div class="grad g1">Glow radial · foco</div>
+      <div class="grad g2">Card profundo</div>
+      <div class="grad g3">Branco → Azul · texto</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="serif">Editor Flow <span style="color:var(--accent-light)">Pro</span></div>
+    <p style="margin-top:8px">Kit de Marca v1.0 · 2026 · editorflow.pro</p>
+    <div class="dl">
+      <a class="btn btn-ghost" href="https://i.imgur.com/JvSPKKb.png" download target="_blank">Baixar logo (PNG)</a>
+      <a class="btn btn-ghost" href="javascript:window.print()">Imprimir / PDF</a>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast">Copiado!</div>
+
+<script>
+document.querySelectorAll('.copy').forEach(el=>{
+  el.addEventListener('click',()=>{
+    const v=el.getAttribute('data-c');
+    navigator.clipboard.writeText(v).then(()=>{
+      const t=document.getElementById('toast');
+      t.textContent=v+' copiado!';t.classList.add('show');
+      setTimeout(()=>t.classList.remove('show'),1400);
+    });
+  });
+});
+</script>
+</body>
+</html>

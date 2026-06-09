@@ -72,6 +72,12 @@
   status = 301
   force = true
 
+[[redirects]]
+  from = "/brandkit.html"
+  to = "/brandkit"
+  status = 301
+  force = true
+
 # Passo 2 — serve o arquivo .html real para cada URL limpa (200 rewrite)
 # O navegador vê /app, o Netlify entrega /app.html — invisível pro usuário
 [[redirects]]
@@ -122,6 +128,11 @@
 [[redirects]]
   from = "/dashboard-admin"
   to = "/dashboard-admin.html"
+  status = 200
+
+[[redirects]]
+  from = "/brandkit"
+  to = "/brandkit.html"
   status = 200
 
 # ── BLOQUEIO DE ARQUIVOS SENSÍVEIS ──────────────────────────────
