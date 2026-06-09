@@ -122,7 +122,8 @@ async function enviarLead(e){
 async function loadBio(){
   const u=new URLSearchParams(location.search).get('u');
   if(!u){renderState('Sem usuário','Use o link no formato /bio.html?u=seu_username');return;}
-  const {data,error}=await sb.from('perfis').select('*').eq('username',u).maybeSingle();
+  // select limitado: só campos públicos da bio (não expõe a linha inteira)
+  const {data,error}=await sb.from('perfis').select('user_id,username,nome,bio,foto_url,cor,whatsapp,botoes').eq('username',u).maybeSingle();
   if(error){renderState('Ops','Não foi possível carregar esta página agora.');return;}
   if(!data){renderState('Não encontrado','Esta bio não existe ou ainda não foi publicada.');return;}
   renderBio(data);

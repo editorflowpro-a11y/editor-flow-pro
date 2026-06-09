@@ -5,7 +5,7 @@
 // Secrets necessários (Supabase → Edge Functions → Secrets):
 //   SUPABASE_URL     = default (automático no Supabase)
 //   SERVICE_ROLE_KEY = sua service_role key
-//   KIWIFY_TOKEN     = 12x6rk20uii
+//   KIWIFY_TOKEN     = (segredo do webhook — NÃO commitar aqui)
 // ================================================================
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -25,10 +25,15 @@ Deno.serve(async (req) => {
     return new Response('Method Not Allowed', { status: 405 });
   }
 
+  // FAIL-CLOSED: sem segredo configurado, rejeita tudo (não processa pagamento)
+  if (!KIWIFY_TOKEN) {
+    console.error('KIWIFY_TOKEN não configurado — rejeitando por segurança');
+    return new Response('Webhook secret not configured', { status: 503 });
+  }
   // Valida token na URL (?token=xxx)
   const url   = new URL(req.url);
   const token = url.searchParams.get('token') ?? '';
-  if (KIWIFY_TOKEN && token !== KIWIFY_TOKEN) {
+  if (token !== KIWIFY_TOKEN) {
     console.warn('Webhook REJEITADO: token inválido');
     return new Response('Unauthorized', { status: 401 });
   }

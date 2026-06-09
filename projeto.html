@@ -282,7 +282,8 @@ function renderProjeto(p,comentarios){
 async function load(){
   const id=new URLSearchParams(location.search).get('id');
   if(!id){renderState('Sem projeto','Link inválido.');return;}
-  const {data,error}=await sb.from('projetos').select('*').eq('id',id).maybeSingle();
+  // select limitado: NÃO expõe 'assistente' (custo/margem) na página pública
+  const {data,error}=await sb.from('projetos').select('id,user_id,nome,cliente,status,tipo,valor,prazo,video_url,compartilhado').eq('id',id).maybeSingle();
   if(error){renderState('Ops','Não foi possível carregar este projeto agora.');return;}
   if(!data){renderState('Projeto não encontrado','Este link não existe ou o projeto não está mais compartilhado.');return;}
   let cmts=[];

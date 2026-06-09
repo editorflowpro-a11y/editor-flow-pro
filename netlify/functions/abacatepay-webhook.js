@@ -17,21 +17,20 @@ exports.handler = async (event) => {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  // ── VERIFICAÇÃO DE ASSINATURA ──────────────────────────────────
-  // AbacatePay envia o secret configurado no header X-Webhook-Secret
-  if (WEBHOOK_SECRET) {
-    const h = event.headers;
-    const received =
-      h['x-webhook-secret'] ||
-      h['x-abacate-secret']  ||
-      h['x-abacatepay-secret'];
-
-    if (!received || received !== WEBHOOK_SECRET) {
-      console.warn('Webhook REJEITADO: secret inválido ou ausente');
-      return { statusCode: 401, body: 'Unauthorized' };
-    }
-  } else {
-    console.warn('ATENÇÃO: WEBHOOK_SECRET não configurado — adicione no Netlify + AbacatePay');
+  // ── VERIFICAÇÃO DE ASSINATURA (FAIL-CLOSED) ────────────────────
+  // Sem segredo configurado, rejeita tudo — nunca processa pagamento.
+  if (!WEBHOOK_SECRET) {
+    console.error('WEBHOOK_SECRET não configurado — rejeitando por segurança');
+    return { statusCode: 503, body: 'Webhook secret not configured' };
+  }
+  const h = event.headers;
+  const received =
+    h['x-webhook-secret'] ||
+    h['x-abacate-secret']  ||
+    h['x-abacatepay-secret'];
+  if (!received || received !== WEBHOOK_SECRET) {
+    console.warn('Webhook REJEITADO: secret inválido ou ausente');
+    return { statusCode: 401, body: 'Unauthorized' };
   }
 
   // Parseia o payload
