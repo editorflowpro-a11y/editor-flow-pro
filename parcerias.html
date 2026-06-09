@@ -174,6 +174,11 @@ a{color:inherit;text-decoration:none}
 .f2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .btn-glow{position:relative;background:linear-gradient(135deg,var(--accent),var(--purple));color:#fff;border:none;border-radius:11px;padding:12px 20px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 8px 22px -8px var(--accent-glow);transition:transform .2s}
 .btn-glow:hover{transform:translateY(-2px)}
+.btn-sec{background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--border);border-radius:11px;padding:12px 18px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .18s}
+.btn-sec:hover{border-color:var(--accent);color:#fff}
+.cupom-box{display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px dashed rgba(74,109,255,.45);border-radius:12px;background:rgba(74,109,255,.06);flex-wrap:wrap}
+.cupom-code{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:22px;font-weight:800;letter-spacing:2px;color:var(--accent-light)}
+.cupom-msg{padding:14px 15px;border:1px solid var(--border);border-radius:11px;background:rgba(255,255,255,.03);font-size:13px;color:var(--text2);line-height:1.65;white-space:pre-wrap}
 .add-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}.add-row .fi{flex:1;min-width:160px}
 .email-item{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;margin-bottom:8px}
 .email-item .info b{font-size:13.5px;font-weight:600}.email-item .info span{display:block;font-size:11.5px;color:var(--text3);margin-top:2px}
@@ -455,6 +460,28 @@ a{color:inherit;text-decoration:none}
           </div>
           <button class="btn-glow" onclick="salvarPerfil()" style="margin-top:6px">Salvar dados</button>
         </div>
+
+        <!-- ═══ CUPOM DE DIVULGAÇÃO ═══ -->
+        <div class="sec-head" style="margin-top:34px"><div><h2>Cupom de divulgação</h2><div class="sub">Crie seu cupom de 10% de desconto e divulgue para a sua audiência</div></div></div>
+        <div class="panel">
+          <div class="fg"><label class="fl">Seu código de cupom (10% OFF)</label>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+              <input class="fi" id="p-cupom" placeholder="EX: MARIA10" style="text-transform:uppercase;font-weight:700;letter-spacing:1px;max-width:200px" maxlength="16" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"/>
+              <button class="btn-sec" type="button" onclick="sugerirCupom()">Sugerir</button>
+              <button class="btn-glow" type="button" onclick="salvarCupom()">Salvar cupom</button>
+            </div>
+            <div style="font-size:11.5px;color:var(--text3);margin-top:8px">Letras e números, sem espaços. Ex: <b>SEUNOME10</b></div>
+          </div>
+          <div id="cupom-share" style="display:none">
+            <div class="cupom-box">
+              <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Seu cupom ativo</div><span class="cupom-code" id="cupom-code-val">—</span></div>
+              <button class="btn-sec" type="button" onclick="copiarCupomCodigo()" style="margin-left:auto">Copiar código</button>
+            </div>
+            <label class="fl" style="margin-top:18px">Mensagem pronta para divulgar</label>
+            <div class="cupom-msg" id="cupom-msg-txt"></div>
+            <button class="btn-glow" type="button" onclick="copiarCupomMsg()" style="margin-top:12px">Copiar mensagem</button>
+          </div>
+        </div>
       </div>
 
     </div>
@@ -634,7 +661,7 @@ async function checarAcesso(){
   document.getElementById('u-email').textContent=MEU_EMAIL;
   document.getElementById('u-name').textContent=(aut&&aut.nome)||MEU_EMAIL.split('@')[0];
   document.getElementById('u-av').textContent=((aut&&aut.nome)||MEU_EMAIL)[0].toUpperCase();
-  if(aut){document.getElementById('p-nome').value=aut.nome||'';document.getElementById('p-insta').value=aut.instagram||'';document.getElementById('p-tiktok').value=aut.tiktok||'';document.getElementById('p-pix').value=aut.chave_pix||'';document.getElementById('p-banco').value=aut.banco||'';}
+  if(aut){document.getElementById('p-nome').value=aut.nome||'';document.getElementById('p-insta').value=aut.instagram||'';document.getElementById('p-tiktok').value=aut.tiktok||'';document.getElementById('p-pix').value=aut.chave_pix||'';document.getElementById('p-banco').value=aut.banco||'';if(aut.cupom){document.getElementById('p-cupom').value=aut.cupom;mostrarCupom(aut.cupom);}}
   if(IS_ADMIN){
     document.getElementById('admin-nav').style.display='block';
     document.getElementById('admin-newcamp').style.display='block';
@@ -1047,6 +1074,39 @@ async function salvarPerfil(){
   document.getElementById('u-name').textContent=rec.nome||MEU_EMAIL.split('@')[0];
   toast('Dados salvos!','var(--green)');
 }
+
+// ── CUPOM DE DIVULGAÇÃO ──
+const CUPOM_SITE='https://editorflow.pro';
+function cupomMsg(code){
+  return `🎬 Você edita vídeo e vive na correria pra organizar clientes, prazos e cobrança?\n\nConheça o Editor Flow Pro — projetos, clientes, faturamento e até uma IA que cuida das suas finanças, tudo num só lugar.\n\nUsa o meu cupom ${code} e ganha 10% de desconto: ${CUPOM_SITE}`;
+}
+function sugerirCupom(){
+  const nome=(document.getElementById('p-nome').value||MEU_EMAIL.split('@')[0]||'').trim();
+  const base=(nome.split(/\s+/)[0]||'PARCEIRO').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12)||'PARCEIRO';
+  document.getElementById('p-cupom').value=base+'10';
+}
+function mostrarCupom(code){
+  const box=document.getElementById('cupom-share');
+  if(!code){box.style.display='none';return;}
+  document.getElementById('cupom-code-val').textContent=code;
+  document.getElementById('cupom-msg-txt').textContent=cupomMsg(code);
+  box.style.display='block';
+}
+async function salvarCupom(){
+  const code=(document.getElementById('p-cupom').value||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(code.length<3){toast('Cupom muito curto (mínimo 3 caracteres).','var(--red)');return;}
+  const {error}=await sb.from('parceiros_autorizados').update({cupom:code}).eq('email',MEU_EMAIL);
+  if(error){
+    if(/duplicate|unique/i.test(error.message||''))toast('Esse cupom já está em uso por outro parceiro. Escolha outro.','var(--red)');
+    else if(/cupom|column/i.test(error.message||''))toast('Rode supabase-cupons.sql no Supabase para ativar.','var(--amber)');
+    else toast('Erro: '+error.message,'var(--red)');
+    return;
+  }
+  mostrarCupom(code);
+  toast('Cupom salvo! Já pode divulgar. 🎉','var(--green)');
+}
+function copiarCupomCodigo(){const c=document.getElementById('cupom-code-val').textContent;navigator.clipboard.writeText(c).then(()=>toast('Código copiado!','var(--green)')).catch(()=>{});}
+function copiarCupomMsg(){const m=document.getElementById('cupom-msg-txt').textContent;navigator.clipboard.writeText(m).then(()=>toast('Mensagem copiada!','var(--green)')).catch(()=>{});}
 
 // ── UTIL ──
 function openHowItWorks(){document.getElementById('modal-how').classList.add('open');}

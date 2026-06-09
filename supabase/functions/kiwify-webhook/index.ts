@@ -136,25 +136,43 @@ Deno.serve(async (req) => {
   const fimPeriodo = new Date();
   fimPeriodo.setDate(fimPeriodo.getDate() + 30);
 
-  const { error } = await sb
-    .from('assinantes')
-    .upsert(
-      {
-        email:         email,
-        status:        'ativo',
-        plano:         planoInfo.plano,
-        valor:         planoInfo.valor,
-        fim_periodo:   fimPeriodo.toISOString(),
-        atualizado_em: new Date().toISOString(),
-      },
-      { onConflict: 'email' }
-    );
+  // ── Cupom de parceiro (atribuição) ───────────────────────────
+  // Kiwify pode mandar o cupom em vários campos — tenta todos.
+  const cupom = (
+    payload.Coupon?.code   ??
+    payload.coupon?.code   ??
+    payload.Coupon         ??
+    payload.coupon         ??
+    payload.coupon_code    ??
+    payload.order?.coupon_code ??
+    payload.Commissions?.coupon ??
+    ''
+  ).toString().toUpperCase().trim() || null;
+  if (cupom) console.log(`cupom usado: ${cupom}`);
+
+  const rec: Record<string, unknown> = {
+    email:         email,
+    status:        'ativo',
+    plano:         planoInfo.plano,
+    valor:         planoInfo.valor,
+    fim_periodo:   fimPeriodo.toISOString(),
+    atualizado_em: new Date().toISOString(),
+  };
+  // só grava o cupom quando vier um (não apaga atribuição em renovação sem cupom)
+  if (cupom) rec.parceiro_cupom = cupom;
+
+  let { error } = await sb.from('assinantes').upsert(rec, { onConflict: 'email' });
+  // fail-safe: se a coluna parceiro_cupom ainda não existir, salva sem ela (cobrança não quebra)
+  if (error && /parceiro_cupom|column/i.test(error.message ?? '') && rec.parceiro_cupom) {
+    delete rec.parceiro_cupom;
+    ({ error } = await sb.from('assinantes').upsert(rec, { onConflict: 'email' }));
+  }
 
   if (error) {
     console.error('Erro Supabase:', error);
     return new Response('Erro ao salvar no banco', { status: 500 });
   }
 
-  console.log(`✅ Assinante ativado: ${email} | Plano: ${planoInfo.plano} | offer_id: ${ofertaId} | Até: ${fimPeriodo.toLocaleDateString('pt-BR')}`);
+  console.log(`✅ Assinante ativado: ${email} | Plano: ${planoInfo.plano} | offer_id: ${ofertaId} | cupom: ${cupom ?? '—'} | Até: ${fimPeriodo.toLocaleDateString('pt-BR')}`);
   return new Response('OK', { status: 200 });
 });
