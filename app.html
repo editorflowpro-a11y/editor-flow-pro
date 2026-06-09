@@ -435,6 +435,29 @@ textarea.form-i{resize:vertical;font-family:'Inter',sans-serif}
 .ia-fab:hover{transform:translateY(-2px) scale(1.04);box-shadow:0 16px 40px -8px var(--accent-glow)}
 .ia-fab svg{width:26px;height:26px}
 .ia-fab.hide{display:none}
+/* ── SUPORTE (botão acima do chat IA) ── */
+.support-fab{position:fixed;right:22px;bottom:90px;z-index:300;width:48px;height:48px;border-radius:50%;border:1px solid var(--border);cursor:pointer;color:var(--text);background:var(--surface2);box-shadow:0 8px 24px -8px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;transition:transform .2s,border-color .2s,color .2s}
+.support-fab:hover{transform:translateY(-2px);border-color:var(--accent);color:var(--accent-light)}
+.support-fab svg{width:22px;height:22px}
+.support-fab.hide{display:none}
+.support-pop{position:fixed;right:22px;bottom:90px;z-index:301;width:360px;max-width:calc(100vw - 32px);max-height:calc(100vh - 130px);background:var(--surface);border:1px solid var(--border2);border-radius:18px;box-shadow:0 30px 70px -16px rgba(0,0,0,.75);display:none;flex-direction:column;overflow:hidden;animation:slideUp .2s}
+.support-pop.open{display:flex}
+.sp-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(74,109,255,.12),transparent)}
+.sp-title{font-size:14px;font-weight:700}
+.sp-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.sp-body{padding:14px 16px;overflow-y:auto}
+.sp-lbl{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.sp-q{border:1px solid var(--border);border-radius:11px;margin-bottom:7px;overflow:hidden;background:var(--surface2)}
+.sp-q-head{padding:11px 13px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px;font-weight:600;user-select:none}
+.sp-q-head .chev{transition:transform .25s;flex-shrink:0;color:var(--muted);display:flex}
+.sp-q.open .chev{transform:rotate(180deg);color:var(--accent-light)}
+.sp-q-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.sp-q.open .sp-q-body{max-height:260px}
+.sp-q-body p{padding:0 13px 12px;font-size:12.5px;color:var(--text2);line-height:1.6}
+.sp-wa{display:flex;align-items:center;justify-content:center;gap:9px;margin-top:14px;padding:13px;border-radius:12px;background:#25d366;color:#053d1e;font-weight:700;font-size:14px;text-decoration:none;transition:.18s}
+.sp-wa:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.sp-mail{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:9px;padding:11px;border-radius:11px;border:1px solid var(--border);color:var(--text2);font-size:13px;font-weight:600;text-decoration:none;transition:.18s}
+.sp-mail:hover{border-color:var(--accent);color:var(--accent-light)}
 .ia-pop{position:fixed;right:22px;bottom:90px;z-index:301;width:370px;max-width:calc(100vw - 32px);height:520px;max-height:calc(100vh - 130px);background:var(--surface);border:1px solid var(--border2);border-radius:18px;box-shadow:0 30px 70px -16px rgba(0,0,0,.75);display:none;flex-direction:column;overflow:hidden;animation:slideUp .2s}
 .ia-pop.open{display:flex}
 .ia-pop-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(74,109,255,.12),transparent)}
@@ -452,7 +475,7 @@ textarea.form-i{resize:vertical;font-family:'Inter',sans-serif}
 .ia-chip:hover{border-color:var(--accent);color:var(--text)}
 .ia-input{display:flex;gap:8px;padding:14px;border-top:1px solid var(--border)}
 .ia-input .form-i{flex:1}
-@media(max-width:560px){.ia-msg{max-width:90%}.ia-pop{right:12px;left:12px;width:auto;bottom:84px;height:auto;top:70px;max-height:none}.ia-fab{right:16px;bottom:16px}}
+@media(max-width:560px){.ia-msg{max-width:90%}.ia-pop{right:12px;left:12px;width:auto;bottom:84px;height:auto;top:70px;max-height:none}.ia-fab{right:16px;bottom:16px}.support-fab{right:16px;bottom:84px}.support-pop{right:12px;left:12px;width:auto;bottom:84px;top:70px;max-height:none}}
 </style>
 </head>
 <body>
@@ -668,6 +691,47 @@ textarea.form-i{resize:vertical;font-family:'Inter',sans-serif}
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- SUPORTE — botão flutuante (acima do chat IA) -->
+<button class="support-fab" id="support-fab" onclick="toggleSupport()" title="Suporte" aria-label="Suporte">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M9.2 9.3a2.9 2.9 0 0 1 5.6 1c0 1.9-2.8 2.5-2.8 4"/><circle cx="12" cy="17" r=".6" fill="currentColor" stroke="none"/></svg>
+</button>
+<div class="support-pop" id="support-pop">
+  <div class="sp-head">
+    <div><div class="sp-title">Suporte</div><div class="sp-sub">Dúvidas frequentes &amp; atendimento</div></div>
+    <button class="btn-ghost btn-sm" onclick="closeSupport()" data-ic="close" data-ic-size="14"></button>
+  </div>
+  <div class="sp-body">
+    <div class="sp-lbl">Perguntas frequentes</div>
+    <div class="sp-q">
+      <div class="sp-q-head" onclick="toggleSupportQ(this)">Como compartilho o vídeo com meu cliente?<span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+      <div class="sp-q-body"><p>Abra o projeto e toque em <b>Compartilhar</b> ou <b>Copiar link</b>. Envie o link ao cliente — ele assiste à prévia e comenta com a minutagem exata, sem precisar criar conta.</p></div>
+    </div>
+    <div class="sp-q">
+      <div class="sp-q-head" onclick="toggleSupportQ(this)">Quais os limites do meu plano?<span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+      <div class="sp-q-body"><p><b>Basic:</b> 3 clientes e 5 projetos ativos por cliente. <b>Pro:</b> 15 clientes e projetos ilimitados. <b>Premium:</b> tudo ilimitado. Veja e troque seu plano em <b>Meu Perfil</b>.</p></div>
+    </div>
+    <div class="sp-q">
+      <div class="sp-q-head" onclick="toggleSupportQ(this)">Marquei o projeto errado como pago.<span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+      <div class="sp-q-body"><p>É só abrir o projeto e trocar o <b>status</b> de volta (A Fazer, Concluído ou Pago). O faturamento do mês se ajusta automaticamente.</p></div>
+    </div>
+    <div class="sp-q">
+      <div class="sp-q-head" onclick="toggleSupportQ(this)">A IA respondeu errado ou não respondeu.<span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+      <div class="sp-q-body"><p>A IA usa seus dados reais. Se algo parecer errado, recarregue a página (Ctrl+Shift+R) e pergunte de novo. Cada plano tem um limite diário de perguntas.</p></div>
+    </div>
+    <div class="sp-q">
+      <div class="sp-q-head" onclick="toggleSupportQ(this)">Como cancelo minha assinatura?<span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+      <div class="sp-q-body"><p>Em <b>Meu Perfil → Cancelar assinatura</b>. Sem multa: o acesso continua até o fim do período já pago.</p></div>
+    </div>
+    <a class="sp-wa" href="https://wa.me/5586999378829?text=Ol%C3%A1!%20Preciso%20de%20ajuda%20com%20o%20Editor%20Flow%20Pro." target="_blank" rel="noopener">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.06 2.87 1.21 3.07.15.2 2.09 3.2 5.07 4.49.71.31 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.09 1.77-.72 2.02-1.42.25-.7.25-1.29.17-1.42-.07-.13-.27-.2-.57-.35zM12 2a10 10 0 0 0-8.6 15.07L2 22l5.05-1.32A10 10 0 1 0 12 2z"/></svg>
+      Falar no WhatsApp
+    </a>
+    <a class="sp-mail" href="mailto:editorflowpro@gmail.com?subject=Suporte%20Editor%20Flow%20Pro">
+      <span data-ic="mail" data-ic-size="15"></span> Enviar e-mail
+    </a>
   </div>
 </div>
 
@@ -1300,7 +1364,7 @@ async function saveProfile(){
   renderUserChip();toast('Perfil atualizado!');closeModal('modal-profile');
 }
 async function cancelarAssinatura(){
-  if(!await askConfirm({tipo:'danger',icon:'alert',title:'Cancelar assinatura',message:'Sua conta <b>permanece ativa até o fim do período já pago</b>. O cancelamento é processado pelo AbacatePay — vamos abrir seu e-mail para você concluir a solicitação.',confirmText:'Solicitar cancelamento',cancelText:'Manter assinatura'}))return;
+  if(!await askConfirm({tipo:'danger',icon:'alert',title:'Cancelar assinatura',message:'Sua conta <b>permanece ativa até o fim do período já pago</b>. O cancelamento é processado pela Kiwify — vamos abrir seu e-mail para você concluir a solicitação.',confirmText:'Solicitar cancelamento',cancelText:'Manter assinatura'}))return;
   const assunto=encodeURIComponent('Cancelamento de assinatura — Editor Flow Pro');
   const corpo=encodeURIComponent(`Olá, gostaria de cancelar minha assinatura.\n\nEmail da conta: ${cu.email}\nPlano: ${planoLabel(meuPlano)}`);
   window.location.href=`mailto:${SUPPORT_EMAIL}?subject=${assunto}&body=${corpo}`;
@@ -2376,8 +2440,25 @@ function renderIA(){
   document.getElementById('ia-suggest').innerHTML=iaMsgs.length===0?IA_SUGEST.map(s=>`<button class="ia-chip" onclick="iaAsk('${s.replace(/'/g,"\\'")}')">${s}</button>`).join(''):'';
   wrap.scrollTop=wrap.scrollHeight;
 }
-function toggleIA(){const pop=document.getElementById('ia-pop');const open=pop.classList.toggle('open');document.getElementById('ia-fab').classList.toggle('hide',open);if(open){renderIA();setTimeout(()=>document.getElementById('ia-pergunta').focus(),60);}}
-function closeIA(){document.getElementById('ia-pop').classList.remove('open');document.getElementById('ia-fab').classList.remove('hide');}
+function toggleIA(){
+  const pop=document.getElementById('ia-pop');const willOpen=!pop.classList.contains('open');
+  document.getElementById('support-pop').classList.remove('open'); // fecha o suporte
+  pop.classList.toggle('open',willOpen);
+  document.getElementById('ia-fab').classList.toggle('hide',willOpen);
+  document.getElementById('support-fab').classList.toggle('hide',willOpen);
+  if(willOpen){renderIA();setTimeout(()=>document.getElementById('ia-pergunta').focus(),60);}
+}
+function closeIA(){document.getElementById('ia-pop').classList.remove('open');document.getElementById('ia-fab').classList.remove('hide');document.getElementById('support-fab').classList.remove('hide');}
+/* ── SUPORTE ── */
+function toggleSupport(){
+  const pop=document.getElementById('support-pop');const willOpen=!pop.classList.contains('open');
+  document.getElementById('ia-pop').classList.remove('open'); // fecha a IA
+  pop.classList.toggle('open',willOpen);
+  document.getElementById('support-fab').classList.toggle('hide',willOpen);
+  document.getElementById('ia-fab').classList.toggle('hide',willOpen);
+}
+function closeSupport(){document.getElementById('support-pop').classList.remove('open');document.getElementById('support-fab').classList.remove('hide');document.getElementById('ia-fab').classList.remove('hide');}
+function toggleSupportQ(head){head.closest('.sp-q').classList.toggle('open');}
 function iaAsk(q){document.getElementById('ia-pergunta').value=q;enviarIA();}
 async function enviarIA(){
   if(iaLoading)return;
