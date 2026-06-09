@@ -1238,8 +1238,8 @@ const PLAN_LABELS={basic:'Basic',pro:'Pro',premium:'Premium'};
 function planoLabel(p){return PLAN_LABELS[(p||'basic').toLowerCase()]||'Basic';}
 const PLANS=[
   {id:'basic',nome:'Basic',preco:'Grátis',desc:'O essencial para quem está começando.',feats:['Até 3 clientes · 5 projetos ativos/cliente','Dashboard financeiro completo','Ranking de clientes','Aprovação de vídeos com comentários','5 mensagens de IA por dia']},
-  {id:'pro',nome:'Pro',preco:'R$ 19,90/mês',desc:'Para o freelancer que quer escalar.',feats:['Até 15 clientes · projetos ilimitados','Contratos personalizados (6 modelos)','Bio personalizada + Google Drive','Cobranças automáticas','25 mensagens de IA por dia']},
-  {id:'premium',nome:'Premium',preco:'R$ 29,90/mês',desc:'Para quem vive de edição.',feats:['Clientes e projetos ilimitados','Todos os 12 contratos personalizados','Captura de leads pela bio','100 mensagens de IA por dia','Suporte prioritário']}
+  {id:'pro',nome:'Pro',preco:'R$ 19,90/mês',desc:'Para o freelancer que quer escalar.',feats:['Até 15 clientes · projetos ilimitados','Contratos personalizados (6 modelos)','Cobranças automáticas','25 mensagens de IA por dia']},
+  {id:'premium',nome:'Premium',preco:'R$ 29,90/mês',desc:'Para quem vive de edição.',feats:['Clientes e projetos ilimitados','Todos os 12 contratos personalizados','Bio personalizada + captura de leads','100 mensagens de IA por dia','Suporte prioritário']}
 ];
 /* limites por plano: clientes no total e projetos POR cliente */
 const PLAN_LIMITS={basic:{clientes:3,projPorCliente:5},pro:{clientes:15,projPorCliente:Infinity},premium:{clientes:Infinity,projPorCliente:Infinity}};
@@ -1248,7 +1248,7 @@ function planLimits(){return PLAN_LIMITS[(meuPlano||'basic').toLowerCase()]||PLA
 /* ── CONTROLE DE ACESSO POR PLANO ── */
 const PLAN_RANK={basic:0,pro:1,premium:2};
 /* funcionalidade → plano mínimo exigido */
-const FEATURE_MIN={bio:'pro',leads:'premium',cobranca:'pro',contratos:'pro'};
+const FEATURE_MIN={bio:'premium',leads:'premium',cobranca:'pro',contratos:'pro'};
 function planRank(){return PLAN_RANK[(meuPlano||'basic').toLowerCase()]??0;}
 function hasFeature(feat){const min=FEATURE_MIN[feat];if(!min)return true;return planRank()>=PLAN_RANK[min];}
 /* quantos contratos cada plano libera (basic 0 · pro 6 · premium 12) */
