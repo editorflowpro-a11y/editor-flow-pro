@@ -135,10 +135,16 @@ tr:hover td{background:rgba(255,255,255,.02)}
   <!-- STATS -->
   <div class="stats">
     <div class="stat"><div class="stat-label">Assinantes Ativos</div><div class="stat-val green" id="s-ativos">—</div></div>
-    <div class="stat"><div class="stat-label">Inativos</div><div class="stat-val amber" id="s-inativos">—</div></div>
+    <div class="stat"><div class="stat-label">Usuários (sem assinatura)</div><div class="stat-val white" id="s-usuarios">—</div></div>
     <div class="stat"><div class="stat-label">Cancelados</div><div class="stat-val red" id="s-cancelados">—</div></div>
-    <div class="stat"><div class="stat-label">Total</div><div class="stat-val white" id="s-total">—</div></div>
-    <div class="stat"><div class="stat-label">MRR</div><div class="stat-val accent" id="s-mrr">—</div></div>
+    <div class="stat"><div class="stat-label">Total de contas</div><div class="stat-val white" id="s-total">—</div></div>
+    <div class="stat"><div class="stat-label">MRR <span style="font-size:9px;opacity:.6">(só pagantes)</span></div><div class="stat-val accent" id="s-mrr">—</div></div>
+  </div>
+
+  <!-- VISÃO: Assinantes (pagantes) vs Usuários (sem assinatura) -->
+  <div class="ftabs" style="margin-bottom:14px">
+    <button class="ftab vtab active" onclick="setView('assinantes',this)">💳 Assinantes</button>
+    <button class="ftab vtab" onclick="setView('usuarios',this)">👤 Usuários</button>
   </div>
 
   <!-- FILTROS -->
@@ -157,7 +163,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <table>
       <thead>
         <tr>
-          <th>Assinante</th>
+          <th>Conta</th>
           <th>Status</th>
           <th>Plano</th>
           <th>Próx. cobrança</th>
@@ -240,6 +246,21 @@ const esc = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'
 let todosAssinantes = [];
 let filtroAtual = 'todos';
 let buscaAtual = '';
+let viewAtual = 'assinantes';
+// "Minhas" contas, excluídas do MRR. Sua conta de admin entra automática no init.
+// Tem outros e-mails de teste seus? Adicione aqui (em minúsculas):
+let ownerEmails = new Set([]);
+
+// ── CLASSIFICAÇÃO ──
+function planoPago(a){const p=(a.plano||'').toLowerCase();return p==='pro'||p==='premium';}
+function ehDemo(a){return !!a.demo;}
+function ehDono(a){return ownerEmails.has((a.email||'').toLowerCase());}
+// Assinante = cliente pagante de verdade (plano pago, fora demos e suas contas)
+function ehAssinante(a){return planoPago(a) && !ehDemo(a) && !ehDono(a);}
+// Usuário = conta SEM assinatura paga (free/basic/trial), fora demos e suas contas
+function ehUsuario(a){return !planoPago(a) && !ehDemo(a) && !ehDono(a);}
+// Pagante (conta no MRR) = assinante com status ativo
+function ehPagante(a){return ehAssinante(a) && a.status==='ativo';}
 
 // ── INIT ──
 async function init() {
@@ -264,6 +285,7 @@ async function init() {
   }
 
   document.getElementById('admin-email').textContent = session.user.email;
+  ownerEmails.add((session.user.email || '').toLowerCase());
   await carregarDados();
 }
 
@@ -284,26 +306,33 @@ async function carregarDados() {
 
 // ── STATS ──
 function atualizarStats() {
-  const pagantes = todosAssinantes.filter(a => !a.demo);
-  const ativos = pagantes.filter(a => a.status === 'ativo').length;
-  const inativos = pagantes.filter(a => a.status === 'inativo').length;
-  const cancelados = pagantes.filter(a => a.status === 'cancelado').length;
-  const PRECO_PLANO = { pro: 19.90, premium: 29.90, basic: 0 };
-  const mrr = pagantes
-    .filter(a => a.status === 'ativo')
-    .reduce((s, a) => s + (parseFloat(a.valor) || PRECO_PLANO[(a.plano || '').toLowerCase()] || 0), 0);
+  const assinantes = todosAssinantes.filter(ehAssinante);     // clientes pagantes
+  const usuarios   = todosAssinantes.filter(ehUsuario);       // contas sem assinatura
+  const ativos     = assinantes.filter(a => a.status === 'ativo');
+  const cancelados = assinantes.filter(a => a.status === 'cancelado').length;
+  // MRR: só pagantes ativos. Trial (plano basic), demos e suas contas já ficam de fora.
+  const PRECO_PLANO = { pro: 19.90, premium: 29.90 };
+  const mrr = ativos.reduce((s, a) => s + (parseFloat(a.valor) || PRECO_PLANO[(a.plano || '').toLowerCase()] || 0), 0);
 
-  document.getElementById('s-ativos').textContent = ativos;
-  document.getElementById('s-inativos').textContent = inativos;
+  document.getElementById('s-ativos').textContent = ativos.length;
+  document.getElementById('s-usuarios').textContent = usuarios.length;
   document.getElementById('s-cancelados').textContent = cancelados;
-  document.getElementById('s-total').textContent = todosAssinantes.length;
+  document.getElementById('s-total').textContent = assinantes.length + usuarios.length;
   document.getElementById('s-mrr').textContent = 'R$' + mrr.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+}
+
+// ── VISÃO (Assinantes / Usuários) ──
+function setView(v, btn) {
+  viewAtual = v;
+  document.querySelectorAll('.vtab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderTabela();
 }
 
 // ── FILTRO ──
 function setFiltro(filtro, btn) {
   filtroAtual = filtro;
-  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.filters .ftab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
   renderTabela();
 }
@@ -315,7 +344,8 @@ function buscar(val) {
 
 // ── RENDER TABELA ──
 function renderTabela() {
-  let lista = todosAssinantes;
+  // base: assinantes (pagantes) ou usuários (sem assinatura) — demos e suas contas já ficam de fora
+  let lista = todosAssinantes.filter(viewAtual === 'usuarios' ? ehUsuario : ehAssinante);
   if (filtroAtual !== 'todos') lista = lista.filter(a => a.status === filtroAtual);
   if (buscaAtual) lista = lista.filter(a =>
     (a.email || '').toLowerCase().includes(buscaAtual) ||
@@ -325,11 +355,11 @@ function renderTabela() {
   const tbody = document.getElementById('tabela-body');
 
   if (!lista.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty">Nenhum assinante encontrado</td></tr>';
+    tbody.innerHTML = `<tr><td colspan="6" class="empty">Nenhum ${viewAtual === 'usuarios' ? 'usuário' : 'assinante'} encontrado</td></tr>`;
     return;
   }
 
-  tbody.innerHTML = lista.filter(a => !a.demo).map(a => {
+  tbody.innerHTML = lista.map(a => {
     const initials = (a.nome || a.email || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
     const badgeClass = a.status === 'ativo' ? 'badge-ativo' : a.status === 'cancelado' ? 'badge-cancelado' : 'badge-inativo';
     const fimPeriodo = a.fim_periodo ? new Date(a.fim_periodo).toLocaleDateString('pt-BR') : '—';
