@@ -1351,7 +1351,7 @@ function openModal(id){
 }
 function closeModal(id){
   document.getElementById(id).classList.remove('open');
-  if(id==='modal-project'){document.getElementById('fp-id').value='';document.getElementById('fp-nome').value='';document.getElementById('fp-valor').value='';document.getElementById('fp-assistente').value='0';document.getElementById('fp-prazo').value='';document.getElementById('fp-video').value=''}
+  if(id==='modal-project'){document.getElementById('fp-id').value='';document.getElementById('fp-nome').value='';document.getElementById('fp-valor').value='';document.getElementById('fp-assistente').value='0';document.getElementById('fp-prazo').value='';document.getElementById('fp-video').value='';document.getElementById('fp-status').value='A Fazer'}
   if(id==='modal-client'){document.getElementById('fc-id').value='';document.getElementById('fc-nome').value='';document.getElementById('fc-email').value='';document.getElementById('fc-tel').value='';document.getElementById('fc-tag').value='';document.getElementById('fc-doc').value='';document.getElementById('fc-foto').value='';setFotoPreview('fc-foto-prev','')}
   if(id==='modal-resumo'){const pl=document.getElementById('resumo-player');if(pl)pl.innerHTML='';curPreview=null;curPlayer={provider:null}}
   if(id==='modal-gasto'){document.getElementById('fg-recorrente').checked=false;document.getElementById('fg-dia').value='';toggleRecorrente()}
