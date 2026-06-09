@@ -464,13 +464,9 @@ a{color:inherit;text-decoration:none}
         <!-- ═══ CUPOM DE DIVULGAÇÃO ═══ -->
         <div class="sec-head" style="margin-top:34px"><div><h2>Cupom de divulgação</h2><div class="sub">Crie seu cupom de 10% de desconto e divulgue para a sua audiência</div></div></div>
         <div class="panel">
-          <div class="fg"><label class="fl">Seu código de cupom (10% OFF)</label>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-              <input class="fi" id="p-cupom" placeholder="EX: MARIA10" style="text-transform:uppercase;font-weight:700;letter-spacing:1px;max-width:200px" maxlength="16" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"/>
-              <button class="btn-sec" type="button" onclick="sugerirCupom()">Sugerir</button>
-              <button class="btn-glow" type="button" onclick="salvarCupom()">Salvar cupom</button>
-            </div>
-            <div style="font-size:11.5px;color:var(--text3);margin-top:8px">Letras e números, sem espaços. Ex: <b>SEUNOME10</b></div>
+          <div class="fg" id="cupom-gerar-wrap"><label class="fl">Cupom de 10% de desconto</label>
+            <div style="font-size:12.5px;color:var(--text3);margin-bottom:13px">Gere um cupom com o seu nome para divulgar à sua audiência. O desconto de 10% é aplicado no checkout.</div>
+            <button class="btn-glow" type="button" onclick="gerarCupom()" id="btn-gerar-cupom">Gerar cupom</button>
           </div>
           <div id="cupom-share" style="display:none">
             <div class="cupom-box">
@@ -661,7 +657,7 @@ async function checarAcesso(){
   document.getElementById('u-email').textContent=MEU_EMAIL;
   document.getElementById('u-name').textContent=(aut&&aut.nome)||MEU_EMAIL.split('@')[0];
   document.getElementById('u-av').textContent=((aut&&aut.nome)||MEU_EMAIL)[0].toUpperCase();
-  if(aut){document.getElementById('p-nome').value=aut.nome||'';document.getElementById('p-insta').value=aut.instagram||'';document.getElementById('p-tiktok').value=aut.tiktok||'';document.getElementById('p-pix').value=aut.chave_pix||'';document.getElementById('p-banco').value=aut.banco||'';if(aut.cupom){document.getElementById('p-cupom').value=aut.cupom;mostrarCupom(aut.cupom);}}
+  if(aut){document.getElementById('p-nome').value=aut.nome||'';document.getElementById('p-insta').value=aut.instagram||'';document.getElementById('p-tiktok').value=aut.tiktok||'';document.getElementById('p-pix').value=aut.chave_pix||'';document.getElementById('p-banco').value=aut.banco||'';if(aut.cupom){mostrarCupom(aut.cupom);}}
   if(IS_ADMIN){
     document.getElementById('admin-nav').style.display='block';
     document.getElementById('admin-newcamp').style.display='block';
@@ -1080,30 +1076,33 @@ const CUPOM_SITE='https://editorflow.pro';
 function cupomMsg(code){
   return `🎬 Você edita vídeo e vive na correria pra organizar clientes, prazos e cobrança?\n\nConheça o Editor Flow Pro — projetos, clientes, faturamento e até uma IA que cuida das suas finanças, tudo num só lugar.\n\nUsa o meu cupom ${code} e ganha 10% de desconto: ${CUPOM_SITE}`;
 }
-function sugerirCupom(){
-  const nome=(document.getElementById('p-nome').value||MEU_EMAIL.split('@')[0]||'').trim();
-  const base=(nome.split(/\s+/)[0]||'PARCEIRO').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12)||'PARCEIRO';
-  document.getElementById('p-cupom').value=base+'10';
-}
 function mostrarCupom(code){
   const box=document.getElementById('cupom-share');
-  if(!code){box.style.display='none';return;}
+  const gen=document.getElementById('cupom-gerar-wrap');
+  if(!code){box.style.display='none';if(gen)gen.style.display='block';return;}
   document.getElementById('cupom-code-val').textContent=code;
   document.getElementById('cupom-msg-txt').textContent=cupomMsg(code);
   box.style.display='block';
+  if(gen)gen.style.display='none';
 }
-async function salvarCupom(){
-  const code=(document.getElementById('p-cupom').value||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
-  if(code.length<3){toast('Cupom muito curto (mínimo 3 caracteres).','var(--red)');return;}
-  const {error}=await sb.from('parceiros_autorizados').update({cupom:code}).eq('email',MEU_EMAIL);
-  if(error){
-    if(/duplicate|unique/i.test(error.message||''))toast('Esse cupom já está em uso por outro parceiro. Escolha outro.','var(--red)');
-    else if(/cupom|column/i.test(error.message||''))toast('Rode supabase-cupons.sql no Supabase para ativar.','var(--amber)');
-    else toast('Erro: '+error.message,'var(--red)');
-    return;
+async function gerarCupom(){
+  const btn=document.getElementById('btn-gerar-cupom');
+  const nome=(document.getElementById('p-nome').value||MEU_EMAIL.split('@')[0]||'').trim();
+  const base=(nome.split(/\s+/)[0]||'PARCEIRO').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12)||'PARCEIRO';
+  if(btn){btn.disabled=true;btn.textContent='Gerando...';}
+  // tenta NOME10, depois NOME10A, NOME10B... (o índice único do banco garante que não repita)
+  const letras='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let saved=null;
+  for(let i=-1;i<letras.length;i++){
+    const code=base+'10'+(i<0?'':letras[i]);
+    const {error}=await sb.from('parceiros_autorizados').update({cupom:code}).eq('email',MEU_EMAIL);
+    if(!error){saved=code;break;}
+    if(/duplicate|unique/i.test(error.message||'')){continue;}       // já existe: tenta a próxima letra
+    if(/cupom|column/i.test(error.message||'')){toast('Rode supabase-cupons.sql no Supabase para ativar.','var(--amber)');break;}
+    toast('Erro: '+error.message,'var(--red)');break;
   }
-  mostrarCupom(code);
-  toast('Cupom salvo! Já pode divulgar. 🎉','var(--green)');
+  if(btn){btn.disabled=false;btn.textContent='Gerar cupom';}
+  if(saved){mostrarCupom(saved);toast('Cupom gerado! Já pode divulgar. 🎉','var(--green)');}
 }
 function copiarCupomCodigo(){const c=document.getElementById('cupom-code-val').textContent;navigator.clipboard.writeText(c).then(()=>toast('Código copiado!','var(--green)')).catch(()=>{});}
 function copiarCupomMsg(){const m=document.getElementById('cupom-msg-txt').textContent;navigator.clipboard.writeText(m).then(()=>toast('Mensagem copiada!','var(--green)')).catch(()=>{});}
