@@ -38,6 +38,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .sec-title{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--accent-light);margin:20px 0 10px;display:flex;align-items:center;gap:7px}
 .pv-frame{position:relative;width:100%;aspect-ratio:16/9;border-radius:14px;overflow:hidden;border:1px solid var(--border);background:#000}
 .pv-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+/* capa do Drive no mobile: preview limpa até tocar (controles do Drive só aparecem depois) */
+.drive-facade{display:none;position:absolute;inset:0;z-index:2;cursor:pointer;background:#0a101d center/cover no-repeat;align-items:center;justify-content:center}
+.drive-play-btn{width:66px;height:66px;border-radius:50%;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;transition:transform .15s}
+.drive-facade:active .drive-play-btn{transform:scale(.92)}
+.drive-play-btn svg{width:30px;height:30px;fill:#fff;margin-left:4px}
 .pv-empty{aspect-ratio:16/9;border:1px dashed var(--border2);border-radius:14px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:13px;padding:20px}
 
 /* ─── Comments ─── */
@@ -83,7 +88,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 /* ── botão abrir Drive ── */
 .drive-btn{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;padding:12px 16px;background:rgba(74,109,255,.1);border:1px solid rgba(74,109,255,.25);border-radius:12px;color:var(--accent-light);font-size:13px;font-weight:600;text-decoration:none;transition:all .2s}
 .drive-btn:hover{background:rgba(74,109,255,.2);transform:translateY(-1px)}
-@media(max-width:600px){.pv-frame{aspect-ratio:9/16;height:auto;max-width:320px;margin-left:auto;margin-right:auto}}
+@media(max-width:600px){.pv-frame{aspect-ratio:9/16;height:auto;max-width:320px;margin-left:auto;margin-right:auto}.drive-facade{display:flex}}
 @media(max-width:480px){.wrap{padding:28px 14px 50px}.glass-card{padding:18px}.p-name{font-size:19px}.mini .rm-v{font-size:18px}}
 </style>
 </head>
@@ -229,7 +234,7 @@ function renderProjeto(p,comentarios){
     playerHtml='<div class="pv-frame"><div id="p-iframe" style="position:absolute;inset:0;width:100%;height:100%"></div></div>';
   }else if(e.provider==='drive'){
     /* iframe em todas as telas + botão de abrir no Drive (fallback útil no mobile) */
-    playerHtml=`<div class="pv-frame drive"><iframe id="p-iframe" src="${e.src}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div><a class="drive-btn" href="https://drive.google.com/file/d/${e.id}/view" target="_blank" rel="noopener">${ic('film',14)} Abrir no Google Drive</a>`;
+    playerHtml=`<div class="pv-frame drive"><iframe id="p-iframe" src="${e.src}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe><div class="drive-facade" onclick="this.style.display='none'" style="background-image:url(https://drive.google.com/thumbnail?id=${e.id}&sz=w800)"><div class="drive-play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div></div><a class="drive-btn" href="https://drive.google.com/file/d/${e.id}/view" target="_blank" rel="noopener">${ic('film',14)} Abrir no Google Drive</a>`;
   }else{
     /* Vimeo: adiciona ?api=1 para postMessage funcionar */
     playerHtml=`<div class="pv-frame"><iframe id="p-iframe" src="${e.src}?api=1" allow="autoplay; fullscreen" allowfullscreen></iframe></div>`;

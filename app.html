@@ -422,7 +422,12 @@ textarea.form-i{resize:vertical;font-family:'Inter',sans-serif}
 .pv-frame{position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#000}
 .pv-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .pv-empty{aspect-ratio:16/9;border:1px dashed var(--border2);border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:13px;padding:20px}
-@media(max-width:640px){.pv-frame{aspect-ratio:9/16;height:auto;max-width:320px;margin-left:auto;margin-right:auto}}
+/* capa do Drive no mobile: preview limpa até tocar */
+.drive-facade{display:none;position:absolute;inset:0;z-index:2;cursor:pointer;background:#0a101d center/cover no-repeat;align-items:center;justify-content:center}
+.drive-play-btn{width:66px;height:66px;border-radius:50%;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;transition:transform .15s}
+.drive-facade:active .drive-play-btn{transform:scale(.92)}
+.drive-play-btn svg{width:30px;height:30px;fill:#fff;margin-left:4px}
+@media(max-width:640px){.pv-frame{aspect-ratio:9/16;height:auto;max-width:320px;margin-left:auto;margin-right:auto}.drive-facade{display:flex}}
 .cmt-add{display:flex;gap:8px}
 .cmt-time{max-width:84px;text-align:center}
 .cmt-item{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border)}
@@ -2345,7 +2350,7 @@ function renderPlayer(url){
     html='<div class="pv-empty">Nenhum vídeo vinculado.<br>Edite o projeto e cole o link do vídeo (Google Drive, YouTube ou Vimeo).</div>';
   }else if(e.provider==='drive'){
     /* iframe em todas as telas + botão de abrir no Drive */
-    html=`<div class="pv-frame drive"><iframe id="resumo-iframe" src="${e.src}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`
+    html=`<div class="pv-frame drive"><iframe id="resumo-iframe" src="${e.src}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe><div class="drive-facade" onclick="this.style.display='none'" style="background-image:url(https://drive.google.com/thumbnail?id=${e.id}&sz=w800)"><div class="drive-play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div></div>`
         +`<a class="drive-btn" href="https://drive.google.com/file/d/${e.id}/view" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;padding:11px;background:rgba(74,109,255,.1);border:1px solid rgba(74,109,255,.25);border-radius:10px;color:var(--accent-light);font-size:13px;font-weight:600;text-decoration:none">${ic('film',14)} Abrir no Google Drive</a>`;
   }else{
     html=`<div class="pv-frame"><iframe id="resumo-iframe" src="${e.src}" allow="autoplay; fullscreen" allowfullscreen></iframe></div>`;
