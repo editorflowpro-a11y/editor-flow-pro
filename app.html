@@ -1017,7 +1017,7 @@ const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 const sb=supabase.createClient(SB_URL,SB_KEY);
 if(window.Chart)Chart.defaults.maintainAspectRatio=false;
 
-let allP=[],allC=[],allG=[],cu=null,finPeriod=0,calDate=new Date(),calSelDay=null,curKanban=null,curResumo=null,curProjFilter='todos',meuPlano='basic',leadsFilter='todos',curLead=null;
+let allP=[],allC=[],allG=[],cu=null,finPeriod=0,calDate=new Date(),calSelDay=null,curKanban=null,curResumo=null,curProjFilter='todos',meuPlano='basic',leadsFilter='todos',curLead=null,allComentarios=[];
 /* ── ASSINATURA / TRIAL ── */
 let meuPlanoPago='basic',trialEnds=null,trialUsado=false;
 const ci={};
@@ -1101,8 +1101,22 @@ function toast(msg,color='var(--accent2)'){const t=document.createElement('div')
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebar-overlay').classList.toggle('open')}
 
 /* ── NOTIFICAÇÕES ── */
+function notifSeenKey(){return 'ef_notif_seen_'+(cu?cu.id:'anon');}
+function getNotifSeen(){try{return localStorage.getItem(notifSeenKey())||'';}catch(e){return '';}}
+function setNotifSeen(){try{localStorage.setItem(notifSeenKey(),new Date().toISOString());}catch(e){}}
 function computeNotifs(){
   const out=[],now=new Date();
+  // comentários do cliente primeiro (feedback novo é o mais importante)
+  const seen=getNotifSeen();
+  const projById={};allP.forEach(p=>projById[p.id]=p);
+  (allComentarios||[]).slice(0,12).forEach(c=>{
+    const p=projById[c.projeto_id];
+    const unread=!seen||((c.criado_em||'')>seen);
+    out.push({t:'comment',unread,ic:ic('comment',16),bg:'rgba(74,109,255,.15)',color:'var(--accent-light)',
+      title:`Comentário${p?' em '+escHtml(p.nome):''}`,
+      desc:`${escHtml(c.autor||'Cliente')}: ${escHtml(c.texto||'')}`,
+      projetoId:c.projeto_id});
+  });
   allP.filter(isLate).forEach(p=>out.push({t:'late',ic:ic('clock',16),bg:'rgba(239,68,68,.15)',color:'var(--red)',title:'Projeto atrasado',desc:`${escHtml(p.nome)} · ${escHtml(p.cliente||'—')} · venceu ${fmtD(p.prazo)}`,page:'projetos',filtro:'atrasados'}));
   const t0=new Date(now.getFullYear(),now.getMonth(),now.getDate());
   allP.forEach(p=>{if(!p.prazo||p.status==='Pago'||p.status==='Concluído')return;const diff=Math.round((new Date(p.prazo+'T00:00:00')-t0)/86400000);if(diff>=0&&diff<=3)out.push({t:'due',ic:ic('calendar',16),bg:'rgba(245,158,11,.15)',color:'var(--amber)',title:diff===0?'Prazo é hoje':`Prazo em ${diff} dia${diff>1?'s':''}`,desc:`${p.nome} · ${p.cliente||'—'}`,page:'projetos'});});
@@ -1113,20 +1127,27 @@ function computeNotifs(){
 function updateNotifs(){
   const n=computeNotifs();window.__notifs=n;
   const urgent=n.filter(x=>x.t==='late'||x.t==='due').length;
+  const unreadC=n.filter(x=>x.t==='comment'&&x.unread).length;
+  const total=urgent+unreadC;
   const badge=document.getElementById('notif-badge');
   if(!badge)return;
-  if(urgent>0){badge.textContent=urgent>9?'9+':urgent;badge.classList.add('show')}else badge.classList.remove('show');
+  if(total>0){badge.textContent=total>9?'9+':total;badge.classList.add('show')}else badge.classList.remove('show');
   document.getElementById('notif-body').innerHTML=n.length
-    ? n.map((x,i)=>`<div class="notif-item" onclick="notifGo(${i})"><div class="notif-ic" style="background:${x.bg};color:${x.color}">${x.ic}</div><div style="flex:1;min-width:0"><div class="notif-title">${escHtml(x.title)}</div><div class="notif-desc">${x.desc}</div></div></div>`).join('')
+    ? n.map((x,i)=>`<div class="notif-item" onclick="notifGo(${i})"><div class="notif-ic" style="background:${x.bg};color:${x.color}">${x.ic}</div><div style="flex:1;min-width:0"><div class="notif-title">${escHtml(x.title)}${x.unread?' <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-left:4px;vertical-align:middle"></span>':''}</div><div class="notif-desc">${x.desc}</div></div></div>`).join('')
     : '<div class="empty">Tudo em dia 🎉</div>';
 }
 function notifGo(i){
   const x=(window.__notifs||[])[i];if(!x)return;closeNotif();
+  if(x.projetoId){openResumo(x.projetoId);return;}
   const nav=[...document.querySelectorAll('.nav-item')].find(b=>(b.getAttribute('onclick')||'').includes("'"+x.page+"'"));
   goTo(x.page,nav);
   if(x.filtro==='atrasados')setTimeout(()=>{const tab=[...document.querySelectorAll('#proj-tabs .ftab')].find(t=>t.textContent.includes('Atrasados'));if(tab)filterProj('atrasados',tab)},60);
 }
-function toggleNotif(){const open=document.getElementById('notif-panel').classList.toggle('open');document.getElementById('notif-overlay').classList.toggle('open',open)}
+function toggleNotif(){
+  const open=document.getElementById('notif-panel').classList.toggle('open');
+  document.getElementById('notif-overlay').classList.toggle('open',open);
+  if(open){setNotifSeen();updateNotifs();} // marca comentários como lidos e recalcula o badge
+}
 function closeNotif(){document.getElementById('notif-panel').classList.remove('open');document.getElementById('notif-overlay').classList.remove('open')}
 
 async function init(){
@@ -1208,6 +1229,9 @@ async function loadAll(){
   const cb=await sb.from('cobranca').select('*').eq('user_id',cu.id).maybeSingle();
   cobranca=cb.data||null;
   cobrancaTablesMissing=!!(cb.error&&/exist|schema|relation|find the table/i.test(cb.error.message||''));
+  // comentários DO CLIENTE (autor preenchido) p/ notificações
+  const cm=await sb.from('comentarios').select('id,projeto_id,texto,autor,criado_em').eq('user_id',cu.id).not('autor','is',null).order('criado_em',{ascending:false}).limit(40);
+  allComentarios=cm.data||[];
   updateNotifs();
   saveCache();
 }
@@ -1215,12 +1239,12 @@ async function loadAll(){
 /* ── CACHE LOCAL (carrega instantâneo e atualiza em segundo plano) ── */
 const CACHE_PREFIX='ef_cache_';
 function cacheKey(){return CACHE_PREFIX+(cu?cu.id:'anon')}
-function saveCache(){try{localStorage.setItem(cacheKey(),JSON.stringify({p:allP,c:allC,g:allG,leads:allLeads,perfil:meuPerfil,cobranca:cobranca,plano:meuPlano,planoPago:meuPlanoPago,trialEnds:trialEnds,trialUsado:trialUsado,t:Date.now()}))}catch(e){}}
+function saveCache(){try{localStorage.setItem(cacheKey(),JSON.stringify({p:allP,c:allC,g:allG,cm:allComentarios,leads:allLeads,perfil:meuPerfil,cobranca:cobranca,plano:meuPlano,planoPago:meuPlanoPago,trialEnds:trialEnds,trialUsado:trialUsado,t:Date.now()}))}catch(e){}}
 function hydrateCache(){
   try{
     const raw=localStorage.getItem(cacheKey());if(!raw)return false;
     const d=JSON.parse(raw);
-    allP=d.p||[];allC=d.c||[];allG=d.g||[];allLeads=d.leads||[];
+    allP=d.p||[];allC=d.c||[];allG=d.g||[];allComentarios=d.cm||[];allLeads=d.leads||[];
     meuPerfil=d.perfil||null;cobranca=d.cobranca||null;if(d.plano)meuPlano=d.plano;
     if(d.planoPago)meuPlanoPago=d.planoPago;if('trialEnds' in d)trialEnds=d.trialEnds;if('trialUsado' in d)trialUsado=d.trialUsado;
     if(trialEnds!==undefined)meuPlano=effectivePlan();

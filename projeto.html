@@ -208,7 +208,7 @@ async function addComentarioPublico(){
   const msg=document.getElementById('cf-msg'),btn=document.getElementById('cf-btn');
   if(!texto){msg.className='cf-msg err';msg.textContent='Escreva um comentário.';return;}
   btn.disabled=true;btn.textContent='Enviando…';
-  const rec={projeto_id:PROJ.id,user_id:PROJ.user_id,segundos:seg,texto,autor:null,criado_em:new Date().toISOString()};
+  const rec={projeto_id:PROJ.id,user_id:PROJ.user_id,segundos:seg,texto,autor:'Cliente',criado_em:new Date().toISOString()};
   const {data,error}=await sb.from('comentarios').insert(rec).select().maybeSingle();
   btn.disabled=false;btn.textContent='Enviar';
   if(error){msg.className='cf-msg err';msg.textContent='Não foi possível enviar. Tente novamente.';return;}
