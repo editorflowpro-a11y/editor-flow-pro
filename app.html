@@ -372,6 +372,10 @@ textarea.form-i{resize:vertical;font-family:'Inter',sans-serif}
 .notif-ic{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
 .notif-title{font-size:13px;font-weight:600;line-height:1.3}
 .notif-desc{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.notif-section{padding:10px 16px 6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);display:flex;align-items:center;gap:6px;background:var(--surface);border-bottom:1px solid var(--border2)}
+.notif-section svg{width:13px;height:13px}
+.notif-count{margin-left:auto;background:rgba(74,109,255,.15);color:var(--accent-light);border-radius:8px;padding:1px 8px;font-size:10px;font-weight:700;text-transform:none;letter-spacing:0}
+.notif-count.amber{background:rgba(245,158,11,.15);color:var(--amber)}
 /* afasta os botões da topbar do sino fixo */
 .topbar{padding-right:50px}
 @media(max-width:560px){.notif-panel{top:60px}}
@@ -1101,6 +1105,40 @@ function toast(msg,color='var(--accent2)'){const t=document.createElement('div')
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebar-overlay').classList.toggle('open')}
 
 /* ── NOTIFICAÇÕES ── */
+/* som de "ding" sem precisar de arquivo (Web Audio) */
+function playDing(){
+  try{
+    const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;
+    const ctx=new Ctx();
+    const tom=(freq,start,dur,vol)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.value=freq;g.gain.setValueAtTime(0.0001,ctx.currentTime+start);g.gain.exponentialRampToValueAtTime(vol,ctx.currentTime+start+0.02);g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+start+dur);o.start(ctx.currentTime+start);o.stop(ctx.currentTime+start+dur+0.02);};
+    tom(880,0,0.32,0.16); tom(1175,0.12,0.4,0.13); // ding-dong
+    setTimeout(()=>{try{ctx.close()}catch(e){}},800);
+  }catch(e){}
+}
+/* polling: detecta comentário novo do cliente enquanto o app está aberto */
+let _notifPollTimer=null;
+function startNotifPolling(){
+  if(_notifPollTimer)clearInterval(_notifPollTimer);
+  _notifPollTimer=setInterval(pollComentarios,45000); // a cada 45s
+}
+async function pollComentarios(){
+  if(!cu||document.hidden)return;
+  try{
+    const cm=await sb.from('comentarios').select('id,projeto_id,texto,autor,criado_em').eq('user_id',cu.id).not('autor','is',null).order('criado_em',{ascending:false}).limit(40);
+    if(cm.error)return;
+    const novos=cm.data||[];
+    const idsAntigos=new Set(allComentarios.map(c=>c.id));
+    const chegou=novos.find(c=>!idsAntigos.has(c.id));
+    allComentarios=novos;
+    if(chegou){
+      playDing();
+      const p=allP.find(x=>x.id===chegou.projeto_id);
+      toast(`💬 Novo comentário${p?' em '+p.nome:' de cliente'}`,'var(--accent-light)');
+      saveCache();
+    }
+    updateNotifs();
+  }catch(e){}
+}
 function notifSeenKey(){return 'ef_notif_seen_'+(cu?cu.id:'anon');}
 function getNotifSeen(){try{return localStorage.getItem(notifSeenKey())||'';}catch(e){return '';}}
 function setNotifSeen(){try{localStorage.setItem(notifSeenKey(),new Date().toISOString());}catch(e){}}
@@ -1124,17 +1162,30 @@ function computeNotifs(){
   if(arec.length){const tot=arec.reduce((s,p)=>s+(parseFloat(p.valor)||0),0);out.push({t:'recv',ic:ic('money',16),bg:'rgba(16,185,129,.15)',color:'var(--accent2)',title:`${arec.length} pagamento${arec.length>1?'s':''} a receber`,desc:`Total ${fmt(tot)} — concluídos e não pagos`,page:'financeiro'});}
   return out;
 }
+function notifItemHtml(x,i){
+  return `<div class="notif-item" onclick="notifGo(${i})"><div class="notif-ic" style="background:${x.bg};color:${x.color}">${x.ic}</div><div style="flex:1;min-width:0"><div class="notif-title">${escHtml(x.title)}${x.unread?' <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-left:4px;vertical-align:middle"></span>':''}</div><div class="notif-desc">${x.desc}</div></div></div>`;
+}
 function updateNotifs(){
   const n=computeNotifs();window.__notifs=n;
-  const urgent=n.filter(x=>x.t==='late'||x.t==='due').length;
-  const unreadC=n.filter(x=>x.t==='comment'&&x.unread).length;
-  const total=urgent+unreadC;
+  const unreadC=n.filter(x=>x.t==='comment'&&x.unread).length;   // contador SÓ de comentários
+  const urgent=n.filter(x=>x.t==='late'||x.t==='due').length;    // contador de prazos/alertas
+  const total=unreadC+urgent;
   const badge=document.getElementById('notif-badge');
   if(!badge)return;
   if(total>0){badge.textContent=total>9?'9+':total;badge.classList.add('show')}else badge.classList.remove('show');
-  document.getElementById('notif-body').innerHTML=n.length
-    ? n.map((x,i)=>`<div class="notif-item" onclick="notifGo(${i})"><div class="notif-ic" style="background:${x.bg};color:${x.color}">${x.ic}</div><div style="flex:1;min-width:0"><div class="notif-title">${escHtml(x.title)}${x.unread?' <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-left:4px;vertical-align:middle"></span>':''}</div><div class="notif-desc">${x.desc}</div></div></div>`).join('')
-    : '<div class="empty">Tudo em dia 🎉</div>';
+  // render agrupado: Comentários (com contador próprio) e Prazos & alertas (contador próprio)
+  let html='',grpAtual='';
+  n.forEach((x,i)=>{
+    const grp=x.t==='comment'?'c':'a';
+    if(grp!==grpAtual){
+      html+=grp==='c'
+        ? `<div class="notif-section">${ic('comment',13)} Comentários${unreadC?`<span class="notif-count">${unreadC} novo${unreadC>1?'s':''}</span>`:''}</div>`
+        : `<div class="notif-section">${ic('bell',13)} Prazos &amp; alertas${urgent?`<span class="notif-count amber">${urgent}</span>`:''}</div>`;
+      grpAtual=grp;
+    }
+    html+=notifItemHtml(x,i);
+  });
+  document.getElementById('notif-body').innerHTML=html||'<div class="empty">Tudo em dia 🎉</div>';
 }
 function notifGo(i){
   const x=(window.__notifs||[])[i];if(!x)return;closeNotif();
@@ -1182,6 +1233,7 @@ async function init(){
   await loadAll();
   renderUserChip();renderPlanUI();renderNavLocks();renderTrialBanner();
   renderDashboard();
+  startNotifPolling();
 }
 
 /* ── MODAL DE CONFIRMAÇÃO (Promise<boolean>) ── */
