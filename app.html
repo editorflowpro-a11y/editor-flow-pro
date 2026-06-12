@@ -1980,19 +1980,30 @@ async function doDelete(tipo,id){
   else renderGastos();
   toast('Removido!');
   saveCache();
-  // ── Delete no banco, confirmando o que foi de fato removido ──
-  const {data:del,error}=await sb.from(tab).delete().eq('id',id).eq('user_id',cu.id).select();
-  if(error||!del||!del.length){
-    // Falhou de verdade (erro ou nenhuma linha removida) → restaura o estado real do banco
-    toast(error?('Erro ao excluir: '+error.message):'Não foi possível excluir este item.','var(--red)');
-    await loadAll();
-    if(tipo==='projeto'){renderProjetos();renderDashboard();}
-    else if(tipo==='cliente')renderClientes();
-    else renderGastos();
-    saveCache();
+  // ── Delete no banco (RLS garante a posse; sem filtro redundante de user_id) ──
+  const {data:del,error}=await sb.from(tab).delete().eq('id',id).select();
+  if(error){
+    toast('Erro ao excluir: '+error.message,'var(--red)');
+    await restaurarPosDelete(tipo);
     return;
   }
-  // Sucesso: o estado otimista já está correto — não recarrega (evita o item "voltar" na tela).
+  if(!del||!del.length){
+    // 0 linhas: confirma se a linha ainda existe pra dar a mensagem certa
+    const {data:chk}=await sb.from(tab).select('id,user_id').eq('id',id).maybeSingle();
+    if(!chk){return;} // na verdade já não existe no banco → exclusão OK, mantém removido
+    // ainda existe mas o RLS bloqueou → posse diferente (dado demo/importado com outro user_id)
+    toast('Este item foi criado em outra conta ou no modo demo, e não pode ser excluído por aqui.','var(--red)');
+    await restaurarPosDelete(tipo);
+    return;
+  }
+  // Sucesso: o estado otimista já está correto.
+}
+async function restaurarPosDelete(tipo){
+  await loadAll();
+  if(tipo==='projeto'){renderProjetos();renderDashboard();}
+  else if(tipo==='cliente')renderClientes();
+  else renderGastos();
+  saveCache();
 }
 
 /* ─────────────── CONTRATOS ─────────────── */
