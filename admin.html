@@ -137,6 +137,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div class="stat"><div class="stat-label">Assinantes Ativos</div><div class="stat-val green" id="s-ativos">—</div></div>
     <div class="stat"><div class="stat-label">Usuários (sem assinatura)</div><div class="stat-val white" id="s-usuarios">—</div></div>
     <div class="stat"><div class="stat-label">Cancelados</div><div class="stat-val red" id="s-cancelados">—</div></div>
+    <div class="stat"><div class="stat-label">🎁 Trials ativos</div><div class="stat-val amber" id="s-trials">—</div></div>
     <div class="stat"><div class="stat-label">Total de contas</div><div class="stat-val white" id="s-total">—</div></div>
     <div class="stat"><div class="stat-label">MRR <span style="font-size:9px;opacity:.6">(só pagantes)</span></div><div class="stat-val accent" id="s-mrr">—</div></div>
   </div>
@@ -145,11 +146,12 @@ tr:hover td{background:rgba(255,255,255,.02)}
   <div class="ftabs" style="margin-bottom:14px">
     <button class="ftab vtab active" onclick="setView('assinantes',this)">💳 Assinantes</button>
     <button class="ftab vtab" onclick="setView('usuarios',this)">👤 Usuários</button>
+    <button class="ftab vtab" onclick="setView('trials',this)">🎁 Trials</button>
   </div>
 
   <!-- FILTROS -->
   <div class="filters">
-    <div class="ftabs">
+    <div class="ftabs" id="status-filtros">
       <button class="ftab active" onclick="setFiltro('todos',this)">Todos</button>
       <button class="ftab" onclick="setFiltro('ativo',this)">Ativos</button>
       <button class="ftab" onclick="setFiltro('inativo',this)">Inativos</button>
@@ -162,7 +164,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
   <div class="table-wrap">
     <table>
       <thead>
-        <tr>
+        <tr id="thead-row">
           <th>Conta</th>
           <th>Status</th>
           <th>Plano</th>
@@ -261,6 +263,17 @@ function ehAssinante(a){return planoPago(a) && !ehDemo(a) && !ehDono(a);}
 function ehUsuario(a){return !planoPago(a) && !ehDemo(a) && !ehDono(a);}
 // Pagante (conta no MRR) = assinante com status ativo
 function ehPagante(a){return ehAssinante(a) && a.status==='ativo';}
+// Trial = ativou o teste grátis em algum momento (tem trial_ends), fora demos e suas contas
+function ehTrial(a){return (!!a.trial_ends || a.trial_usado===true) && !ehDemo(a) && !ehDono(a);}
+// Situação do trial: convertido / ativo (X dias restantes) / expirado (parado há Y dias)
+function trialInfo(a){
+  const now=new Date();
+  const fim=a.trial_ends?new Date(a.trial_ends):null;
+  if(planoPago(a)) return {tipo:'convertido',label:'Converteu 🎉',cls:'badge-ativo',ord:0,dias:0};
+  if(fim && fim>now){const d=Math.ceil((fim-now)/86400000);return {tipo:'ativo',label:`Ativo · ${d} dia${d>1?'s':''} restante${d>1?'s':''}`,cls:'badge-ativo',ord:1,dias:d};}
+  if(fim){const d=Math.floor((now-fim)/86400000);return {tipo:'expirado',label:`Expirou · parado há ${d} dia${d!==1?'s':''}`,cls:'badge-inativo',ord:2,dias:d};}
+  return {tipo:'usado',label:'Trial usado',cls:'badge-inativo',ord:3,dias:0};
+}
 
 // ── INIT ──
 async function init() {
@@ -314,9 +327,13 @@ function atualizarStats() {
   const PRECO_PLANO = { pro: 19.90, premium: 29.90 };
   const mrr = ativos.reduce((s, a) => s + (parseFloat(a.valor) || PRECO_PLANO[(a.plano || '').toLowerCase()] || 0), 0);
 
+  // trials ativos = ativou o teste, ainda dentro do prazo e ainda não virou pagante
+  const trialsAtivos = todosAssinantes.filter(a => ehTrial(a) && a.trial_ends && new Date(a.trial_ends) > new Date() && !planoPago(a)).length;
+
   document.getElementById('s-ativos').textContent = ativos.length;
   document.getElementById('s-usuarios').textContent = usuarios.length;
   document.getElementById('s-cancelados').textContent = cancelados;
+  document.getElementById('s-trials').textContent = trialsAtivos;
   document.getElementById('s-total').textContent = assinantes.length + usuarios.length;
   document.getElementById('s-mrr').textContent = 'R$' + mrr.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
 }
@@ -326,6 +343,9 @@ function setView(v, btn) {
   viewAtual = v;
   document.querySelectorAll('.vtab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
+  // filtro por status não se aplica a trials
+  const sf = document.getElementById('status-filtros');
+  if (sf) sf.style.display = (v === 'trials') ? 'none' : 'flex';
   renderTabela();
 }
 
@@ -344,15 +364,41 @@ function buscar(val) {
 
 // ── RENDER TABELA ──
 function renderTabela() {
-  // base: assinantes (pagantes) ou usuários (sem assinatura) — demos e suas contas já ficam de fora
+  const head = document.getElementById('thead-row');
+  const tbody = document.getElementById('tabela-body');
+
+  // ── VISÃO TRIALS: quem ativou o teste grátis ──
+  if (viewAtual === 'trials') {
+    head.innerHTML = '<th>Conta</th><th>Situação do trial</th><th>Trial até</th><th>Conta criada</th><th>Ação</th>';
+    let lst = todosAssinantes.filter(ehTrial);
+    if (buscaAtual) lst = lst.filter(a => (a.email||'').toLowerCase().includes(buscaAtual) || (a.nome||'').toLowerCase().includes(buscaAtual));
+    lst.sort((a,b)=>{const ia=trialInfo(a),ib=trialInfo(b);return ia.ord-ib.ord || (ib.dias||0)-(ia.dias||0);});
+    if (!lst.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">Ninguém ativou o teste grátis ainda</td></tr>'; return; }
+    tbody.innerHTML = lst.map(a => {
+      const initials = (a.nome||a.email||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+      const ti = trialInfo(a);
+      const fim = a.trial_ends ? new Date(a.trial_ends).toLocaleDateString('pt-BR') : '—';
+      const criada = new Date(a.criado_em || Date.now());
+      const idade = Math.floor((new Date() - criada) / 86400000);
+      return `<tr>
+        <td><div style="display:flex;align-items:center;gap:10px"><div class="av">${esc(initials)}</div><div><div style="font-weight:600">${esc(a.nome||'—')}</div><div style="font-size:11px;color:var(--muted)">${esc(a.email)}</div></div></div></td>
+        <td><span class="badge ${ti.cls}">${ti.label}</span></td>
+        <td style="color:var(--muted)">${fim}</td>
+        <td style="color:var(--muted)">${criada.toLocaleDateString('pt-BR')}<div style="font-size:10px;opacity:.7">há ${idade} dia${idade!==1?'s':''}</div></td>
+        <td><div class="row-actions"><button class="btn-action btn-delete" onclick="confirmarAcao('${a.id}','excluir','${esc(a.email)}')">Excluir</button></div></td>
+      </tr>`;
+    }).join('');
+    return;
+  }
+
+  // ── VISÃO ASSINANTES / USUÁRIOS ──
+  head.innerHTML = '<th>Conta</th><th>Status</th><th>Plano</th><th>Próx. cobrança</th><th>Desde</th><th>Ação</th>';
   let lista = todosAssinantes.filter(viewAtual === 'usuarios' ? ehUsuario : ehAssinante);
   if (filtroAtual !== 'todos') lista = lista.filter(a => a.status === filtroAtual);
   if (buscaAtual) lista = lista.filter(a =>
     (a.email || '').toLowerCase().includes(buscaAtual) ||
     (a.nome || '').toLowerCase().includes(buscaAtual)
   );
-
-  const tbody = document.getElementById('tabela-body');
 
   if (!lista.length) {
     tbody.innerHTML = `<tr><td colspan="6" class="empty">Nenhum ${viewAtual === 'usuarios' ? 'usuário' : 'assinante'} encontrado</td></tr>`;
