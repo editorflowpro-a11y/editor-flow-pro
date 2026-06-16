@@ -1234,6 +1234,15 @@ async function init(){
   renderUserChip();renderPlanUI();renderNavLocks();renderTrialBanner();
   renderDashboard();
   startNotifPolling();
+  // veio do "Testar Pro" da landing → oferece ativar o teste grátis
+  if(new URLSearchParams(location.search).get('trial')){
+    history.replaceState(null,'','/app');
+    setTimeout(()=>{
+      if(!trialUsado && !trialAtivo() && (meuPlanoPago||'basic')==='basic') ativarTrial();
+      else if(trialAtivo()) toast('Seu teste Pro já está ativo 🎉','var(--accent2)');
+      else if(trialUsado) toast('Você já usou seu teste grátis. Veja os planos.','var(--amber)');
+    },700);
+  }
 }
 
 /* ── MODAL DE CONFIRMAÇÃO (Promise<boolean>) ── */

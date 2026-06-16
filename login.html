@@ -391,9 +391,12 @@ async function verificarAcesso(email) {
     return;
   }
 
-  // Acesso liberado — redireciona para o app (ou ?next= se vier dos botões de plano)
-  const nextUrl = new URLSearchParams(location.search).get('next') || '';
-  window.location.href = nextUrl.startsWith('https://pay.kiwify.com.br/') ? nextUrl : '/app';
+  // Acesso liberado — redireciona para o app (ou ?next= / ?trial= dos botões de plano)
+  const params = new URLSearchParams(location.search);
+  const nextUrl = params.get('next') || '';
+  if (nextUrl.startsWith('https://pay.kiwify.com.br/')) window.location.href = nextUrl;
+  else if (params.get('trial')) window.location.href = '/app?trial=1';   // botão "Testar Pro"
+  else window.location.href = '/app';
 }
 
 // ── PWA: registra o service worker ──
