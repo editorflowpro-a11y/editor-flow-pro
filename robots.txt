@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /app
+Disallow: /admin
+Disallow: /dashboard-admin
+Disallow: /roteiros
+Disallow: /projeto
+Disallow: /bio
+
+Sitemap: https://editorflow.pro/sitemap.xml
