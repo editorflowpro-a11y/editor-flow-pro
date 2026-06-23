@@ -590,6 +590,7 @@ textarea.form-i{resize:vertical;font-family:'Inter',sans-serif}
     <div class="ftabs" id="fin-tabs">
       <button class="ftab" onclick="setFinPeriod(7,this)">7 dias</button>
       <button class="ftab active" onclick="setFinPeriod(0,this)">Este mês</button>
+      <button class="ftab" onclick="setFinPeriod(30,this)">30 dias</button>
       <button class="ftab" onclick="setFinPeriod(90,this)">90 dias</button>
       <button class="ftab" onclick="setFinPeriod(-1,this)">Este ano</button>
       <button class="ftab" onclick="setFinPeriod(99999,this)">Tudo</button>
@@ -1862,7 +1863,11 @@ function renderFinanceiro(){
   const map={};pF.filter(p=>p.status==='Pago').forEach(p=>{const c=p.cliente||'?';if(!map[c])map[c]={v:0,n:0};map[c].v+=parseFloat(p.valor)||0;map[c].n++});
   const rk=Object.entries(map).sort((a,b)=>b[1].v-a[1].v).slice(0,5);
   const rc=['#f5a623','#9ca3af','#cd7c3f','var(--muted)','var(--muted)'];
-  document.getElementById('fin-ranking').innerHTML=rk.length?rk.map(([name,d],i)=>`<div class="rank-item"><span style="font-family:'Instrument Serif',serif;font-size:16px;color:${rc[i]};width:18px;text-align:center">${i+1}</span><div class="av ${avc(name)}">${ini(name)}</div><div style="flex:1"><div style="font-size:13px;font-weight:600">${name}</div><div style="font-size:11px;color:var(--muted)">${d.n} projeto(s)</div></div><div style="font-family:'Instrument Serif',serif;font-size:15px;color:var(--accent2)">${fmt(d.v)}</div></div>`).join(''):'<div class="empty">Sem dados</div>';
+  document.getElementById('fin-ranking').innerHTML=rk.length?rk.map(([name,d],i)=>{
+    const cli=allC.find(c=>c.nome===name);
+    const av=cli?.foto_url?`<div class="av" style="background-image:url('${cli.foto_url}')"></div>`:`<div class="av ${avc(name)}">${ini(name)}</div>`;
+    return `<div class="rank-item"><span style="font-family:'Instrument Serif',serif;font-size:16px;color:${rc[i]};width:18px;text-align:center">${i+1}</span>${av}<div style="flex:1"><div style="font-size:13px;font-weight:600">${name}</div><div style="font-size:11px;color:var(--muted)">${d.n} projeto(s)</div></div><div style="font-family:'Instrument Serif',serif;font-size:15px;color:var(--accent2)">${fmt(d.v)}</div></div>`;
+  }).join(''):'<div class="empty">Sem dados</div>';
   const pend=pF.filter(p=>p.status==='Concluído');
   document.getElementById('fin-pendentes').innerHTML=pend.length?pend.map(p=>projItem(p)).join(''):'<div class="empty">Nenhum pendente 🎉</div>';
 }
@@ -2063,12 +2068,21 @@ function renderContratos(){
   const saved=getSaved();
   document.getElementById('contratos-ativos-list').innerHTML=saved.length?saved.map(s=>{
     const t=CONTRACT_TEMPLATES.find(x=>x.id===s.tpl);
-    return `<div class="proj-item" onclick="openContrato('${s.tpl}','${s.id}')">
-      <div class="av av-p">${t?t.icon:ic('doc',16)}</div>
-      <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escH(s.data.contratante)||'(sem contratante)'}</div><div style="font-size:11px;color:var(--muted)">${t?t.nome:'Contrato'} · ${fmt(s.data.valor)} · ${fmtD((s.savedAt||'').split('T')[0])}</div></div>
+    const ativo=s.ativo!==false; // contratos antigos (sem o campo) contam como ativos
+    const badge=`<button onclick="event.stopPropagation();ctToggleAtivo('${s.id}')" title="Clique para marcar como ${ativo?'inativo':'ativo'}" style="cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;padding:5px 11px;border-radius:8px;white-space:nowrap;border:1px solid ${ativo?'rgba(16,185,129,.3)':'var(--border)'};background:${ativo?'rgba(16,185,129,.12)':'rgba(255,255,255,.04)'};color:${ativo?'var(--accent2)':'var(--muted)'}">${ativo?'● Ativo':'○ Inativo'}</button>`;
+    return `<div class="proj-item${ativo?'':' ct-off'}" onclick="openContrato('${s.tpl}','${s.id}')">
+      <div class="av av-p" style="${ativo?'':'opacity:.5'}">${t?t.icon:ic('doc',16)}</div>
+      <div style="flex:1;min-width:0;${ativo?'':'opacity:.6'}"><div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escH(s.data.contratante)||'(sem contratante)'}</div><div style="font-size:11px;color:var(--muted)">${t?t.nome:'Contrato'} · ${fmt(s.data.valor)} · ${fmtD((s.savedAt||'').split('T')[0])}</div></div>
+      ${badge}
       <button class="btn-danger btn-sm" onclick="event.stopPropagation();ctExcluir('${s.id}',this)">${ic('trash',12)}</button>
     </div>`;
   }).join(''):'<div class="empty">Nenhum contrato salvo ainda. Escolha um modelo acima.</div>';
+}
+function ctToggleAtivo(id){
+  const arr=getSaved();const i=arr.findIndex(x=>x.id===id);if(i<0)return;
+  arr[i].ativo=!(arr[i].ativo!==false); // alterna (default era ativo)
+  setSaved(arr);renderContratos();
+  toast(arr[i].ativo?'Contrato marcado como ativo':'Contrato marcado como inativo',arr[i].ativo?'var(--accent2)':'var(--amber)');
 }
 
 function openContrato(tplId,savedId){
@@ -2152,7 +2166,7 @@ function ctSalvar(){
   ctRememberPrestador(d);
   const arr=getSaved();const id=document.getElementById('ct-id').value;
   if(id){const i=arr.findIndex(x=>x.id===id);if(i>=0){arr[i].data=d;arr[i].savedAt=new Date().toISOString();}}
-  else{const nid='c'+Date.now();arr.unshift({id:nid,tpl:d.tpl,data:d,savedAt:new Date().toISOString()});document.getElementById('ct-id').value=nid;}
+  else{const nid='c'+Date.now();arr.unshift({id:nid,tpl:d.tpl,data:d,ativo:true,savedAt:new Date().toISOString()});document.getElementById('ct-id').value=nid;}
   setSaved(arr);renderContratos();toast('Contrato salvo!');
 }
 function ctExcluir(id,btn){
